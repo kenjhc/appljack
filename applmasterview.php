@@ -1,0 +1,286 @@
+<?php
+include 'database/db.php';
+
+if (!isset($_SESSION['acctnum'])) {
+    header("Location: appllogin.php");
+    exit();
+}
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+// Default date range to the current month
+$defaultStartDate = date('Y-m-01');
+$defaultEndDate = date('Y-m-t');
+$startdate = isset($_GET['startdate']) ? $_GET['startdate'] : $defaultStartDate;
+$enddate = isset($_GET['enddate']) ? $_GET['enddate'] : $defaultEndDate;
+$startdate = date('Y-m-d', strtotime($startdate)) . " 00:00:00";
+$enddate = date('Y-m-d', strtotime($enddate)) . " 23:59:59";
+
+try {
+
+    // Fetch customers
+    $stmt = $conn->prepare("SELECT custid, custcompany FROM applcust WHERE acctnum = :acctnum ORDER BY custcompany ASC");
+    $stmt->execute(['acctnum' => $_SESSION['acctnum']]);
+    $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch job pools
+    $stmt2 = $conn->prepare("SELECT jobpoolid, jobpoolname, jobpoolurl, arbitrage FROM appljobseed WHERE acctnum = :acctnum");
+    $stmt2->execute(['acctnum' => $_SESSION['acctnum']]);
+    $jobPools = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+    // Data processing for the new table
+    $customerData = [];
+    foreach ($customers as $customer) {
+        $custid = $customer['custid'];
+
+        // Status
+        $statusStmt = $conn->prepare("SELECT COUNT(*) FROM applcustfeeds WHERE custid = :custid AND status = 'active'");
+        $statusStmt->execute(['custid' => $custid]);
+        $status = $statusStmt->fetchColumn() > 0 ? 'Active' : 'Inactive';
+
+        // Budget
+        $budgetStmt = $conn->prepare("SELECT SUM(budget) FROM applcustfeeds WHERE custid = :custid");
+        $budgetStmt->execute(['custid' => $custid]);
+        $budget = $budgetStmt->fetchColumn() ?? 0;
+
+        // Spend, Clicks, and Applies
+        $eventStmt = $conn->prepare("
+            SELECT
+                SUM(CASE WHEN eventtype = 'cpc' THEN cpc ELSE 0 END) AS total_cpc,
+                SUM(CASE WHEN eventtype = 'cpa' THEN cpa ELSE 0 END) AS total_cpa,
+                COUNT(CASE WHEN eventtype = 'cpc' THEN 1 ELSE NULL END) AS clicks,
+                COUNT(CASE WHEN eventtype = 'cpa' THEN 1 ELSE NULL END) AS applies
+            FROM applevents
+            WHERE custid = :custid AND timestamp BETWEEN :startdate AND :enddate
+        ");
+        $eventStmt->execute(['custid' => $custid, 'startdate' => $startdate, 'enddate' => $enddate]);
+        $eventData = $eventStmt->fetch(PDO::FETCH_ASSOC);
+        $total_cpc = $eventData['total_cpc'] ?? 0;
+        $total_cpa = $eventData['total_cpa'] ?? 0;
+        $clicks = $eventData['clicks'] ?? 0;
+        $applies = $eventData['applies'] ?? 0;
+        $spend = $total_cpc + $total_cpa;
+
+        // CPA and CPC
+        $cpa = $applies > 0 ? $spend / $applies : 0;
+        $cpc = $clicks > 0 ? $spend / $clicks : 0;
+
+        // Conversion Rate
+        $conversion_rate = $clicks > 0 ? ($applies / $clicks) * 100 : 0;
+
+        // Num Jobs
+        $numJobsStmt = $conn->prepare("SELECT SUM(numjobs) FROM applcustfeeds WHERE custid = :custid");
+        $numJobsStmt->execute(['custid' => $custid]);
+        $numJobs = $numJobsStmt->fetchColumn() ?? 0;
+
+        $customerData[] = [
+            'custid' => $custid,
+            'custcompany' => $customer['custcompany'],
+            'status' => $status,
+            'budget' => $budget,
+            'spend' => $spend,
+            'clicks' => $clicks,
+            'applies' => $applies,
+            'cpa' => $cpa,
+            'cpc' => $cpc,
+            'conversion_rate' => $conversion_rate,
+            'numjobs' => $numJobs,
+        ];
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Handle job pool deletion
+        if (isset($_POST['delete_jobpoolid'])) {
+            $deleteStmt = $conn->prepare("DELETE FROM appljobseed WHERE jobpoolid = :jobpoolid AND acctnum = :acctnum");
+            $deleteStmt->execute([
+                'jobpoolid' => $_POST['delete_jobpoolid'],
+                'acctnum' => $_SESSION['acctnum']
+            ]);
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit();
+        }
+
+        // Handle customer deletion
+        if (isset($_POST['delete_custid'])) {
+            $custid = $_POST['delete_custid'];
+
+            $conn->beginTransaction();
+            try {
+                $conn->prepare("DELETE FROM applevents WHERE custid = :custid")->execute(['custid' => $custid]);
+                $conn->prepare("DELETE FROM applcustfeeds WHERE custid = :custid")->execute(['custid' => $custid]);
+                $conn->prepare("DELETE FROM applcust WHERE custid = :custid")->execute(['custid' => $custid]);
+                $conn->commit();
+            } catch (Exception $e) {
+                $conn->rollBack();
+                setToastMessage('error', "Failed to delete customer: " . $e->getMessage());
+                exit;
+            }
+
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit();
+        }
+    }
+} catch (PDOException $e) {
+    setToastMessage('error', "Error: " . $e->getMessage()); 
+}
+?>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Customer Accounts</title>
+    <?php include 'header.php'; ?>
+    <script>
+        function confirmDelete(jobPoolName) {
+            return confirm('Are you sure you want to delete this Job Pool: ' + jobPoolName + '?');
+        }
+
+        function confirmDeleteCustomer(customerName) {
+            return confirm('Are you sure you want to delete ' + customerName + '? All data, campaigns and events will be deleted.');
+        }
+    </script>
+</head>
+
+<body>
+    <?php include 'appltopnav.php'; ?>
+    <h1>Account Master View</h1>
+    <?php
+    // Create the XML URL using the current session's account number
+    $acctnum = $_SESSION['acctnum'];
+    $xmlUrl = "https://appljack.com/applfeeds/{$acctnum}.xml";
+    ?>
+    <p><b>Account-Level XML File:</b> <a href="<?= htmlspecialchars($xmlUrl) ?>" target="_blank"><?= htmlspecialchars($xmlUrl) ?></a><br>
+        This XML file combines all the jobs from all the active campaigns across every Customer. This feed has everything that is currently running.</p>
+    <div class="container" style="display: flex; justify-content: space-between;">
+        <div class="section">
+            <h2>Customer Accounts</h2>
+            <a href="applcreatecustomer.php" class="add-customer-button">
+                <i class="fa fa-plus"></i> Add Customer
+            </a>
+
+            <?php if (empty($customers)): ?>
+                <p>No customer accounts found.</p>
+            <?php else: ?>
+                <div class="table-container">
+                    <table class="customers-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>ID</th>
+                                <th>Edit</th>
+                                <th>Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($customers as $customer): ?>
+                                <tr>
+                                    <td><a href="applportal.php?custid=<?= htmlspecialchars($customer['custid']) ?>"><?= htmlspecialchars($customer['custcompany']) ?></a></td>
+                                    <td><?= htmlspecialchars($customer['custid']) ?></td>
+                                    <td class="edit-button-cell">
+                                        <a href="appleditcust.php?custid=<?= $customer['custid'] ?>" class="edit-btn">Edit</a>
+                                    </td>
+                                    <td class="delete-button-cell">
+                                        <form method="POST" class="delete-form" onsubmit="return confirmDeleteCustomer('<?= addslashes(htmlspecialchars($customer['custcompany'])) ?>');">
+                                            <input type="hidden" name="delete_custid" value="<?= $customer['custid'] ?>">
+                                            <button type="submit">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+        <div class="section">
+            <h2>Job Inventory Pools</h2>
+            <a href="applcreatepool.php" class="add-jobpool-button">
+                <i class="fa fa-plus"></i> Add Job Pool
+            </a>
+            <?php if (empty($jobPools)): ?>
+                <p>No job pools found.</p>
+            <?php else: ?>
+                <div class="table-container">
+                    <table class="job-pools-table">
+                        <thead>
+                            <tr>
+                                <th>Job Pool Name</th>
+                                <th>Arbitrage %</th>
+                                <th>URL</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($jobPools as $jobPool): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($jobPool['jobpoolname']) ?></td>
+                                    <td><?= htmlspecialchars(number_format($jobPool['arbitrage'], 2)) ?></td>
+                                    <td><a href="<?= htmlspecialchars($jobPool['jobpoolurl']) ?>"><?= htmlspecialchars($jobPool['jobpoolurl']) ?></a></td>
+                                    <td class="edit-button-cell">
+                                        <a href="appleditjobpool.php?jobpoolid=<?= $jobPool['jobpoolid'] ?>" class="edit-btn">Edit</a>
+                                    </td>
+                                    <td class="delete-button-cell">
+                                        <form method="POST" class="delete-form" onsubmit="return confirmDelete('<?= addslashes(htmlspecialchars($jobPool['jobpoolname'])) ?>');">
+                                            <input type="hidden" name="delete_jobpoolid" value="<?= $jobPool['jobpoolid'] ?>">
+                                            <button type="submit">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <div class="section">
+        <h2>Customer Campaign Overview</h2>
+        <form action="applmasterview.php" method="get">
+            <label for="startdate">Start:</label>
+            <input type="date" id="startdate" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
+            <label for="enddate">End:</label>
+            <input type="date" id="enddate" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
+            <button type="submit">Show Data</button>
+        </form>
+        <div class="table-container">
+            <table class="campaign-overview-table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Status</th>
+                        <th>Budget</th>
+                        <th>Spend</th>
+                        <th>Clicks</th>
+                        <th>Applies</th>
+                        <th>CPA</th>
+                        <th>CPC</th>
+                        <th>Conv. Rate</th>
+                        <th>Num Jobs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($customerData as $data): ?>
+                        <tr>
+                            <td><a href="https://appljack.com/applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
+                            <td><?= htmlspecialchars($data['status']); ?></td>
+                            <td>$<?= number_format($data['budget'], 2); ?></td>
+                            <td>$<?= number_format($data['spend'], 2); ?></td>
+                            <td><?= htmlspecialchars($data['clicks']); ?></td>
+                            <td><?= htmlspecialchars($data['applies']); ?></td>
+                            <td>$<?= number_format($data['cpa'], 2); ?></td>
+                            <td>$<?= number_format($data['cpc'], 2); ?></td>
+                            <td><?= number_format($data['conversion_rate'], 2); ?>%</td>
+                            <td><?= number_format($data['numjobs']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php include 'footer.php'; ?>
+</body>
+
+</html>

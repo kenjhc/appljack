@@ -1,0 +1,703 @@
+@import url("https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap");
+
+/* Resets padding and margin to remove any unwanted space around the elements */
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box; /* Ensures padding doesn't affect overall width/height */
+}
+
+body {
+  font-family: "Arimo", sans-serif;
+  color: black;
+  background-color: #edece8;
+  font-size: 12px;
+}
+
+h1 {
+  color: #333; /* Dark grey color for headers */
+  text-align: left; /* Center align the headers */
+  margin-bottom: 20px;
+}
+
+/* Use a container div for the main content to provide padding */
+.main-content {
+  /*padding-top: 20px;  Space from top */
+  /*padding-bottom: 40px; /* Space from bottom (above the footer) */
+  /*padding-left: 40px;*/
+  /*padding-right: 20px;*/
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1em;
+}
+
+.topnav h1 {
+  color: #fff;
+}
+.topnav {
+  background-color: #2a3d45;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Adjust values as needed */
+}
+
+.topnav a.logo img {
+  height: 100px;
+}
+
+.topnav .nav-links {
+  display: flex;
+}
+
+.topnav .nav-links a {
+  text-decoration: none;
+  color: #fff;
+  padding: 0 12px;
+}
+
+.topnav .nav-links a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .topnav .nav-links {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .topnav a.logo img {
+    height: 80px;
+    width: 80px;
+  }
+}
+
+footer {
+  background-color: #2a3d45;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+  position: relative;
+  bottom: 0;
+  left: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 8px; /* Adjust padding as needed */
+  border-bottom: 1px solid #ddd; /* Add a bottom border to each cell */
+}
+
+th {
+  background-color: #4e6766; /* Light grey background for headers */
+  color: #f3f6f6;
+}
+
+tr {
+  background-color: #f3f6f6;
+}
+
+tr:hover {
+  background-color: #f8dc77; /* Slightly darker background on row hover */
+}
+
+/* Add more space between columns */
+td {
+  min-width: 120px; /* Adjust minimum width as needed */
+}
+
+th,
+td {
+  word-wrap: break-word; /* This ensures content wraps and doesn't overflow */
+  overflow: hidden; /* Keeps content contained within the cell */
+  text-overflow: ellipsis; /* Adds an ellipsis to any text that overflows */
+  max-width: 150px; /* Set a max-width for the cells to control their size */
+}
+
+/* Style for action links to make them more button-like, if desired */
+.actions a {
+  text-decoration: none;
+  color: #fff;
+  background-color: #007bff;
+  padding: 3px 8px;
+  border-radius: 5px;
+  margin-right: 5px; /* Spacing between action buttons */
+}
+
+.actions a:hover {
+  background-color: #0056b3;
+}
+
+form {
+  /* max-width: 600px; */ /* Set a max-width for the form and center it */
+  margin: auto;
+  /* padding: 20px; */
+  /* border: 1px solid #ccc;*/ /* Add a border to the form */
+  /*border-radius: 5px;*/ /* Slightly round corners */
+  /*background-color: #FFF; */
+  /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
+}
+
+.switch-container form {
+  max-width: 300px; /* Set a max-width for the form and center it */
+  margin: 20px;
+  padding: 20px;
+  background-color: #edece8;
+  border: none;
+  box-shadow: none;
+}
+
+label {
+  font-weight: 600;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+select {
+  width: 100%; /* Full width */
+  padding: 10px; /* Some padding inside the input */
+  margin: 8px 0; /* Margin bottom for spacing between fields */
+  display: inline-block;
+  border: 1px solid #ccc; /* A light grey border */
+  border-radius: 4px; /* Rounded borders */
+  box-sizing: border-box; /* Make sure padding does not affect the width */
+}
+
+input[type="submit"],
+button[type="submit"] {
+  width: 100%; /* Full width */
+  background-color: #1e152a; /* Green background */
+  color: white; /* White text */
+  padding: 14px 20px; /* Some padding */
+  margin: 8px 0; /* Margin bottom */
+  border: none; /* No border */
+  border-radius: 4px; /* Rounded borders */
+  cursor: pointer; /* Pointer/hand icon */
+  font-size: 16px; /* Slightly larger font size */
+}
+
+input[type="submit"]:hover,
+button[type="submit"]:hover {
+  background-color: #0a070e; /* Darker green on hover */
+}
+
+/* Add this new style for delete buttons */
+.delete-form {
+  max-width: none; /* Override the max-width for delete form */
+  margin: 0; /* Remove the margin for delete form */
+  padding: 0; /* Remove the padding for delete form */
+  border: none; /* No border for delete form */
+  background-color: transparent; /* Transparent background for delete form */
+  box-shadow: none; /* No shadow for delete form */
+}
+
+.delete-form {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  max-width: fit-content; /* Shrink the width of the form to the size of its content */
+}
+
+/* Smaller and centered delete button */
+.delete-button-cell {
+  /*display: flex;*/
+  align-items: center;
+  justify-content: center;
+}
+
+.section .delete-button-cell .delete-form button[type="submit"] {
+  background-color: #ff4d4d !important; /* Red background */
+  color: white !important; /* White text */
+  padding: 5px 10px !important; /* Smaller padding */
+  border: none !important; /* No border */
+  cursor: pointer !important; /* Pointer/hand icon */
+  font-size: 12px !important; /* Smaller font size */
+  width: auto !important; /* Auto width based on content */
+  box-shadow: none !important; /* No shadow */
+  margin: 0 !important; /* No margin */
+}
+
+.section .delete-button-cell .delete-form button[type="submit"]:hover {
+  background-color: #cc0000 !important; /* Darker red for hover state */
+}
+
+/* Ensure that the buttons are placed correctly */
+.add-customer-button {
+  position: absolute; /* Position the link absolutely in relation to the parent */
+  top: 20px; /* Adjust as needed for your layout */
+  right: 20px; /* Adjust as needed for your layout */
+  background-color: #7aaa4b; /* Choose a background color that fits your design */
+  color: white; /* Text color */
+  padding: 10px 15px; /* Padding inside the button */
+  text-decoration: none; /* Remove underline from the link */
+  border-radius: 5px; /* Optional: if you want rounded corners */
+  font-size: 16px; /* Optional: if you want to adjust the text size */
+  display: flex; /* To align icon and text */
+  align-items: center; /* Align items vertically */
+  gap: 5px; /* Space between icon and text */
+}
+
+/* Ensure that the buttons are placed correctly */
+.downloadcsv-button {
+  position: absolute; /* Position the link absolutely in relation to the parent */
+  top: 20px; /* Adjust as needed for your layout */
+  right: 20px; /* Adjust as needed for your layout */
+  background-color: #7aaa4b; /* Choose a background color that fits your design */
+  color: white; /* Text color */
+  padding: 10px 15px; /* Padding inside the button */
+  text-decoration: none; /* Remove underline from the link */
+  border-radius: 5px; /* Optional: if you want rounded corners */
+  font-size: 16px; /* Optional: if you want to adjust the text size */
+  display: flex; /* To align icon and text */
+  align-items: center; /* Align items vertically */
+  gap: 5px; /* Space between icon and text */
+}
+
+.add-jobpool-button {
+  position: absolute; /* Position the link absolutely in relation to the parent */
+  top: 20px; /* Adjust as needed for your layout */
+  right: 20px; /* Adjust as needed for your layout */
+  background-color: #7aaa4b; /* Choose a background color that fits your design */
+  color: white; /* Text color */
+  padding: 10px 15px; /* Padding inside the button */
+  text-decoration: none; /* Remove underline from the link */
+  border-radius: 5px; /* Optional: if you want rounded corners */
+  font-size: 16px; /* Optional: if you want to adjust the text size */
+  display: flex; /* To align icon and text */
+  align-items: center; /* Align items vertically */
+  gap: 5px; /* Space between icon and text */
+}
+
+.edit-btn {
+  top: 20px;
+  right: 20px;
+  background-color: #7aaa4b;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 12px;
+  align-items: center;
+  gap: 5px;
+}
+
+/* *******CONTENT STYLES*********** */
+
+.main-heading {
+  margin-bottom: 20px; /* Add some space below the heading */
+}
+
+.section {
+  position: relative; /* This will contain the absolute positioning of the buttons */
+  flex-basis: 48%; /* Flex basis controls the initial width of flex items */
+  padding: 20px; /* Add some padding around the content */
+}
+
+/* Adjust positioning for Add buttons */
+.section .add-campaign-button {
+  top: 0; /* Adjust this if necessary to place it within the section */
+  right: 0; /* Place it at the end of the section */
+}
+
+.job-pools-table {
+  width: 100%;
+  table-layout: fixed; /* Keeps the table layout fixed */
+}
+
+.job-pools-table th:nth-child(1),
+.job-pools-table td:nth-child(1) {
+  width: 25%; /* Adjust the percentage as needed */
+}
+
+.job-pools-table th:nth-child(2),
+.job-pools-table td:nth-child(2) {
+  width: 10%; /* Adjust the percentage as needed */
+}
+
+.job-pools-table th:nth-child(3),
+.job-pools-table td:nth-child(3) {
+  width: 35%; /* Adjust the percentage as needed */
+}
+
+.job-pools-table th:nth-child(4),
+.job-pools-table td:nth-child(4),
+.job-pools-table th:nth-child(5),
+.job-pools-table td:nth-child(5) {
+  width: 10%; /* Adjust the percentage as needed */
+}
+
+.job-pools-table .delete-button-cell {
+  /*display: flex;*/
+  justify-content: center; /* Centers the delete button */
+}
+
+.job-pools-table .delete-form button[type="submit"] {
+  background-color: #ff4d4d !important; /* Red background */
+  color: white !important; /* White text */
+  padding: 5px 10px !important; /* Smaller padding */
+  border: none !important; /* No border */
+  cursor: pointer !important; /* Pointer/hand icon */
+  font-size: 12px !important; /* Smaller font size */
+  width: auto !important; /* Auto width based on content */
+  box-shadow: none !important; /* No shadow */
+  margin: 0 !important; /* No margin */
+}
+
+.content-container {
+  display: flex; /* Enables Flexbox layout */
+  justify-content: space-between; /* Centers the child elements horizontally */
+  align-items: flex-start; /* Aligns items to the start of the flex container */
+  max-width: 1200px; /* Adjust this value based on your design */
+  margin: 0 auto; /* Centers the container on the page */
+  gap: 30px; /* More space between form and hints */
+  padding: 20px; /* Padding around the overall container */
+}
+
+.form-container,
+.hints-container {
+  flex: 2; /* Allows both children to grow and share the available space */
+  max-width: 700px; /* Setting a max-width for the form */
+}
+
+.hints-container {
+  background-color: #ffffff; /* Updated to a clean white background */
+  border: 1px solid #dddddd; /* Lighter border color for subtlety */
+  border-radius: 8px; /* Softly rounded corners */
+  box-shadow: 4 6px 6px rgba(0, 0, 0, 0.3); /* Softer shadow for depth */
+  padding: 30px; /* Spacious padding for content */
+  color: #333333; /* Darker font color for readability */
+  margin-top: 20px; /* Separate from other elements */
+  flex: 1; /* Takes up 1/3 of the space */
+}
+
+/* Styling for the lightbulb icon */
+.fa-lightbulb {
+  color: #ffc107; /* Goldish accent color */
+  margin-right: 5px;
+}
+
+.hints-container h2 {
+  display: flex; /* To align the icon with the text */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  text-align: center; /* Ensure text alignment is centered, helpful if flex properties aren't applied as expected */
+  gap: 10px; /* Adds some space between the icon and text */
+  padding: 15px; /* Adds padding inside the box around the text */
+  border-radius: 10px; /* Rounded corners for the box */
+  border-color: #0c0a09;
+  border-style: solid;
+  border-width: 1px;
+  margin: 0 auto; /* Centers the box itself if it has a specified width, remove if not needed */
+  width: 80%; /* Adjust the width as needed, or remove for auto width */
+  margin: 0 auto 20px; /* Centers the box horizontally and adds space below */
+}
+
+.hints-container ul {
+  list-style-type: none; /* Remove default list styling */
+  padding-left: 0; /* Remove default padding */
+}
+
+.hints-container li {
+  position: relative;
+  padding-left: 25px; /* Make space for the icon */
+  margin-bottom: 10px; /* Adds 10px spacing below each list item */
+}
+
+.hints-container li::before {
+  content: "\f0eb"; /* FontAwesome lightbulb icon Unicode */
+  font-family: "Font Awesome 5 Free"; /* Adjust based on the Font Awesome version you use */
+  font-weight: 900; /* Ensure it's bold if using FA5 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #ffc107; /* Goldish accent color */
+}
+
+/* Optional: if you want to remove the margin from the last item for consistency */
+.hints-container li:last-child {
+  margin-bottom: 0; /* Removes the spacing for the last item */
+}
+
+.notes {
+  font-size: 10px;
+  font-style: italic;
+}
+
+.add-campaign-button {
+  position: relative; /* Position the link absolutely in relation to the parent */
+  top: 20px; /* Adjust as needed for your layout */
+  right: 20px; /* Adjust as needed for your layout */
+  background-color: #7aaa4b; /* Choose a background color that fits your design */
+  color: white; /* Text color */
+  padding: 10px 15px; /* Padding inside the button */
+  text-decoration: none; /* Remove underline from the link */
+  border-radius: 5px; /* Optional: if you want rounded corners */
+  font-size: 16px; /* Optional: if you want to adjust the text size */
+  display: flex; /* To align icon and text */
+  align-items: center; /* Align items vertically */
+  gap: 5px; /* Space between icon and text */
+}
+
+.add-campaign-button i {
+  /* Adjust the plus icon styling if necessary */
+}
+
+.add-campaign-button:hover {
+  background-color: #5c8038; /* Darker shade on hover for a button effect */
+}
+
+.left-column {
+  flex: 1; /* Adjust if you want different ratios, currently set to equal width */
+}
+
+.middle-column {
+  flex: 1; /* Adjust if you want different ratios, currently set to equal width */
+}
+
+.right-column {
+  flex: 1; /* Adjust if you want different ratios, currently set to equal width */
+}
+
+.details-container {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  max-width: 400px;
+  /* Same styling as .hints-container */
+}
+
+.table-container {
+  background-color: #4e6766;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
+.edit-feed-button {
+  background-color: #7aaa4b; /* Green background */
+  color: white; /* White text */
+  padding: 10px 15px; /* Padding */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  font-size: 16px; /* Font size */
+  cursor: pointer; /* Hand cursor */
+  display: inline-block; /* To keep it in the flow of the document */
+  margin-top: 10px; /* Space from the previous content */
+  text-decoration: none; /* No underline */
+}
+
+.edit-feed-button:hover {
+  background-color: #5c8038; /* Darker on hover */
+}
+
+.camp-data {
+  font-weight: 600;
+  padding-bottom: 5px;
+}
+
+/* ***** Viewfeed TABS ***** */
+
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+.tab button {
+  background-color: #b9caca;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+.tab button:hover {
+  background-color: #7ec4c9;
+}
+
+.tab button.active {
+  background-color: #61b7bd;
+}
+
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+/* ****** END TABS ****** */
+
+.input-wrapper::before {
+  content: "$";
+  margin-right: 4px;
+}
+
+#budget-wrapper,
+#cpc-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* **** APPLPORTAL CSS */
+
+.details-container,
+.customer-switcher,
+.dashboard-header,
+.table-container {
+  margin-bottom: 1em;
+}
+
+.details-container,
+.date-selector,
+.switch-container {
+  flex: 1; /* Equal growth/shrinkage */
+  min-width: 200px; /* Minimum width for clarity */
+  padding: 0.5rem; /* Consistent padding */
+}
+
+.date-selector form {
+  max-width: 350px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.switch-container {
+  position: relative;
+  top: 20px; /* Adjust as needed */
+  right: 20px; /* Place it at the end of the section */
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+  padding: 8px;
+}
+
+.add-campaign-button {
+  display: inline-block;
+  padding: 0.5em 1em;
+  margin-bottom: 10px;
+}
+
+.top-row {
+  display: flex; /* Use Flexbox for row layout */
+  justify-content: space-between; /* Evenly space items */
+  align-items: center; /* Align items to the center */
+  gap: 1rem; /* Space between elements */
+}
+
+.main-content .top-row {
+  display: flex; /* Use Flexbox to arrange items in a row */
+  justify-content: space-between; /* Space them out evenly */
+  align-items: center; /* Vertically align them */
+  gap: 1rem; /* Add space between items for clarity */
+}
+
+/* **** Viewfeed.php *** */
+#spendChart {
+  height: 200px;
+}
+
+/* **** editfeed.php *** */
+.campaign-container {
+  max-width: 1200px; /* Adjust as needed */
+  margin: auto;
+}
+
+.campaign-edit-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px; /* Spacing between rows */
+}
+
+.campaign-edit-column {
+  flex: 1; /* Each column takes equal width */
+  padding: 10px; /* Spacing inside each column */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow to make the boxes stand out */
+  background-color: #ffffff; /* Background color for the boxes */
+  margin: 0 10px; /* Spacing between columns */
+  box-sizing: border-box; /* Includes padding and border in the element's width and height */
+}
+
+.campaign-edit-column h2 {
+  background-color: #f2f2f2; /* Light grey background for headers */
+  padding: 10px;
+  margin-top: 0;
+  border-bottom: 1px solid #ccc; /* Subtle line under the header */
+}
+
+.campaign-edit-input {
+  width: 100%; /* Make inputs expand to full width of the column */
+  padding: 8px;
+  margin-top: 6px; /* Spacing above the input */
+  margin-bottom: 16px; /* Spacing below the input */
+  box-sizing: border-box; /* Includes padding and border in the element's width and height */
+}
+
+.campaign-edit-button {
+  background-color: #4caf50; /* Green background for the submit button */
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  padding: 10px;
+}
+
+.campaign-edit-button:hover {
+  background-color: #45a049; /* Darker green when hovered */
+}
+
+.stopcampaigncontainer {
+  max-width: 250px;
+  margin: auto;
+}
+
+.d-flex {
+  display: flex;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.gap-1 {
+  gap: 4px;
+}
+.gap-2 {
+  gap: 6px;
+}
