@@ -3,7 +3,7 @@ on:
     branches:
       development
       
-name: 🚀 Deploy website on push
+name: 🚀 Deploy Appljack on development server
 jobs:
   web-deploy:
     name: 🎉 Deploy
