@@ -52,7 +52,7 @@ try {
         exit;
     }
 } catch (PDOException $e) {
-    // Handle connection error
+    // Handle connection error 
     die('Database connection failed: ' . $e->getMessage());
 }
 
