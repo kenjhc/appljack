@@ -1,0 +1,22 @@
+on: 
+  push:
+    branches:
+      development
+
+jobs:
+    deploy_job:
+      runs-on: ubuntu-latest
+      name: deploy
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+        - name: Deploy file
+          uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+          with:
+            username: appljack_autodeploy@appljack.com
+            server: 69.167.170.128
+            port: 21
+            local_path: './css/*'
+            remote_path: '/'
+            sftp_only: false
+            password: HubcapAftBruinsMother74
