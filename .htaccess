@@ -1,0 +1,12 @@
+# Enable PHP error reporting
+php_flag display_errors on
+php_value error_reporting 32767
+
+# Optional: Set custom error log file location
+# php_value error_log /path/to/your/error.log
+
+# Custom 404 Error Page (remove this line if you want the server’s default 404 page)
+# ErrorDocument 404 /404.php
+
+# Use default error pages for other types of errors
+# (no custom ErrorDocument directives for 500 errors or others)
