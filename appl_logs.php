@@ -1,6 +1,6 @@
 <?php
 include 'database/db.php';
-
+echo "No....";
 // Pagination variables
 $limit = 50; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
