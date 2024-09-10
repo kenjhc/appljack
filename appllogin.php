@@ -10,6 +10,9 @@ if (isset($_POST['login'])) {
 
     // Query the database for user
     $query = $db->prepare("SELECT acctnum, acctpw, acctrole FROM applacct WHERE acctemail = ?");
+    if (!$query) {
+        handleDbError("Prepare failed: " . $db->error);
+    }
     $query->bind_param("s", $custemail);
     $query->execute();
 

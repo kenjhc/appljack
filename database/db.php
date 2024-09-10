@@ -70,3 +70,13 @@ function checkPermissions(array $restrictedPages, array $roleRestrictedPages)
         exit();
     }
 }
+
+
+// Custom error handling function
+function handleDbError($errorMessage)
+{
+    error_log("[" . date('Y-m-d H:i:s') . "] " . $errorMessage);
+    // Display a user-friendly message 
+    setToastMessage('error', 'A database error occurred. Please try again later.');
+    exit;
+}
