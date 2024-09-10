@@ -25,6 +25,7 @@ try {
         $stmt = $conn->prepare("INSERT INTO appljobseed (jobpoolid, acctnum, jobpoolname, jobpoolurl, jobpoolfiletype, arbitrage) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$jobpoolid, $acctnum, $jobpoolname, $jobpoolurl, $jobpoolfiletype, $arbitrage]);
 
+        setToastMessage('success', 'Job Pool added successfully.');
         // Redirect to the master view page after successful insertion
         header("Location: applmasterview.php");
         exit();
