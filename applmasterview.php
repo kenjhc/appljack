@@ -5,10 +5,7 @@ if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();
 }
-
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
+  
 // Default date range to the current month
 $defaultStartDate = date('Y-m-01');
 $defaultEndDate = date('Y-m-t');

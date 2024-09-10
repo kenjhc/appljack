@@ -10,3 +10,21 @@
 
 # Use default error pages for other types of errors
 # (no custom ErrorDocument directives for 500 errors or others)
+
+# Deny access to specific files or folders
+<FilesMatch "(^.*\.env$|^.*\.ini$|db\.php|config\.php)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Deny access to an entire folder
+<Directory "database">
+    Order allow,deny
+    Deny from all
+</Directory>
+
+# Return 403 Forbidden instead of default error page
+ErrorDocument 403 "Access Denied"
+
+# Prevent directory browsing
+Options -Indexes

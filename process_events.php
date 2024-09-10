@@ -1,9 +1,6 @@
 <?php
 include 'database/db.php';
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
+ 
 // Path to the event log file
 $logFilePath = '/chroot/home/appljack/appljack.com/html/appljack_event_log.txt';
 
