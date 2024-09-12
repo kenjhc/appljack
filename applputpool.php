@@ -1,12 +1,12 @@
 <?php
 include 'database/db.php';
- 
+
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();
 }
- 
-try { 
+
+try {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $jobpoolid = $_POST['jobpoolid'] ?? '';
         $acctnum = $_POST['acctnum'] ?? '';
@@ -16,9 +16,9 @@ try {
         $arbitrage = floatval($_POST['arbitrage']);
 
         if ($arbitrage > 100) {
-          $_SESSION['error'] = "Arbitrage percentage cannot be more than 100.";
-          header("Location: applcreatepool.php");
-          exit();
+            $_SESSION['error'] = "Arbitrage percentage cannot be more than 100.";
+            header("Location: applcreatepool.php");
+            exit();
         }
 
         // Assume all fields are properly validated before insertion
@@ -37,4 +37,3 @@ try {
     header("Location: applcreatepool.php"); // Redirect back to the form if there is an error
     exit();
 }
-?>
