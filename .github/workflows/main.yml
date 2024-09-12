@@ -1,16 +1,31 @@
-on: 
+name: 🚀 Deploy Appljack on production server
+
+on:
   push:
     branches:
-      master
-      
-name: 🚀 Deploy Appljack on production server
+      - master
+  pull_request:
+    branches:
+      - master
+
 jobs:
-  web-deploy:
+  build:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
     - name: 🚚 Get latest code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v2
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.3'
+        tools: composer
+    - run: composer install
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12'
+    - run: npm install yarn
+    - run: yarn install
+    - run: yarn build
     
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@3.1.1
@@ -18,3 +33,5 @@ jobs:
         ftp-server: 69.167.170.128
         ftp-username: proddeploy@appljack.com
         ftp-password: App1j@ck_dev01$
+        local-dir: ./
+        git-ftp-args: --dry-run
