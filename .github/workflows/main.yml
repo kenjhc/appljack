@@ -1,9 +1,9 @@
 on: 
   push:
     branches:
-      development
+      master
       
-name: 🚀 Deploy Appljack on development server
+name: 🚀 Deploy Appljack on production server
 jobs:
   web-deploy:
     name: 🎉 Deploy
