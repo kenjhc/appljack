@@ -14,6 +14,9 @@ $scriptName = isset($_GET['script']) ? $db->real_escape_string($_GET['script']) 
 // Fetch unique script names for filter
 $scriptQuery = "SELECT DISTINCT script_name FROM appl_logs ORDER BY script_name";
 $scriptResult = $db->query($scriptQuery);
+if (!$scriptResult) {
+    handleDbError("Prepare failed: " . $db->error);
+}
 $scripts = $scriptResult->fetch_all(MYSQLI_ASSOC);
 
 // Prepare SQL query
@@ -287,35 +290,43 @@ $db->close();
             <tbody>
                 <?php
                 $count = (($page * $limit) - ($limit - 1));
-                while ($row = $result->fetch_assoc()):
-                    // Determine the background color based on the log level
-                    $backgroundColor = '';
-                    switch ($row['log_level']) {
-                        case 'error':
-                            $backgroundColor = '#f8d7da'; // Light red
-                            break;
-                        case 'warning':
-                            $backgroundColor = '#fff3cd'; // Light yellow
-                            break;
-                        case 'success':
-                            $backgroundColor = '#d4edda'; // Light green
-                            break;
-                        default:
-                            $backgroundColor = '#f8f9fa'; // Light gray for others
-                            break;
-                    }
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()):
+                        // Determine the background color based on the log level
+                        $backgroundColor = '';
+                        switch ($row['log_level']) {
+                            case 'error':
+                                $backgroundColor = '#f8d7da'; // Light red
+                                break;
+                            case 'warning':
+                                $backgroundColor = '#fff3cd'; // Light yellow
+                                break;
+                            case 'success':
+                                $backgroundColor = '#d4edda'; // Light green
+                                break;
+                            default:
+                                $backgroundColor = '#f8f9fa'; // Light gray for others
+                                break;
+                        }
                 ?>
-                    <tr style="background-color: <?= htmlspecialchars($backgroundColor) ?>;">
-                        <td><?= htmlspecialchars($count) ?></td>
-                        <td><?= ucwords(htmlspecialchars($row['log_type'])) ?></td>
-                        <td><?= ucwords(htmlspecialchars($row['log_level'])) ?></td>
-                        <td><?= htmlspecialchars($row['script_name']) ?></td>
-                        <td><?= htmlspecialchars($row['message']) ?></td>
-                        <td><?= htmlspecialchars($row['timestamp']) ?></td>
+                        <tr style="background-color: <?= htmlspecialchars($backgroundColor) ?>;">
+                            <td><?= htmlspecialchars($count) ?></td>
+                            <td><?= ucwords(htmlspecialchars($row['log_type'])) ?></td>
+                            <td><?= ucwords(htmlspecialchars($row['log_level'])) ?></td>
+                            <td><?= htmlspecialchars($row['script_name']) ?></td>
+                            <td><?= htmlspecialchars($row['message']) ?></td>
+                            <td><?= htmlspecialchars($row['timestamp']) ?></td>
+                        </tr>
+                    <?php
+                        $count++;
+                    endwhile;
+                } else {
+                    ?>
+                    <tr>
+                        <td colspan="6" class="text-center">No logs found.</td>
                     </tr>
                 <?php
-                    $count++;
-                endwhile;
+                }
                 ?>
             </tbody>
         </table>

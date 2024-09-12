@@ -1,9 +1,6 @@
 <?php
 include 'database/db.php';
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
+ 
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();

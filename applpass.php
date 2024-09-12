@@ -5,11 +5,7 @@ include 'database/db.php';
 ini_set("error_log", "/chroot/home/appljack/appljack.com/html/applpass7.log");
 
 error_log("Script started...");
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
+ 
 // Extract query parameters
 $custid = $_GET['c'] ?? 'default';
 $feedid = $_GET['f'] ?? 'default';

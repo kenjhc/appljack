@@ -5,10 +5,7 @@ include 'database/db.php';
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();
-}
-
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+} 
 
 $error = ''; // Initialize $error to avoid undefined variable notices
 $jobpoolid = $_GET['jobpoolid'] ?? ''; // Ensure $jobpoolid is initialized before use

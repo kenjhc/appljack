@@ -1,10 +1,7 @@
 <?php
 
 include 'database/db.php';
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+ 
 
 // Define default dates to cover the current month's range
 $defaultStartDate = date('Y-m-01');
