@@ -8,7 +8,7 @@ const dbConfig = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   charset: process.env.DB_CHARSET,
-};
+}; 
 
 const logToDatabase = async (
   logLevel,
@@ -19,9 +19,8 @@ const logToDatabase = async (
   const error = new Error();
   const stackLine = error.stack.split("\n")[2]; // Get the third line from the stack trace
   const lineNumber = stackLine.match(/:(\d+):\d+\)$/)?.[1]; // Extract the line number
-
+  
   const connection = await mysql.createConnection(dbConfig);
-
   const scriptTxt = `${lineNumber + ":" ?? "-"} ${scriptName}`;
   try {
     await connection.execute(

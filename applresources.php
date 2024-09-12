@@ -5,10 +5,7 @@ if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php"); // Redirect to login page if not authenticated
     exit();
 }
-
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
+ 
 try {
     $acctnum = $_SESSION['acctnum'];
 

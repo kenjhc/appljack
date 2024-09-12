@@ -1,0 +1,29 @@
+# Enable PHP error reporting
+# php_flag display_errors on
+# php_value error_reporting 32767
+
+# Optional: Set custom error log file location
+# php_value error_log /path/to/your/error.log
+
+# Custom 404 Error Page (remove this line if you want the server’s default 404 page)
+# ErrorDocument 404 /404.php
+
+# Use default error pages for other types of errors
+# (no custom ErrorDocument directives for 500 errors or others)
+
+# Deny access to specific files or folders
+<FilesMatch "^(\.env|\.ini|db\.php|config\.php)$">
+    Require all denied
+</FilesMatch>
+
+# Deny access to an entire folder
+# <Directory "database">
+#     Order allow,deny
+#     Deny from all
+# </Directory>
+
+# Return 403 Forbidden instead of default error page
+ErrorDocument 403 "Access Denied"
+
+# Prevent directory browsing
+Options -Indexes

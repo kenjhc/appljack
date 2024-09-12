@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
 session_start();
 
 include __DIR__ . "/../utils/misc_func.php";
@@ -65,4 +69,21 @@ function checkPermissions(array $restrictedPages, array $roleRestrictedPages)
         header('Location: applmasterview.php');
         exit();
     }
+}
+
+
+// Custom error handling function
+function handleDbError($errorMessage)
+{
+    // Check if the URL starts with 'dev.'
+    if (strpos($_SERVER['HTTP_HOST'], 'dev.') === 0) {
+        // Display the full error message
+        echo "Database error: " . htmlspecialchars($errorMessage);
+    } else {
+        // Log the error message
+        error_log("[" . date('Y-m-d H:i:s') . "] " . $errorMessage);
+        // Display a user-friendly message
+        echo "A database error occurred. Please try again later.";
+    }
+    exit;
 }

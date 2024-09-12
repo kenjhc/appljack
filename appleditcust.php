@@ -5,11 +5,7 @@ include 'database/db.php';
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();
-}
-
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
+} 
 include 'header.php';
 
 // Fetch job pool names and ids for the dropdown
