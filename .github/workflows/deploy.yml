@@ -1,9 +1,9 @@
 on: 
   push:
     branches:
-      production
+      development
       
-name: 🚀 Deploy Appljack on production server
+name: 🚀 Deploy Appljack on development server
 jobs:
   web-deploy:
     name: 🎉 Deploy
@@ -16,5 +16,5 @@ jobs:
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: 69.167.170.128
-        username: proddeploy@appljack.com
-        password: App1j@ck_dev01$
+        username: appljack_autodeploy@appljack.com
+        password: HubcapAftBruinsMother74
