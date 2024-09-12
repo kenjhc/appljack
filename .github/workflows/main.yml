@@ -1,9 +1,9 @@
 on: 
   push:
     branches:
-      master
+      development
       
-name: 🚀 Deploy Appljack on production server
+name: 🚀 Deploy Appljack on development server
 jobs:
   web-deploy:
     name: 🎉 Deploy
@@ -13,9 +13,8 @@ jobs:
       uses: actions/checkout@v4
     
     - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@3.1.1
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        ftp-server: 69.167.170.128
-        ftp-username: proddeploy@appljack.com
-        ftp-password: App1j@ck_dev01$
-        git-ftp-args: --dry-run
+        server: 69.167.170.128
+        username: proddeploy@appljack.com
+        password: App1j@ck_dev01$
