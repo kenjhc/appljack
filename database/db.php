@@ -86,5 +86,4 @@ function handleDbError($errorMessage)
         echo "A database error occurred. Please try again later.";
     }
     exit;
-} 
-  
+}
