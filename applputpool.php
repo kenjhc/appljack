@@ -29,7 +29,7 @@ try {
         // Redirect to the master view page after successful insertion
         header("Location: applmasterview.php");
         exit();
-    }
+    } 
 } catch (PDOException $e) {
     // Log error or handle it as required
     $error = "Database error: " . $e->getMessage();

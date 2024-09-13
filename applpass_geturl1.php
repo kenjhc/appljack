@@ -1,6 +1,6 @@
 <?php
 include 'database/db.php';
-
+die("122");
 // Set the default error log file location
 ini_set("error_log", "/chroot/home/appljack/appljack.com/html/applpass6.log");
 
@@ -31,7 +31,7 @@ if ($job_reference === 'default' || $jobpoolid === 'default') {
 $query = $db->prepare("SELECT url FROM appljobs WHERE job_reference = ? AND jobpoolid = ?");
 if (!$query) {
     error_log("Prepare failed: " . $db->error);
-    exit;
+    exit; 
 }
 $query->bind_param("ss", $job_reference, $jobpoolid);
 $query->execute();

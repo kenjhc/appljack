@@ -26,7 +26,7 @@ function loadEnv($file)
     }
 
     return $vars;
-}
+} 
 
 // Database configuration from .env file
 $host = $env['DB_HOST'];
