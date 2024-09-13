@@ -67,7 +67,7 @@ $eventData = [
 error_log("Event data to write: " . json_encode($eventData));
 
 // Attempt to write event data to a JSON file
-$file_path = '/chroot/home/appljack/appljack.com/html/applpass_queue.json';
+$file_path = '/chroot/home/appljack/appljack.com/html/admin/applpass_queue.json';
 $write_result = file_put_contents($file_path, json_encode($eventData) . PHP_EOL, FILE_APPEND | LOCK_EX);
 
 // Log the result of the file write operation
