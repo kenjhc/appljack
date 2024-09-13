@@ -1,6 +1,6 @@
 <?php
 include 'database/db.php';
-
+die("122");
 // Set the default error log file location
 ini_set("error_log", "/chroot/home/appljack/appljack.com/html/applpass6.log");
 
