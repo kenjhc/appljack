@@ -1,21 +1,24 @@
-// require("dotenv").config();
-
 const mysql = require("mysql");
 const fs = require("fs");
 const moment = require("moment-timezone"); // Import moment-timezone
-const { logMessage, logToDatabase } = require("./utils/helpers");
 const config = require("./config");
 
 // Create a connection pool
 const pool = mysql.createPool({
+  connectionLimit: 10,
   host: config.host,
   user: config.username,
   password: config.password,
   database: config.database,
-  charset: config.charset,
 });
 
-const logFilePath = "applcleanevents.log";
+// Logging function to write messages to a log file
+const logMessage = (message) => {
+  const timestamp = new Date().toISOString();
+  const log = `${timestamp} - ${message}\n`;
+  fs.appendFileSync("applcleanevents.log", log);
+  console.log(log);
+};
 
 // Function to generate the correct time range in EDT timezone
 const generateTimeRange = () => {
@@ -30,21 +33,15 @@ const generateTimeRange = () => {
 };
 
 const moveDuplicateRecordsInBatches = (batchSize) => {
-  logMessage(`Script started processing.`, logFilePath);
+  logMessage("Script started processing.");
 
   let batchNumber = 1;
 
   const processBatch = () => {
-    logMessage(`Starting batch ${batchNumber}...`, logFilePath);
+    logMessage(`Starting batch ${batchNumber}...`);
 
     const { startTime, endTime } = generateTimeRange();
-    logMessage(`Start Time: ${startTime}, End Time: ${endTime}`, logFilePath);
-
-    logToDatabase(
-      "warning",
-      "applcleaneventstime.js",
-      `Start Time: ${startTime}, End Time: ${endTime}`
-    );
+    logMessage(`Start Time: ${startTime}, End Time: ${endTime}`);
 
     const duplicateQuery = `
       SELECT t1.id, t1.eventid, t1.timestamp, t1.ipaddress, t1.jobid, t1.feedid
@@ -61,28 +58,11 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
       LIMIT ${batchSize};
     `;
 
-    logMessage(
-      `Executing duplicate query at ${new Date().toISOString()}...`,
-      logFilePath
-    );
-    logToDatabase(
-      "warning",
-      "applcleaneventstime.js",
-      `Executing duplicate query at ${new Date().toISOString()}...`
-    );
+    logMessage(`Executing duplicate query at ${new Date().toISOString()}...`);
 
     pool.query(duplicateQuery, (error, results) => {
       if (error) {
-        logMessage(
-          `Error executing duplicate query: ${error.message}`,
-          logFilePath
-        );
-        logToDatabase(
-          "error",
-          "applcleaneventstime.js",
-          `Error executing duplicate query: ${error.message}`
-        );
-
+        logMessage(`Error executing duplicate query: ${error.message}`);
         pool.end();
         return;
       }
@@ -91,51 +71,22 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
         logMessage(
           `No more duplicate records found. Completed processing ${
             batchNumber - 1
-          } batches.`,
-          logFilePath
-        );
-        logToDatabase(
-          "success",
-          "applcleaneventstime.js",
-          `No more duplicate records found. Completed processing ${
-            batchNumber - 1
           } batches.`
         );
-
         pool.end();
         return;
       }
 
       logMessage(
-        `Batch ${batchNumber}: Found ${results.length} duplicate records.`,
-        logFilePath
-      );
-      logToDatabase(
-        "warning",
-        "applcleaneventstime.js",
         `Batch ${batchNumber}: Found ${results.length} duplicate records.`
       );
 
       const duplicateIds = results.map((row) => row.id).join(",");
-      logMessage(
-        `Batch ${batchNumber}: Duplicate IDs: ${duplicateIds}`,
-        logFilePath
-      );
-      logToDatabase(
-        "warning",
-        "applcleaneventstime.js",
-        `Batch ${batchNumber}: Duplicate IDs: ${duplicateIds}`
-      );
+      logMessage(`Batch ${batchNumber}: Duplicate IDs: ${duplicateIds}`);
 
       pool.getConnection((err, connection) => {
         if (err) {
-          logMessage(`Error getting connection: ${err.message}`, logFilePath);
-          logToDatabase(
-            "error",
-            "applcleaneventstime.js",
-            `Error getting connection: ${err.message}`
-          );
-
+          logMessage(`Error getting connection: ${err.message}`);
           pool.end();
           return;
         }
@@ -143,12 +94,6 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
         connection.beginTransaction((transactionError) => {
           if (transactionError) {
             logMessage(
-              `Error starting transaction: ${transactionError.message}`,
-              logFilePath
-            );
-            logToDatabase(
-              "error",
-              "applcleaneventstime.js",
               `Error starting transaction: ${transactionError.message}`
             );
             connection.release();
@@ -166,12 +111,6 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
           connection.query(insertQuery, (insertError, insertResults) => {
             if (insertError) {
               logMessage(
-                `Error executing insert query: ${insertError.message}`,
-                logFilePath
-              );
-              logToDatabase(
-                "error",
-                "applcleaneventstime.js",
                 `Error executing insert query: ${insertError.message}`
               );
               return connection.rollback(() => {
@@ -181,25 +120,14 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
             }
 
             logMessage(
-              `Batch ${batchNumber}: Inserted ${insertResults.affectedRows} rows into appleventsdel.`,
-              logFilePath
+              `Batch ${batchNumber}: Inserted ${insertResults.affectedRows} rows into appleventsdel.`
             );
-            logToDatabase(
-              "success",
-              "applcleaneventstime.js",
-              `Batch ${batchNumber}: Inserted ${insertResults.affectedRows} rows into appleventsdel`
-            );
+
             const deleteQuery = `DELETE FROM applevents WHERE id IN (${duplicateIds})`;
 
             connection.query(deleteQuery, (deleteError, deleteResults) => {
               if (deleteError) {
                 logMessage(
-                  `Error executing delete query: ${deleteError.message}`,
-                  logFilePath
-                );
-                logToDatabase(
-                  "error",
-                  "applcleaneventstime.js",
                   `Error executing delete query: ${deleteError.message}`
                 );
                 return connection.rollback(() => {
@@ -209,23 +137,12 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
               }
 
               logMessage(
-                `Batch ${batchNumber}: Deleted ${deleteResults.affectedRows} rows from applevents`,
-                logFilePath
+                `Batch ${batchNumber}: Deleted ${deleteResults.affectedRows} rows from applevents.`
               );
-              logToDatabase(
-                "success",
-                "applcleaneventstime.js",
-                `Batch ${batchNumber}: Deleted ${deleteResults.affectedRows} rows from applevents`
-              );
+
               connection.commit((commitError) => {
                 if (commitError) {
                   logMessage(
-                    `Error committing transaction: ${commitError.message}`,
-                    logFilePath
-                  );
-                  logToDatabase(
-                    "success",
-                    "applcleaneventstime.js",
                     `Error committing transaction: ${commitError.message}`
                   );
                   return connection.rollback(() => {

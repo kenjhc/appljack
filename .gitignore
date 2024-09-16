@@ -1,6 +1,10 @@
 .vscode
 node_modules
 vendors
+applfeeds
 
 package-lock.json
 .env
+applpass_putevents.log
+appl_logs_errors.log
+applcleanevents.log
