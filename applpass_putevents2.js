@@ -113,7 +113,7 @@ async function processEvents() {
 
     // Connect to the database
     connection = await mysql.createConnection(dbConfig);
-    
+
     // Create a read stream for the to-be-processed file
     const fileStream = fs.createReadStream(toBeProcessedFilePath);
     const rl = readline.createInterface({
@@ -122,7 +122,7 @@ async function processEvents() {
     });
 
     // Create a write stream for the backup file
-    const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" });
+    const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" }); 
 
     for await (const line of rl) {
       if (line.trim()) {

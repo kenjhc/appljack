@@ -73,7 +73,7 @@ async function processXmlFiles() {
     pool.end();
   }
 }
-
+// this has been pushed by Ken
 // Function to count <job> nodes using a SAX parser
 function countJobNodesSax(filePath) {
   return new Promise((resolve, reject) => {
