@@ -5,6 +5,7 @@ const path = require("path");
 const sax = require("sax");
 const mysql = require("mysql");
 const moment = require("moment");
+const config = require("./config");
 
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled rejection:", reason);
@@ -18,6 +19,8 @@ let jobQueue = [];
 let isProcessingBatch = false;
 const batchSize = 100;
 let tempConnection;
+let recordCount = 0;
+let startTime;
 
 const cleanDecimalValue = (value) => {
   if (typeof value === "string") {
@@ -62,6 +65,20 @@ const getAcctNum = async (jobpoolid) => {
   });
 };
 
+const reconnectOnFatalError = async () => {
+  return new Promise((resolve, reject) => {
+    tempConnection.release(); // Release the broken connection
+    pool.getConnection((err, connection) => {
+      if (err) {
+        return reject(err);
+      }
+      tempConnection = connection;
+      console.log("Reconnected after fatal error.");
+      resolve();
+    });
+  });
+};
+
 const createTempTableWithConnection = async () => {
   tempConnection = await new Promise((resolve, reject) => {
     pool.getConnection((err, connection) => {
@@ -86,7 +103,7 @@ const createTempTableWithConnection = async () => {
   });
 };
 
-function logFailedBatch(batch, feedId, error) {
+const logFailedBatch = (batch, feedId, error) => {
   const logDir = path.join("/chroot/home/appljack/appljack.com/html/log");
   const logFile = path.join(logDir, "failed_batches.log");
 
@@ -110,15 +127,38 @@ function logFailedBatch(batch, feedId, error) {
       console.error("Failed to log failed batch details:", err);
     }
   });
-}
+};
+
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  charset: process.env.DB_CHARSET,
+  host: config.host,
+  user: config.username,
+  password: config.password,
+  database: config.database,
+  charset: config.charset,
 });
+ 
+const checkConnection = async () => {
+  return new Promise((resolve, reject) => {
+    tempConnection.ping((err) => {
+      if (err) {
+        console.error("Connection lost, reconnecting...");
+        reconnectOnFatalError().then(resolve).catch(reject);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
+const logProgress = () => {
+  const elapsedTime = (Date.now() - startTime) / 1000; // in seconds
+  console.log(
+    `Processed ${recordCount} records, Time elapsed ${elapsedTime.toFixed(
+      2
+    )} seconds`
+  );
+};
 
 const processQueue = async (feedId) => {
   if (isProcessingBatch || jobQueue.length < batchSize) return;
@@ -138,6 +178,8 @@ const processQueue = async (feedId) => {
 };
 
 const processBatch = async (batch, feedId) => {
+  await checkConnection(); // Ensure the connection is alive before processing
+
   const values = batch.map((item) => [
     item.feedId,
     item.location,
@@ -176,17 +218,26 @@ const processBatch = async (batch, feedId) => {
             VALUES ? ON DUPLICATE KEY UPDATE job_reference=VALUES(job_reference)
         `;
 
-    tempConnection.query(query, [values], (err, result) => {
+    tempConnection.query(query, [values], async (err, result) => {
       if (err) {
-        console.error("Failed to insert batch into appljobs_temp:", err);
-        reject(err);
-      } else {
-        resolve();
+        if (err.code === "PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR") {
+          console.error("Fatal error occurred, reconnecting...");
+          await reconnectOnFatalError(); // Reconnect before retrying
+          return reject(err);
+        } else {
+          return reject(err);
+        }
       }
+      recordCount += batch.length;
+      if (recordCount % 10000 === 0) {
+        logProgress();
+      }
+      resolve();
     });
   });
 };
 
+// Define parseXmlFile function
 const parseXmlFile = async (filePath) => {
   console.log(`Starting to process file: ${filePath}`);
   const feedId = path.basename(filePath, path.extname(filePath));
@@ -249,10 +300,10 @@ const parseXmlFile = async (filePath) => {
               "YYYY-MM-DDTHH:mm:ss.SSS[Z]",
               "ddd, DD MMM YYYY HH:mm:ss [UTC]",
               "YYYY-MM-DD",
-              "YYYY-MM-DDTHH:mm:ss.S", // Example: 2024-07-01T00:09:57.6
-              "YYYY-MM-DDTHH:mm:ss.SSS", // Example: 2024-07-15T17:33:36.707
-              "YYYY-MM-DDTHH:mm:ss.SS", // Example: 2024-07-12T09:36:39.7
-              "YYYY-MM-DDTHH:mm:ss", // Example: 2024-07-12T18:31:43
+              "YYYY-MM-DDTHH:mm:ss.S",
+              "YYYY-MM-DDTHH:mm:ss.SSS",
+              "YYYY-MM-DDTHH:mm:ss.SS",
+              "YYYY-MM-DDTHH:mm:ss",
             ];
             const date = moment(currentItem.posted_at, dateFormats, true);
             if (date.isValid()) {
@@ -282,17 +333,44 @@ const parseXmlFile = async (filePath) => {
 
       parser.on("error", (err) => {
         console.error(`Error parsing XML file ${filePath}:`, err);
-        reject(err); // Reject the promise if there's an error
+        reject(err);
       });
 
       stream.pipe(parser);
     });
   } catch (error) {
     console.error(`Error processing XML file ${filePath}:`, error);
-    throw error; // Throw the error to be caught in the calling function
+    throw error;
   }
 };
 
+// Define logApplJobsTempForJobReference function
+const logApplJobsTempForJobReference = async (jobReference) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM appljobs_temp WHERE job_reference = ?";
+    tempConnection.query(query, [jobReference], (err, results) => {
+      if (err) {
+        console.error("Error fetching job reference from appljobs_temp:", err);
+        return reject(err);
+      }
+      console.log(
+        `Entries in appljobs_temp for job_reference ${jobReference}:`,
+        results
+      );
+      resolve(results);
+    });
+  });
+};
+
+// Define processRemainingJobs function
+const processRemainingJobs = async () => {
+  while (jobQueue.length > 0) {
+    const job = jobQueue.shift();
+    await processBatch([job], job.feedId);
+  }
+};
+
+// Define updateApplJobsTable function (missing previously)
 const updateApplJobsTable = async () => {
   return new Promise((resolve, reject) => {
     tempConnection.beginTransaction((err) => {
@@ -406,28 +484,14 @@ const updateApplJobsTable = async () => {
   });
 };
 
-const logApplJobsTempForJobReference = async (jobReference) => {
-  return new Promise((resolve, reject) => {
-    const query = "SELECT * FROM appljobs_temp WHERE job_reference = ?";
-    tempConnection.query(query, [jobReference], (err, results) => {
-      if (err) {
-        console.error("Error fetching job reference from appljobs_temp:", err);
-        return reject(err);
-      }
-      console.log(
-        `Entries in appljobs_temp for job_reference ${jobReference}:`,
-        results
-      );
-      resolve(results);
-    });
-  });
-};
-
-const processRemainingJobs = async () => {
-  while (jobQueue.length > 0) {
-    const job = jobQueue.shift();
-    await processBatch([job], job.feedId);
+const closeConnectionPool = () => {
+  if (tempConnection) {
+    tempConnection.release(); // Release the connection back to the pool
   }
+  pool.end((err) => {
+    if (err) console.error("Failed to close the connection pool:", err);
+    else console.log("Connection pool closed successfully.");
+  });
 };
 
 const processFiles = async () => {
@@ -442,16 +506,23 @@ const processFiles = async () => {
 
     for (const filePath of filePaths) {
       try {
+        // Reset record count for each file
+        recordCount = 0;
+        startTime = Date.now(); // Start timer for each file
+
         await parseXmlFile(filePath);
         await processRemainingJobs();
+
+        // Log progress for files with fewer than 10,000 records
+        if (recordCount > 0 && recordCount % 10000 !== 0) {
+          logProgress(); // Log whatever number of records was processed
+        }
       } catch (err) {
         console.error(`Error processing XML file ${filePath}:`, err);
-        // Log or handle the error as needed, then continue with next file
       }
     }
 
-    await logApplJobsTempForJobReference("72195333"); // Log entries in appljobs_temp for the given job_reference
-
+    await logApplJobsTempForJobReference("72195333");
     await updateApplJobsTable();
     console.log("appljobs table synchronized successfully.");
   } catch (err) {
@@ -459,13 +530,6 @@ const processFiles = async () => {
   } finally {
     closeConnectionPool();
   }
-};
-
-const closeConnectionPool = () => {
-  pool.end((err) => {
-    if (err) console.error("Failed to close the connection pool:", err);
-    else console.log("Connection pool closed successfully.");
-  });
 };
 
 processFiles()

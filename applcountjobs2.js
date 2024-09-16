@@ -1,10 +1,11 @@
-require("dotenv").config();
+// require("dotenv").config();
 
 const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql");
 const sax = require("sax");
 const { logMessage, logToDatabase } = require("./utils/helpers");
+const config = require("./config");
 
 // Define the folder where XML files are stored
 const xmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
@@ -12,11 +13,11 @@ const xmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
 // Setup MySQL connection pool
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  charset: process.env.DB_CHARSET,
+  host: config.host,
+  user: config.username,
+  password: config.password,
+  database: config.database,
+  charset: config.charset,
 });
 
 // Function to process XML files, count <job> nodes, and update numjobs
