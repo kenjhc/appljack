@@ -1,35 +1,47 @@
-require("dotenv").config();
+const fs = require('fs');
+const mysql = require('mysql');
+const path = require('path');
+const config = require('./config');
 
-const fs = require("fs");
-const mysql = require("mysql");
-const path = require("path");
-const config = require("./config");
-const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+const outputXmlFolderPath = '/chroot/home/appljack/appljack.com/html/applfeeds';
 
 const poolXmlFeeds = mysql.createPool({
-  connectionLimit: 10,
-  host: config.host,
-  user: config.username,
-  password: config.password,
-  database: config.database,
-  charset: config.charset,
+    connectionLimit: 10,
+    host: config.host,
+    user: config.username,
+    password: config.password,
+    database: config.database,
+    charset: config.charset,
 });
 
-async function fetchAllFeedsWithCriteria() {
+// Function to fetch all custid values from the applcust table
+async function fetchAllCustIds() {
     return new Promise((resolve, reject) => {
-        poolXmlFeeds.query(
-            'SELECT acf.*, ac.jobpoolid, ac.acctnum, acf.cpc as feed_cpc, acf.cpa as feed_cpa FROM applcustfeeds acf ' +
-            'JOIN applcust ac ON ac.custid = acf.custid WHERE acf.status = "active"',
-            (error, results) => {
-                if (error) {
-                    console.error('Error fetching feed criteria:', error);
-                    reject(error);
-                } else {
-                    console.log(`Fetched ${results.length} feeds across all accounts.`);
-                    resolve(results);
-                }
+        poolXmlFeeds.query('SELECT custid FROM applcust', (error, results) => {
+            if (error) {
+                console.error('Error fetching custid values:', error);
+                reject(error);
+            } else {
+                const custids = results.map(row => row.custid);
+                resolve(custids);
             }
-        );
+        });
+    });
+}
+
+async function fetchFeedsWithCriteria(custid) {
+    return new Promise((resolve, reject) => {
+        let query = 'SELECT acf.*, ac.jobpoolid, acf.cpc as feed_cpc, acf.cpa as feed_cpa FROM applcustfeeds acf ' +
+                    'JOIN applcust ac ON ac.custid = acf.custid WHERE acf.status = "active" AND ac.custid = ?';
+        poolXmlFeeds.query(query, [custid], (error, results) => {
+            if (error) {
+                console.error('Error fetching feed criteria:', error);
+                reject(error);
+            } else {
+                console.log(`Fetched ${results.length} feeds for custid ${custid}`);
+                resolve(results);
+            }
+        });
     });
 }
 
@@ -40,10 +52,9 @@ async function fetchCustomFields(jobpoolid) {
             [jobpoolid],
             (error, results) => {
                 if (error) {
-                    console.error(`Error fetching custom fields for jobpoolid ${jobpoolid}:`, error);
+                    console.error('Error fetching custom fields:', error);
                     reject(error);
                 } else {
-                    console.log(`Fetched ${results.length} custom fields for jobpoolid ${jobpoolid}.`);
                     resolve(results);
                 }
             }
@@ -73,7 +84,7 @@ function buildQueryFromCriteria(criteria) {
         if (coExcludes.length) conditions.push(`(${coExcludes.join(' AND ')})`);
     }
 
-    // Additional fields for industry, city, state, and custom fields
+    // Additional fields for industry, city, and state
     ['industry', 'city', 'state'].forEach(field => {
         if (criteria[`custquery${field}`]) {
             const elements = criteria[`custquery${field}`].split(',');
@@ -88,80 +99,86 @@ function buildQueryFromCriteria(criteria) {
     for (let i = 1; i <= 5; i++) {
         if (criteria[`custquerycustom${i}`]) {
             const customField = criteria[`custquerycustom${i}`].split(',');
-            const customIncludes = customField.filter(cf => !cf.trim().startsWith('NOT ')).map(cf => `aj.custom${i} LIKE '%${cf.trim()}%'`);
-            const customExcludes = customField.filter(cf => cf.trim().startsWith('NOT ')).map(cf => `aj.custom${i} NOT LIKE '%${cf.trim().substring(4)}%'`);
-
+            const customIncludes = customField.filter(cf => !cf.trim().startsWith('NOT ')).map(cf => `aj.custom_field_${i} LIKE '%${cf.trim()}%'`);
+            const customExcludes = customField.filter(cf => cf.trim().startsWith('NOT ')).map(cf => `aj.custom_field_${i} NOT LIKE '%${cf.trim().substring(4)}%'`);
             if (customIncludes.length) conditions.push(`(${customIncludes.join(' OR ')})`);
             if (customExcludes.length) conditions.push(`(${customExcludes.join(' AND ')})`);
         }
     }
+
+    // Apply all conditions to the query
     if (conditions.length) {
         query += " AND " + conditions.join(' AND ');
     }
 
-  //  query += " ORDER BY aj.posted_at DESC";
+    query += " ORDER BY aj.posted_at DESC";
     return query;
 }
 
 async function processQueriesSequentially() {
     console.log("Starting to process criteria into queries");
-    const feedsCriteria = await fetchAllFeedsWithCriteria();
 
-    // Group feeds by acctnum
-    const groupedByAcctnum = feedsCriteria.reduce((acc, criteria) => {
-        const acctnum = criteria.acctnum;
+    try {
+        const allCustIds = await fetchAllCustIds();
 
-        if (!acc[acctnum]) {
-            acc[acctnum] = [];
-        }
-        acc[acctnum].push(criteria);
+        for (let custid of allCustIds) {
+            console.log(`Processing feeds for custid ${custid}`);
+            const feedsCriteria = await fetchFeedsWithCriteria(custid);
 
-        return acc;
-    }, {});
-
-    for (const acctnum of Object.keys(groupedByAcctnum)) {
-        const criteriaList = groupedByAcctnum[acctnum];
-        const acctFilePath = path.join(outputXmlFolderPath, `${acctnum}.xml`);
-
-        if (criteriaList.length === 0) {
-            // Empty the file if no active feeds are found
-            if (fs.existsSync(acctFilePath)) {
-                fs.writeFileSync(acctFilePath, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs>\n</jobs>\n');
-                console.log(`Emptied the XML file for acctnum ${acctnum}`);
+            if (feedsCriteria.length === 0) {
+                console.log(`No active feeds found for custid ${custid}`);
+                const filePath = path.join(outputXmlFolderPath, `${custid}.xml`);
+                if (fs.existsSync(filePath)) {
+                    fs.writeFileSync(filePath, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs>\n</jobs>\n');
+                    console.log(`Emptied the XML file for custid ${custid}`);
+                }
+                continue;
             }
-            continue;
+
+            const custFileHandles = {};
+            for (let criteria of feedsCriteria) {
+                console.log(`Processing feed for custid ${criteria.custid} and jobpoolid ${criteria.jobpoolid}`);
+                if (!criteria.jobpoolid) {
+                    console.error('Jobpoolid is not defined in criteria for feedid:', criteria.feedid);
+                    continue;
+                }
+
+                // Fetch custom fields for the jobpoolid
+                const customFields = await fetchCustomFields(criteria.jobpoolid);
+
+                const query = buildQueryFromCriteria(criteria);
+                console.log('SQL Query:', query);
+
+                // Manage file stream creation per custid
+                if (!custFileHandles[criteria.custid]) {
+                    const filePath = path.join(outputXmlFolderPath, `${criteria.custid}.xml`);
+                    custFileHandles[criteria.custid] = fs.createWriteStream(filePath, { flags: 'w' });
+                    custFileHandles[criteria.custid].write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs>\n');
+                }
+
+                // Note that we now pass the entire 'criteria' object to ensure access to necessary identifiers
+                await streamResultsToXml(custFileHandles[criteria.custid], query, criteria, customFields);
+            }
+
+            // Ensure closing of all file handles for the current custid
+            Object.keys(custFileHandles).forEach(custid => {
+                if (custFileHandles[custid]) {
+                    custFileHandles[custid].write('</jobs>\n');
+                    custFileHandles[custid].end();
+                }
+            });
         }
-
-        console.log(`Processing ${criteriaList.length} feeds for acctnum ${acctnum}.`);
-
-        const acctFileHandle = fs.createWriteStream(acctFilePath, { flags: 'w' });
-        acctFileHandle.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs>\n');
-
-        for (let criteria of criteriaList) {
-            console.log(`Processing feed for custid ${criteria.custid} and jobpoolid ${criteria.jobpoolid}`);
-
-            // Fetch custom fields for the jobpoolid
-            const customFields = await fetchCustomFields(criteria.jobpoolid);
-
-            const query = buildQueryFromCriteria(criteria);
-            console.log('SQL Query:', query);
-
-            await streamResultsToXml(acctFileHandle, query, criteria, customFields);
-        }
-
-        acctFileHandle.write('</jobs>\n');
-        acctFileHandle.end();
-        console.log(`Completed writing XML file for acctnum ${acctnum}.`);
+    } catch (error) {
+        console.error('Error during processing queries:', error);
+    } finally {
+        console.log("All feeds processed. Closing database connection.");
+        await closePool();
     }
-
-    console.log("All feeds processed. Closing database connection.");
-    await closePool();
 }
 
 async function streamResultsToXml(fileStream, query, criteria, customFields) {
     return new Promise((resolve, reject) => {
         const queryStream = poolXmlFeeds.query(query).stream();
-
         queryStream.on('error', (error) => {
             console.error('Stream encountered an error:', error);
             reject(error);
@@ -192,14 +209,13 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
                 }
             });
 
-            let customUrl = `https://appljack.com/admin/applpass.php?c=${encodeURIComponent(criteria.custid)}&f=${encodeURIComponent(criteria.feedid)}&j=${encodeURIComponent(job.job_reference)}&jpid=${encodeURIComponent(criteria.jobpoolid)}`;
+            let customUrl = `https://appljack.com/applpass.php?c=${encodeURIComponent(criteria.custid)}&f=${encodeURIComponent(criteria.feedid)}&j=${encodeURIComponent(job.job_reference)}&jpid=${encodeURIComponent(criteria.jobpoolid)}`;
             customUrl = customUrl.replace(/&/g, '&amp;');
             fileStream.write(`    <url>${customUrl}</url>\n`);
             fileStream.write(`    <cpc>${job.effective_cpc}</cpc>\n`);
             fileStream.write(`    <cpa>${job.effective_cpa}</cpa>\n`);
             fileStream.write(`  </job>\n`);
         }).on('end', () => {
-            console.log(`Completed streaming results for jobpoolid ${criteria.jobpoolid}.`);
             resolve();
         });
     });

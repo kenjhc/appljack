@@ -3,15 +3,16 @@ require("dotenv").config();
 const fs = require("fs");
 const mysql = require("mysql");
 const path = require("path");
+const config = require("./config");
 
 const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
 const poolXmlFeeds = mysql.createPool({
   connectionLimit: 10,
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  charset: process.env.DB_CHARSET,
+  host: config.host,
+  user: config.username,
+  password: config.password,
+  database: config.database,
+  charset: config.charset,
 });
 
 async function fetchAllFeedsWithCriteria() {
@@ -277,22 +278,14 @@ function buildQueryFromCriteria(criteria) {
 
   // Handle custom fields
   for (let i = 1; i <= 5; i++) {
-    if (criteria[`custquerycustom${i}`]) {
-      const customField = criteria[`custquerycustom${i}`].split(",");
-      const customIncludes = customField
-        .filter((cf) => !cf.trim().startsWith("NOT "))
-        .map((cf) => `aj.custom_field_${i} LIKE '%${cf.trim()}%'`);
-      const customExcludes = customField
-        .filter((cf) => cf.trim().startsWith("NOT "))
-        .map(
-          (cf) => `aj.custom_field_${i} NOT LIKE '%${cf.trim().substring(4)}%'`
-        );
+      if (criteria[`custquerycustom${i}`]) {
+          const customField = criteria[`custquerycustom${i}`].split(',');
+          const customIncludes = customField.filter(cf => !cf.trim().startsWith('NOT ')).map(cf => `aj.custom${i} LIKE '%${cf.trim()}%'`);
+          const customExcludes = customField.filter(cf => cf.trim().startsWith('NOT ')).map(cf => `aj.custom${i} NOT LIKE '%${cf.trim().substring(4)}%'`);
 
-      if (customIncludes.length)
-        conditions.push(`(${customIncludes.join(" OR ")})`);
-      if (customExcludes.length)
-        conditions.push(`(${customExcludes.join(" AND ")})`);
-    }
+          if (customIncludes.length) conditions.push(`(${customIncludes.join(' OR ')})`);
+          if (customExcludes.length) conditions.push(`(${customExcludes.join(' AND ')})`);
+      }
   }
 
   if (conditions.length) {
