@@ -8,11 +8,11 @@ const getEnvPath = () => {
   const currentPath = __dirname; // Get current directory path
 
   if (currentPath.includes("admin")) {
-    return "admin"; // If directory includes 'admin'
+    return "/admin/"; // If directory includes 'admin'
   } else if (currentPath.includes("dev")) {
-    return "dev"; // If directory includes 'dev'
+    return "/"; // If directory includes 'dev'
   } else if (currentPath.includes("appljack")) {
-    return ""; // Root of the appljack project
+    return "/"; // Root of the appljack project
   } else {
     return "unknown"; // If none match
   }

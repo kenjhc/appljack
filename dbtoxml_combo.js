@@ -295,7 +295,7 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
           }
         });
 
-        let customUrl = `https://appljack.com/${config.envPath}/applpass.php?c=${encodeURIComponent(
+        let customUrl = `https://appljack.com${config.envPath}applpass.php?c=${encodeURIComponent(
           criteria.custid
         )}&f=${encodeURIComponent(criteria.feedid)}&j=${encodeURIComponent(
           job.job_reference

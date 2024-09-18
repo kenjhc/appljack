@@ -195,7 +195,7 @@ async function generateXmlFile(custid, feedid, jobsData) {
       });
 
       if (job.hasOwnProperty("job_reference")) {
-        let customUrl = `https://appljack.com/${config.envPath}/applpass.php?c=${custid}&f=${feedid}&j=${job.job_reference}`;
+        let customUrl = `https://appljack.com${config.envPath}applpass.php?c=${custid}&f=${feedid}&j=${job.job_reference}`;
         customUrl = customUrl.replace(/&/g, "&amp;");
         stream.write(`    <url>${customUrl}</url>\n`);
       }

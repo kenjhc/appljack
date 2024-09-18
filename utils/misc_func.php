@@ -40,7 +40,7 @@ function getEnvPath()
     if (strpos($currentPath, "admin") !== false) {
         return "/admin/";
     } elseif (strpos($currentPath, "dev") !== false) {
-        return "/dev/";
+        return "/";
     } elseif (strpos($currentPath, "appljack") !== false) {
         return "/";
     } else {
