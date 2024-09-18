@@ -1,8 +1,10 @@
-// require("dotenv").config();
+const dotenv = require("dotenv");
 const mysql = require("mysql2/promise");
 const fs = require("fs");
 const config = require("../config");
 const path = require("path");
+
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const pool = mysql.createPool({
   host: config.host,
