@@ -44,7 +44,7 @@ async function startProcess() {
         const outputFileName = `${acctnum}-${jobpoolid}.xml`;
         const outputPath = `/chroot/home/appljack/appljack.com/html/feeddownloads/${outputFileName}`;
         if (file_type.toLowerCase() === 'xml') {
-          await downloadAndProcessXml(file_url.trim(), jobpoolid, acctnum, outputPath);
+          await downloadAndProcessXml(file_url.trim(), jobpoolid, acctnum, outputPath, file_url);
         } else if (file_type.toLowerCase() === 'csv') {
           await downloadCsvAndConvertToXml(file_url.trim(), jobpoolid, acctnum, outputPath);
         }
@@ -58,7 +58,7 @@ async function startProcess() {
   });
 }
 
-async function downloadAndProcessXml(url, jobpoolid, acctnum, outputPath) {
+async function downloadAndProcessXml(url, jobpoolid, acctnum, outputPath, fileUrl) {
   console.log(`Attempting to download and process XML from ${url}...`);
   try {
     const response = await axios.get(url, {
@@ -91,36 +91,13 @@ async function downloadAndProcessXml(url, jobpoolid, acctnum, outputPath) {
         console.log(`Download completed, starting XML processing...`);
         try {
           const parser = new xml2js.Parser();
-          let xmlData = ''; // Initialize an empty string to store XML data
-
-          // Process XML data in chunks to avoid memory issues
-          xmlStream.on('data', chunk => {
-            xmlData += chunk.toString(); // Append each chunk to the XML data string
-            // Check if the XML data exceeds the maximum allowed string length
-            if (xmlData.length > 1000000) { // Adjust the threshold as needed
-              // Parse the accumulated XML data
-              parser.parseString(xmlData, (err, result) => {
-                if (err) {
-                  console.error('Error parsing XML:', err);
-                  return;
-                }
-                processXml(result, jobpoolid, acctnum, outputPath); // Process the parsed XML data
-                xmlData = ''; // Reset the XML data string
-              });
+          const xmlData = fs.readFileSync(outputPath); // Read the XML data from the file
+          parser.parseString(xmlData, (err, result) => {
+            if (err) {
+              console.error('Error parsing XML:', err);
+              return;
             }
-          });
-
-          // Handle the remaining XML data after processing chunks
-          xmlStream.on('end', () => {
-            if (xmlData) {
-              parser.parseString(xmlData, (err, result) => {
-                if (err) {
-                  console.error('Error parsing XML:', err);
-                  return;
-                }
-                processXml(result, jobpoolid, acctnum, outputPath); // Process the parsed XML data
-              });
-            }
+            processXml(result, jobpoolid, acctnum, outputPath, fileUrl);
           });
         } catch (error) {
           console.error('Error processing XML:', error);
@@ -140,29 +117,65 @@ async function downloadAndProcessXml(url, jobpoolid, acctnum, outputPath) {
 }
 
 // Function to process parsed XML data
-function processXml(result, jobpoolid, acctnum, outputPath) {
-  // Check if the result contains the expected structure
-  if (result && result.source && result.source.job) {
+function processXml(result, jobpoolid, acctnum, outputPath, fileUrl) {
+  // Extract all job elements from the parsed XML
+  const jobs = extractJobs(result);
+
+  if (jobs.length > 0) {
+    // Flatten nested XML structure if needed
+    flattenXml(jobs);
+
     // Modify each job entry to include jobpoolid and acctnum
-    const modifiedJobs = result.source.job.map(job => {
+    const modifiedJobs = jobs.map(job => {
       job.acctnum = [acctnum];
       job.jobpoolid = [jobpoolid];
       return job;
     });
 
-    // Update the result with modified job entries
-    result.source.job = modifiedJobs;
+    // Construct the XML structure directly with `source` as the root element
+    const xml = js2xmlparser.parse("source", { job: modifiedJobs });
 
-    // Convert the modified result back to XML format
-    const builder = new xml2js.Builder();
-    const modifiedXml = builder.buildObject(result);
-
-    // Write the modified XML back to the file
-    fs.writeFileSync(outputPath, modifiedXml);
+    // Write the XML data to the output file
+    fs.writeFileSync(outputPath, xml); // Use writeFileSync
     console.log(`Processed XML file saved to ${outputPath}`);
   } else {
-    console.error('Invalid XML format: Missing or invalid job property');
+    console.error(`Invalid XML format: No job elements found in file ${fileUrl}`);
   }
+}
+
+// Function to extract all job elements from the parsed XML
+function extractJobs(result) {
+  let jobs = [];
+  function traverse(node) {
+    if (node.job) {
+      if (Array.isArray(node.job)) {
+        jobs = jobs.concat(node.job);
+      } else {
+        jobs.push(node.job);
+      }
+    }
+    for (const key in node) {
+      if (typeof node[key] === 'object') {
+        traverse(node[key]);
+      }
+    }
+  }
+  traverse(result);
+  return jobs;
+}
+
+// Function to flatten nested XML structure
+function flattenXml(jobs) {
+  jobs.forEach(job => {
+    for (const key in job) {
+      if (typeof job[key] === 'object' && !Array.isArray(job[key])) {
+        for (const nestedKey in job[key]) {
+          job[`${key}${nestedKey}`] = job[key][nestedKey];
+        }
+        delete job[key];
+      }
+    }
+  });
 }
 
 async function downloadCsvAndConvertToXml(url, jobpoolid, acctnum, outputPath) {
@@ -176,7 +189,7 @@ async function downloadCsvAndConvertToXml(url, jobpoolid, acctnum, outputPath) {
 
       // Parse the CSV data
       const records = await new Promise((resolve, reject) => {
-        csvParse.parse(csvData, {
+        csvParse.parse(csvData, {  // Correct usage of csvParse
           columns: true,
           skip_empty_lines: true,
           auto_parse: true // Automatically parse numbers and booleans

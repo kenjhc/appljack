@@ -1,18 +1,19 @@
-require("dotenv").config();
+// require("dotenv").config();
 
 const fs = require("fs");
 const readline = require("readline");
 const mysql = require("mysql2/promise");
 const path = require("path");
 const { logMessage, logToDatabase } = require("./utils/helpers");
+const config = require("./config");
 
 // Database configuration
 const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  charset: process.env.DB_CHARSET,
+  host: config.host,
+  user: config.username,
+  password: config.password,
+  database: config.database,
+  charset: config.charset,
 };
 
 // File paths

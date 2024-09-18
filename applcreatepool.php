@@ -1,6 +1,6 @@
 <?php
 include "database/db.php";
- 
+
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php"); // Redirect to login page if not authenticated
     exit();
@@ -11,7 +11,7 @@ if (isset($_SESSION['error'])) {
     $error = $_SESSION['error'];
     unset($_SESSION['error']); // Clear the error so it doesn't persist
 }
-
+// this has also been changed by Ken
 // Generate a random 10-digit job pool ID
 $jobpoolid = mt_rand(1000000000, 9999999999);
 ?>

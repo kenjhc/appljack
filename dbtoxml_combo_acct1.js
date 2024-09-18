@@ -1,18 +1,17 @@
-require("dotenv").config();
+const fs = require('fs');
+const mysql = require('mysql');
+const path = require('path');
+const config = require('./config');
 
-const fs = require("fs");
-const mysql = require("mysql");
-const path = require("path");
-const config = require("./config");
-const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+const outputXmlFolderPath = '/chroot/home/appljack/appljack.com/html/applfeeds';
 
 const poolXmlFeeds = mysql.createPool({
-  connectionLimit: 10,
-  host: config.host,
-  user: config.username,
-  password: config.password,
-  database: config.database,
-  charset: config.charset,
+    connectionLimit: 10,
+    host: config.host,
+    user: config.username,
+    password: config.password,
+    database: config.database,
+    charset: config.charset,
 });
 
 async function fetchAllFeedsWithCriteria() {
@@ -88,18 +87,18 @@ function buildQueryFromCriteria(criteria) {
     for (let i = 1; i <= 5; i++) {
         if (criteria[`custquerycustom${i}`]) {
             const customField = criteria[`custquerycustom${i}`].split(',');
-            const customIncludes = customField.filter(cf => !cf.trim().startsWith('NOT ')).map(cf => `aj.custom${i} LIKE '%${cf.trim()}%'`);
-            const customExcludes = customField.filter(cf => cf.trim().startsWith('NOT ')).map(cf => `aj.custom${i} NOT LIKE '%${cf.trim().substring(4)}%'`);
-
+            const customIncludes = customField.filter(cf => !cf.trim().startsWith('NOT ')).map(cf => `aj.custom_field_${i} LIKE '%${cf.trim()}%'`);
+            const customExcludes = customField.filter(cf => cf.trim().startsWith('NOT ')).map(cf => `aj.custom_field_${i} NOT LIKE '%${cf.trim().substring(4)}%'`);
             if (customIncludes.length) conditions.push(`(${customIncludes.join(' OR ')})`);
             if (customExcludes.length) conditions.push(`(${customExcludes.join(' AND ')})`);
         }
     }
+
     if (conditions.length) {
         query += " AND " + conditions.join(' AND ');
     }
 
-  //  query += " ORDER BY aj.posted_at DESC";
+    query += " ORDER BY aj.posted_at DESC";
     return query;
 }
 
@@ -192,7 +191,7 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
                 }
             });
 
-            let customUrl = `https://appljack.com/admin/applpass.php?c=${encodeURIComponent(criteria.custid)}&f=${encodeURIComponent(criteria.feedid)}&j=${encodeURIComponent(job.job_reference)}&jpid=${encodeURIComponent(criteria.jobpoolid)}`;
+            let customUrl = `https://appljack.com/applpass.php?c=${encodeURIComponent(criteria.custid)}&f=${encodeURIComponent(criteria.feedid)}&j=${encodeURIComponent(job.job_reference)}&jpid=${encodeURIComponent(criteria.jobpoolid)}`;
             customUrl = customUrl.replace(/&/g, '&amp;');
             fileStream.write(`    <url>${customUrl}</url>\n`);
             fileStream.write(`    <cpc>${job.effective_cpc}</cpc>\n`);

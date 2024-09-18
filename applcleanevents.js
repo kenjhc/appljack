@@ -1,16 +1,17 @@
-require("dotenv").config();
+// require("dotenv").config();
 
 const mysql = require("mysql");
 const fs = require("fs");
 const { logMessage, logToDatabase } = require("./utils/helpers");
+const config = require("./config");
 
 // Create a connection to the database
 const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  charset: process.env.DB_CHARSET,
+  host: config.host,
+  user: config.username,
+  password: config.password,
+  database: config.database,
+  charset: config.charset,
 });
 
 const logFilePath = "applcleanevents.log";
@@ -28,7 +29,7 @@ const moveRecords = (criteria) => {
   connection.query(insertQuery, (error, results) => {
     if (error) {
       logMessage(`Error executing insert query: ${error.message}`, logFilePath);
-      logToDatabase( 
+      logToDatabase(
         "error",
         "applcleanevents.js",
         `Error executing insert query: ${error.message}`
@@ -44,7 +45,7 @@ const moveRecords = (criteria) => {
       logFilePath
     );
 
-    logToDatabase( 
+    logToDatabase(
       "success",
       "applcleanevents.js",
       `Inserted ${results.affectedRows} rows into appleventsdel`
@@ -61,7 +62,7 @@ const moveRecords = (criteria) => {
           `Error executing delete query: ${error.message}`,
           logFilePath
         );
-        logToDatabase( 
+        logToDatabase(
           "error",
           "applcleanevents.js",
           `Error executing delete query: ${error.message}`
@@ -73,7 +74,7 @@ const moveRecords = (criteria) => {
           `Deleted ${results.affectedRows} rows from applevents`,
           logFilePath
         );
-        logToDatabase( 
+        logToDatabase(
           "warning",
           "applcleanevents.js",
           `Deleted ${results.affectedRows} rows from applevents`
@@ -83,7 +84,7 @@ const moveRecords = (criteria) => {
       }
 
       logMessage(`Script completed successfully.`, logFilePath);
-      logToDatabase( 
+      logToDatabase(
         "success",
         "applcleanevents.js",
         `Script completed successfully.`
