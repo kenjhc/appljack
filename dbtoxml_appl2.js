@@ -184,7 +184,7 @@ async function streamResultsToXml(
           }
         });
 
-        let customUrl = `https://appljack.com/admin/applpass.php?c=${encodeURIComponent(
+        let customUrl = `https://appljack.com/${config.envPath}/applpass.php?c=${encodeURIComponent(
           custid
         )}&f=${encodeURIComponent(feedid)}&j=${encodeURIComponent(
           job.job_reference

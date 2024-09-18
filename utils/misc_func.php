@@ -22,7 +22,7 @@ function displayToastMessage()
 
         $toastType = json_encode($_SESSION['toast_type']);
         $toastMessage = json_encode($_SESSION['toast_message']);
-        
+
         echo "<script>
                 $(document).ready(function() {
                     toastr[$toastType]($toastMessage);
@@ -33,3 +33,17 @@ function displayToastMessage()
     }
 }
 
+function getEnvPath()
+{
+    $currentPath = __DIR__;
+
+    if (strpos($currentPath, "admin") !== false) {
+        return "/admin/";
+    } elseif (strpos($currentPath, "dev") !== false) {
+        return "/dev/";
+    } elseif (strpos($currentPath, "appljack") !== false) {
+        return "/";
+    } else {
+        return "unknown";
+    }
+}
