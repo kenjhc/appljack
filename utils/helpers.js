@@ -2,13 +2,14 @@ require("dotenv").config();
 const mysql = require("mysql2/promise");
 const fs = require("fs");
 
-const dbConfig = {
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   charset: process.env.DB_CHARSET,
-}; 
+  connectionLimit: 10,  
+});
 
 const logToDatabase = async (
   logLevel,
@@ -17,10 +18,10 @@ const logToDatabase = async (
   logType = "cronjob"
 ) => {
   const error = new Error();
-  const stackLine = error.stack.split("\n")[2]; // Get the third line from the stack trace
-  const lineNumber = stackLine.match(/:(\d+):\d+\)$/)?.[1]; // Extract the line number
-  
-  const connection = await mysql.createConnection(dbConfig);
+  const stackLine = error.stack.split("\n")[2];
+  const lineNumber = stackLine.match(/:(\d+):\d+\)$/)?.[1];
+
+  const connection = await pool.getConnection();
   const scriptTxt = `${lineNumber + ":" ?? "-"} ${scriptName}`;
   try {
     await connection.execute(
@@ -36,7 +37,7 @@ const logToDatabase = async (
       "utf8"
     );
   } finally {
-    await connection.end();
+    connection.release();  
   }
 };
 
