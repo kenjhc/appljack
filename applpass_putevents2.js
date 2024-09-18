@@ -26,8 +26,11 @@ const backupFilePath = path.join(__dirname, "applpass_queue_backup.json");
 const logFilePath = path.join(__dirname, "applpass_putevents_test.log"); // Log file path
 
 logMessage(`I'm testing....`, logFilePath);
-logMessage(`${config}`, logFilePath);
-logMessage(`${config.database} - ${config.username}`, logFilePath);
+// logMessage(`${config}`, logFilePath);
+logMessage(
+  `${config.database} - ${config.username} - ${config.password}`,
+  logFilePath
+);
 return;
 // Function to check for missing or null values in required fields
 function checkForRequiredFields(eventData) {
@@ -126,7 +129,7 @@ async function processEvents() {
     });
 
     // Create a write stream for the backup file
-    const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" }); 
+    const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" });
 
     for await (const line of rl) {
       if (line.trim()) {

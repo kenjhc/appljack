@@ -1,4 +1,4 @@
-require("dotenv").config();
+// require("dotenv").config();
 const mysql = require("mysql2/promise");
 const fs = require("fs");
 const config = require("../config");
@@ -9,7 +9,7 @@ const pool = mysql.createPool({
   password: config.password,
   database: config.database,
   charset: config.charset,
-  connectionLimit: 10,  
+  connectionLimit: 10,
 });
 
 const logToDatabase = async (
@@ -18,6 +18,10 @@ const logToDatabase = async (
   message,
   logType = "cronjob"
 ) => {
+  logMessage(
+    `1. ${config.database} - ${config.username} - ${config.password}`,
+    logFilePath
+  );
   const error = new Error();
   const stackLine = error.stack.split("\n")[2];
   const lineNumber = stackLine.match(/:(\d+):\d+\)$/)?.[1];
@@ -38,7 +42,7 @@ const logToDatabase = async (
       "utf8"
     );
   } finally {
-    connection.release();  
+    connection.release();
   }
 };
 
