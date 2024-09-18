@@ -1,7 +1,7 @@
 <?php
 
 include 'database/db.php';
-  
+
 // Handle the form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -60,23 +60,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
     <?php include 'appltopnav.php'; ?>
-    <h2>Create Account</h2>
-
-    <form method="post">
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br><br>
-        <label for="fname">First Name:</label><br>
-        <input type="text" id="fname" name="fname" required><br><br>
-        <label for="lname">Last Name:</label><br>
-        <input type="text" id="lname" name="lname" required><br><br>
-        <div class="d-flex items-center gap-2">
-            <label for="isAdmin">Is Admin:</label>
-            <input type="checkbox" id="isAdmin" name="is_admin" value="1"><br><br>
+    <div class="page-heading">
+        <h1>Create Account</h1>
+    </div>
+    <div class="px-4 px-md-5 py-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <form method="post">
+                    <label for="email">Email:</label><br>
+                    <input type="email" id="email" name="email" required><br>
+                    <label for="password">Password:</label><br>
+                    <input type="password" id="password" name="password" required><br><br>
+                    <label for="fname">First Name:</label><br>
+                    <input type="text" id="fname" name="fname" required><br><br>
+                    <label for="lname">Last Name:</label><br>
+                    <input type="text" id="lname" name="lname" required><br><br>
+                    <div class="d-flex items-center gap-2">
+                        <label for="isAdmin">Is Admin:</label>
+                        <input type="checkbox" id="isAdmin" name="is_admin" value="1"><br><br>
+                    </div>
+                    <input type="submit" class="form-control" value="Create Account">
+                </form>
+            </div>
         </div>
-        <input type="submit" value="Create Account">
-    </form>
+    </div>
     <?php include 'footer.php'; ?>
 </body>
 

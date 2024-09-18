@@ -50,14 +50,22 @@ if (isset($_POST['login'])) {
 <body>
 
     <?php include 'appltopnav.php'; ?>
-    <form action="appllogin.php" method="post">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="acctemail" required>
-        <label for="pw">Password:</label>
-        <input type="password" id="pw" name="acctpw" required>
-        <button type="submit" name="login">Login</button>
-    </form>
-
+    <div class="page-heading">
+        <h1>Login</h1>
+    </div>
+    <div class="px-4 px-md-5 py-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto"> 
+                <form action="appllogin.php" method="post">
+                    <label for="email" class="m-0">Email:</label>
+                    <input type="email" id="email" name="acctemail" required>
+                    <label for="pw" class="m-0">Password:</label>
+                    <input type="password" id="pw" name="acctpw" required>
+                    <button type="submit" name="login">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
     <?php include 'footer.php'; ?>
 </body>
 

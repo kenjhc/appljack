@@ -5,7 +5,7 @@ if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();
 }
-  
+
 // Default date range to the current month
 $defaultStartDate = date('Y-m-01');
 $defaultEndDate = date('Y-m-t');
@@ -119,7 +119,7 @@ try {
         }
     }
 } catch (PDOException $e) {
-    setToastMessage('error', "Error: " . $e->getMessage()); 
+    setToastMessage('error', "Error: " . $e->getMessage());
 }
 ?>
 
@@ -142,15 +142,17 @@ try {
 
 <body>
     <?php include 'appltopnav.php'; ?>
-    <h1>Account Master View</h1>
-    <?php
-    // Create the XML URL using the current session's account number
-    $acctnum = $_SESSION['acctnum'];
-    $xmlUrl = "https://appljack.com/applfeeds/{$acctnum}.xml";
-    ?>
-    <p><b>Account-Level XML File:</b> <a href="<?= htmlspecialchars($xmlUrl) ?>" target="_blank"><?= htmlspecialchars($xmlUrl) ?></a><br>
-        This XML file combines all the jobs from all the active campaigns across every Customer. This feed has everything that is currently running.</p>
-    <div class="container" style="display: flex; justify-content: space-between;">
+    <div class="page-heading">
+        <h1>Account Master View</h1>
+    </div>
+    <div class="px-4 px-md-5 py-4">
+        <?php
+        // Create the XML URL using the current session's account number
+        $acctnum = $_SESSION['acctnum'];
+        $xmlUrl = "https://appljack.com/applfeeds/{$acctnum}.xml";
+        ?>
+        <p><b>Account-Level XML File:</b> <a href="<?= htmlspecialchars($xmlUrl) ?>" target="_blank"><?= htmlspecialchars($xmlUrl) ?></a><br>
+            This XML file combines all the jobs from all the active campaigns across every Customer. This feed has everything that is currently running.</p>
         <div class="section">
             <h2>Customer Accounts</h2>
             <a href="applcreatecustomer.php" class="add-customer-button">
@@ -232,49 +234,59 @@ try {
                 </div>
             <?php endif; ?>
         </div>
-    </div>
-    <div class="section">
-        <h2>Customer Campaign Overview</h2>
-        <form action="applmasterview.php" method="get">
-            <label for="startdate">Start:</label>
-            <input type="date" id="startdate" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
-            <label for="enddate">End:</label>
-            <input type="date" id="enddate" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
-            <button type="submit">Show Data</button>
-        </form>
-        <div class="table-container">
-            <table class="campaign-overview-table">
-                <thead>
-                    <tr>
-                        <th>Customer Name</th>
-                        <th>Status</th>
-                        <th>Budget</th>
-                        <th>Spend</th>
-                        <th>Clicks</th>
-                        <th>Applies</th>
-                        <th>CPA</th>
-                        <th>CPC</th>
-                        <th>Conv. Rate</th>
-                        <th>Num Jobs</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($customerData as $data): ?>
+        <div class="section">
+            <div class="d-flex justify-content-between w-100 align-items-center">
+                <h2>Customer Campaign Overview</h2>
+                <form action="applmasterview.php" method="get" class="mb-3">
+                    <div class="d-flex align-items-end gap-4">
+                        <div>
+                            <label class="mb-0" for="startdate">Start:</label>
+                            <input type="date" id="startdate" class="form-control" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
+                        </div>
+                        <div>
+                            <label class="mb-0" for="enddate">End:</label>
+                            <input type="date" id="enddate" class="form-control" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-secondary my-0 w-auto py-2">Show Data</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="table-container">
+                <table class="campaign-overview-table">
+                    <thead>
                         <tr>
-                            <td><a href="https://appljack.com/applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
-                            <td><?= htmlspecialchars($data['status']); ?></td>
-                            <td>$<?= number_format($data['budget'], 2); ?></td>
-                            <td>$<?= number_format($data['spend'], 2); ?></td>
-                            <td><?= htmlspecialchars($data['clicks']); ?></td>
-                            <td><?= htmlspecialchars($data['applies']); ?></td>
-                            <td>$<?= number_format($data['cpa'], 2); ?></td>
-                            <td>$<?= number_format($data['cpc'], 2); ?></td>
-                            <td><?= number_format($data['conversion_rate'], 2); ?>%</td>
-                            <td><?= number_format($data['numjobs']); ?></td>
+                            <th>Customer Name</th>
+                            <th>Status</th>
+                            <th>Budget</th>
+                            <th>Spend</th>
+                            <th>Clicks</th>
+                            <th>Applies</th>
+                            <th>CPA</th>
+                            <th>CPC</th>
+                            <th>Conv. Rate</th>
+                            <th>Num Jobs</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($customerData as $data): ?>
+                            <tr>
+                                <td><a href="https://appljack.com/applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
+                                <td><?= htmlspecialchars($data['status']); ?></td>
+                                <td>$<?= number_format($data['budget'], 2); ?></td>
+                                <td>$<?= number_format($data['spend'], 2); ?></td>
+                                <td><?= htmlspecialchars($data['clicks']); ?></td>
+                                <td><?= htmlspecialchars($data['applies']); ?></td>
+                                <td>$<?= number_format($data['cpa'], 2); ?></td>
+                                <td>$<?= number_format($data['cpc'], 2); ?></td>
+                                <td><?= number_format($data['conversion_rate'], 2); ?>%</td>
+                                <td><?= number_format($data['numjobs']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     <?php include 'footer.php'; ?>

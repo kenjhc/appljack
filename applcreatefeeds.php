@@ -1,6 +1,6 @@
 <?php
 include "database/db.php";
- 
+
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php"); // Redirect to login page if not authenticated
     exit();

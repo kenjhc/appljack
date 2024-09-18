@@ -132,9 +132,9 @@ $db->close();
             background-color: #f2f2f2;
         }
 
-        .logs_filter {
+        /* .logs_filter {
             margin: unset !important;
-        }
+        } */
 
         .logs_filter>div {
             display: flex;
@@ -157,7 +157,7 @@ $db->close();
         }
 
         /* Custom pagination styles */
-        nav {
+        nav:not(#sidebar) {
             margin-top: .6rem;
         }
 
@@ -211,8 +211,10 @@ $db->close();
 <body>
     <?php include 'appltopnav.php'; ?>
 
-    <div class="container">
-        <h1 class="mt-4">Application Logs</h1>
+    <div class="page-heading">
+        <h1>Application Logs</h1>
+    </div>
+    <div class="px-4 px-md-5 py-4">
 
         <form method="get" class="logs_filter mb-4 d-flex justify-between items-center">
             <div>
@@ -244,7 +246,7 @@ $db->close();
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary">Filter</button>
+                <button type="submit" class="btn btn-primary mb-0">Filter</button>
             </div>
 
             <nav aria-label="Page navigation">
@@ -363,6 +365,9 @@ $db->close();
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </div>
+    <?php include 'footer.php'; ?>
+
 </body>
 
 </html>

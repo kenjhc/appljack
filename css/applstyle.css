@@ -10,7 +10,7 @@
 body {
   font-family: "Arimo", sans-serif;
   color: black;
-  background-color: #edece8;
+  background-color: #edece8 !important;
   font-size: 12px;
 }
 
@@ -138,7 +138,7 @@ td {
 
 form {
   /* max-width: 600px; */ /* Set a max-width for the form and center it */
-  margin: auto;
+  /* margin: auto; */
   /* padding: 20px; */
   /* border: 1px solid #ccc;*/ /* Add a border to the form */
   /*border-radius: 5px;*/ /* Slightly round corners */
@@ -255,7 +255,7 @@ button[type="submit"]:hover {
   right: 20px; /* Adjust as needed for your layout */
   background-color: #7aaa4b; /* Choose a background color that fits your design */
   color: white; /* Text color */
-  padding: 10px 15px; /* Padding inside the button */
+  padding: 8px 15px;
   text-decoration: none; /* Remove underline from the link */
   border-radius: 5px; /* Optional: if you want rounded corners */
   font-size: 16px; /* Optional: if you want to adjust the text size */
@@ -270,7 +270,7 @@ button[type="submit"]:hover {
   right: 20px; /* Adjust as needed for your layout */
   background-color: #7aaa4b; /* Choose a background color that fits your design */
   color: white; /* Text color */
-  padding: 10px 15px; /* Padding inside the button */
+  padding: 8px 15px;
   text-decoration: none; /* Remove underline from the link */
   border-radius: 5px; /* Optional: if you want rounded corners */
   font-size: 16px; /* Optional: if you want to adjust the text size */
@@ -300,8 +300,8 @@ button[type="submit"]:hover {
 
 .section {
   position: relative; /* This will contain the absolute positioning of the buttons */
-  flex-basis: 48%; /* Flex basis controls the initial width of flex items */
-  padding: 20px; /* Add some padding around the content */
+  /* flex-basis: 48%;  */
+  /* padding: 20px;   */
 }
 
 /* Adjust positioning for Add buttons */
@@ -700,4 +700,82 @@ button[type="submit"]:hover {
 }
 .gap-2 {
   gap: 6px;
-} 
+}
+.gap-3 {
+  gap: 12px;
+}
+.gap-4 {
+  gap: 16px;
+}
+
+#sidebar .logo {
+  text-align: center;
+}
+
+#sidebar .logo img {
+  width: 100%;
+}
+
+#sidebar .logo img.logo-sm {
+  display: none;
+}
+
+#sidebar.active .logo img.logo-sm {
+  display: block;
+  padding: 16px;
+}
+
+#sidebar.active .logo img.logo-lg {
+  display: none;
+}
+
+#sidebar .logo::after {
+  content: "";
+}
+
+/* State when sidebar is active */
+#sidebar.active .logo::after {
+  content: "";
+  /* font-size: 2rem; */
+}
+
+#sidebarCollapse {
+  position: absolute;
+  top: 24px;
+  left: 100%;
+  opacity: 0;
+  transition: all 0.3s ease;
+  transform: translateX(-100%);
+  border-radius: 0;
+}
+
+#sidebar {
+  position: relative;
+}
+
+#sidebar:hover #sidebarCollapse {
+  opacity: 1;
+  transform: translateX(0%);
+}
+
+.page-heading {
+  background-color: #4e6666;
+  padding-inline: 1.5rem !important;
+  padding-block: 1rem !important;
+}
+
+.page-heading h1 {
+  margin: 0;
+  font-weight: bold;
+  color: white;
+}
+
+@media (min-width: 768px) {
+  .page-heading {
+    padding-inline: 3rem !important;
+  }
+}
+
+footer p {
+  margin: 0;
+}
