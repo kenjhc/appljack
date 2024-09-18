@@ -35,8 +35,7 @@ async function processCPAEvents() {
     fs.writeFileSync(queueFilePath, "", "utf8");
 
     // Connect to the database
-    connection = await mysql.createConnection(dbConfig); 
-
+    connection = await mysql.createConnection(dbConfig);
 
     // Create a read stream for the processing file
     const fileStream = fs.createReadStream(processingFilePath);
