@@ -4,14 +4,13 @@ const fs = require("fs");
 const config = require("../config");
 const path = require("path");
 
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
 const pool = mysql.createPool({
-  host: config.host,
-  user: config.username,
-  password: config.password,
-  database: config.database,
-  charset: config.charset,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
   connectionLimit: 10,
 });
 
