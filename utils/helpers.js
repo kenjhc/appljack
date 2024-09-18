@@ -2,6 +2,7 @@
 const mysql = require("mysql2/promise");
 const fs = require("fs");
 const config = require("../config");
+const path = require("path");
 
 const pool = mysql.createPool({
   host: config.host,
@@ -20,7 +21,7 @@ const logToDatabase = async (
 ) => {
   logMessage(
     `1. ${config.database} - ${config.username} - ${config.password}`,
-    logFilePath
+    path.join(__dirname, "..", "applpass_putevents_test.log")
   );
   const error = new Error();
   const stackLine = error.stack.split("\n")[2];
