@@ -25,13 +25,6 @@ const toBeProcessedFilePath = path.join(
 const backupFilePath = path.join(__dirname, "applpass_queue_backup.json");
 const logFilePath = path.join(__dirname, "applpass_putevents_test.log"); // Log file path
 
-logMessage(`I'm testing....`, logFilePath);
-// logMessage(`${config}`, logFilePath);
-logMessage(
-  `${config.database} - ${config.username} - ${config.password}`,
-  logFilePath
-);
-return;
 // Function to check for missing or null values in required fields
 function checkForRequiredFields(eventData) {
   const requiredFields = [

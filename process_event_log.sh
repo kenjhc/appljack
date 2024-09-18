@@ -4,7 +4,7 @@
 export PATH=/usr/local/bin:/usr/bin:/bin
 
 # Define lockfile for this cron job to prevent multiple simultaneous executions
-LOCKFILE="/chroot/home/appljack/appljack.com/html/locks/process_event_log.lock"
+LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/process_event_log.lock"
 
 # Function to clean up the lockfile
 cleanup() {
@@ -28,7 +28,7 @@ if ! mkdir "$LOCKFILE"; then
 fi
 
 # Paths
-DIR="/chroot/home/appljack/appljack.com/html"
+DIR="/chroot/home/appljack/appljack.com/html/admin"
 LOGFILE="$DIR/process_event_log.log"
 EVENT_LOG_FILE="$DIR/appljack_event_log.txt"
 PHP_SCRIPT="$DIR/process_events.php"

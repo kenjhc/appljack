@@ -2,7 +2,7 @@
 include 'database/db.php';
  
 // Path to the event log file
-$logFilePath = '/chroot/home/appljack/appljack.com/html/appljack_event_log.txt';
+$logFilePath = '/chroot/home/appljack/appljack.com/html/admin/appljack_event_log.txt';
 
 // Open the log file for reading
 $handle = fopen($logFilePath, 'r');

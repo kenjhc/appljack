@@ -6,6 +6,7 @@ const path = require("path");
 const config = require("./config");
 
 const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+
 const poolXmlFeeds = mysql.createPool({
   connectionLimit: 10,
   host: config.host,
