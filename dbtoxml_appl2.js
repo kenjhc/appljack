@@ -6,6 +6,7 @@ const path = require("path");
 const config = require("./config");
 
 const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+
 const poolXmlFeeds = mysql.createPool({
   connectionLimit: 10,
   host: config.host,
@@ -183,7 +184,7 @@ async function streamResultsToXml(
           }
         });
 
-        let customUrl = `https://appljack.com/admin/applpass.php?c=${encodeURIComponent(
+        let customUrl = `https://appljack.com${config.envPath}applpass.php?c=${encodeURIComponent(
           custid
         )}&f=${encodeURIComponent(feedid)}&j=${encodeURIComponent(
           job.job_reference

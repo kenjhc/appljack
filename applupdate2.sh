@@ -4,7 +4,7 @@
 export PATH=/usr/local/bin:/usr/bin:/bin
 export NODE_ENV=production
 
-LOCKFILE="/chroot/home/appljack/appljack.com/html/locks/cron_jobs.lock"
+LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/cron_jobs.lock"
 
 # Function to clean up lockfile
 cleanup() {
@@ -29,7 +29,7 @@ if ! mkdir "$LOCKFILE"; then
 fi
 
 # Paths
-DIR="/chroot/home/appljack/appljack.com/html"
+DIR="/chroot/home/appljack/appljack.com/html/admin"
 LOGFILE="$DIR/applupdate2.log"
 NODE="/usr/bin/node" # Ensure this is the correct path to the node executable
 PYTHON="/usr/bin/python3" # Updated path to the Python 3 executable

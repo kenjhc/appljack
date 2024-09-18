@@ -5,7 +5,7 @@ if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();
 }
-  
+
 // Default date range to the current month
 $defaultStartDate = date('Y-m-01');
 $defaultEndDate = date('Y-m-t');
@@ -119,7 +119,7 @@ try {
         }
     }
 } catch (PDOException $e) {
-    setToastMessage('error', "Error: " . $e->getMessage()); 
+    setToastMessage('error', "Error: " . $e->getMessage());
 }
 ?>
 
@@ -261,7 +261,7 @@ try {
                 <tbody>
                     <?php foreach ($customerData as $data): ?>
                         <tr>
-                            <td><a href="https://appljack.com/applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
+                            <td><a href="https://appljack.com<?= getEnvPath(); ?>applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
                             <td><?= htmlspecialchars($data['status']); ?></td>
                             <td>$<?= number_format($data['budget'], 2); ?></td>
                             <td>$<?= number_format($data['spend'], 2); ?></td>
