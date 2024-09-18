@@ -1,13 +1,14 @@
 require("dotenv").config();
 const mysql = require("mysql2/promise");
 const fs = require("fs");
+const config = require("../config");
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  charset: process.env.DB_CHARSET,
+  host: config.host,
+  user: config.username,
+  password: config.password,
+  database: config.database,
+  charset: config.charset,
   connectionLimit: 10,  
 });
 
