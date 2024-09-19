@@ -94,6 +94,7 @@ const moveRecords = (criteria) => {
       console.log("Script completed successfully.");
 
       connection.end(); // Close the connection only after all operations are completed
+      return;
     });
   });
 };
