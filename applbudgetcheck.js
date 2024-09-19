@@ -1,14 +1,19 @@
 // require('dotenv').config();
 const mysql = require("mysql2/promise");
 const config = require("./config");
+const dotenv = require("dotenv");
+const path = require("path");
+
+// Load .env file from the current directory
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 // Configure your database connection here
 const pool = mysql.createPool({
-  host: config.host,
-  user: config.username,
-  password: config.password,
-  database: config.database,
-  charset: config.charset,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  charset: process.env.DB_CHARSET,
 });
 
 console.log("uss: ", config.username);
@@ -22,7 +27,7 @@ const updateFeedStatus = async () => {
     console.log("I'm inn.. 1");
     connection = await pool.getConnection();
     console.log("I'm inn.. 2");
-    
+
     const [feeds] = await connection.query("SELECT * FROM applcustfeeds");
     console.log("I'm inn.. 3");
 
