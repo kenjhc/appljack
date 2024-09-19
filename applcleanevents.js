@@ -20,79 +20,104 @@ const logFilePath = "applcleanevents.log";
 const moveRecords = (criteria) => {
   logMessage(`Script started processing.`, logFilePath);
 
-  // Insert the matching rows into the appleventsdel table with deletecode set to 'ip'
-  const insertQuery = `
-    INSERT INTO appleventsdel (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, deletecode)
-    SELECT eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, 'ip' FROM applevents WHERE ${criteria}
-  `;
+  // First, check if any rows match the criteria
+  const checkQuery = `SELECT COUNT(*) AS rowCount FROM applevents WHERE ${criteria}`;
 
-  connection.query(insertQuery, (error, results) => {
+  connection.query(checkQuery, (error, results) => {
     if (error) {
-      logMessage(`Error executing insert query: ${error.message}`, logFilePath);
+      logMessage(`Error checking for matching rows: ${error.message}`, logFilePath);
       logToDatabase(
         "error",
         "applcleanevents.js",
-        `Error executing insert query: ${error.message}`
+        `Error checking for matching rows: ${error.message}`
       );
-
-      console.error("Error executing insert query:", error);
+      console.error("Error checking for matching rows:", error);
       connection.end(); // Close the connection in case of an error
       return;
     }
 
-    logMessage(
-      `Inserted ${results.affectedRows} rows into appleventsdel 1 `,
-      logFilePath
-    );
+    const rowCount = results[0].rowCount;
+    if (rowCount === 0) {
+      logMessage(`No matching rows found. Script completed with no action.`, logFilePath);
+      logToDatabase("info", "applcleanevents.js", `No matching rows found.`);
+      console.log("No matching rows found.");
+      connection.end(); // Close the connection since no further actions are needed
+      return;
+    }
 
-    logToDatabase(
-      "success",
-      "applcleanevents.js",
-      `Inserted ${results.affectedRows} rows into appleventsdel 2 `
-    );
+    // Insert the matching rows into the appleventsdel table with deletecode set to 'ip'
+    const insertQuery = `
+      INSERT INTO appleventsdel (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, deletecode)
+      SELECT eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, 'ip' FROM applevents WHERE ${criteria}
+    `;
 
-    console.log(`Inserted ${results.affectedRows} rows into appleventsdel 5`);
-
-    // After inserting, delete the matching rows from the applevents table
-    const deleteQuery = `DELETE FROM applevents WHERE ${criteria}`;
-
-    connection.query(deleteQuery, (error, results) => {
+    connection.query(insertQuery, (error, results) => {
       if (error) {
-        logMessage(
-          `Error executing delete query: ${error.message}`,
-          logFilePath
-        );
+        logMessage(`Error executing insert query: ${error.message}`, logFilePath);
         logToDatabase(
           "error",
           "applcleanevents.js",
-          `Error executing delete query: ${error.message}`
+          `Error executing insert query: ${error.message}`
         );
 
-        console.error("Error executing delete query:", error);
-      } else {
-        logMessage(
-          `Deleted ${results.affectedRows} rows from applevents 2`,
-          logFilePath
-        );
-        logToDatabase(
-          "warning",
-          "applcleanevents.js",
-          `Deleted ${results.affectedRows} rows from applevents 3 `
-        );
-
-        console.log(`Deleted ${results.affectedRows} rows from applevents 4`);
+        console.error("Error executing insert query:", error);
+        connection.end(); // Close the connection in case of an error
+        return;
       }
 
-      logMessage(`Script completed successfully.`, logFilePath);
+      logMessage(
+        `Inserted ${results.affectedRows} rows into appleventsdel.`,
+        logFilePath
+      );
+
       logToDatabase(
         "success",
         "applcleanevents.js",
-        `Script completed successfully.`
+        `Inserted ${results.affectedRows} rows into appleventsdel.`
       );
 
-      console.log("Script completed successfully.");
+      console.log(`Inserted ${results.affectedRows} rows into appleventsdel.`);
 
-      connection.end(); // Close the connection only after all operations are completed
+      // After inserting, delete the matching rows from the applevents table
+      const deleteQuery = `DELETE FROM applevents WHERE ${criteria}`;
+
+      connection.query(deleteQuery, (error, results) => {
+        if (error) {
+          logMessage(
+            `Error executing delete query: ${error.message}`,
+            logFilePath
+          );
+          logToDatabase(
+            "error",
+            "applcleanevents.js",
+            `Error executing delete query: ${error.message}`
+          );
+
+          console.error("Error executing delete query:", error);
+        } else {
+          logMessage(
+            `Deleted ${results.affectedRows} rows from applevents.`,
+            logFilePath
+          );
+          logToDatabase(
+            "success",
+            "applcleanevents.js",
+            `Deleted ${results.affectedRows} rows from applevents.`
+          );
+
+          console.log(`Deleted ${results.affectedRows} rows from applevents.`);
+        }
+
+        logMessage(`Script completed successfully.`, logFilePath);
+        logToDatabase(
+          "success",
+          "applcleanevents.js",
+          `Script completed successfully.`
+        );
+
+        console.log("Script completed successfully.");
+        connection.end(); // Close the connection only after all operations are completed
+      });
     });
   });
 };
