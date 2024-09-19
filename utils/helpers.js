@@ -40,7 +40,9 @@ const logToDatabase = async (
 
     fs.appendFileSync(
       logFilePath,
-      `${new Date().toISOString()} - Failed to log error to database: ${err.message}\n`,
+      `${new Date().toISOString()} - Failed to log error to database: ${
+        err.message
+      }\n`,
       "utf8"
     );
   } finally {
@@ -53,15 +55,19 @@ const logMessage = (message, logFilePath) => {
 
   try {
     const resolvedLogFilePath = path.resolve(__dirname, "..", logFilePath);
-    
+
     // Ensure the file exists, or create it if it doesn't
     if (!fs.existsSync(resolvedLogFilePath)) {
       fs.writeFileSync(resolvedLogFilePath, "", { flag: "w" }); // Create an empty file if it doesn't exist
     }
 
-    console.log(`Saving file... : ${message} | ${resolvedLogFilePath}`);
     fs.appendFileSync(resolvedLogFilePath, logMessage, "utf8");
   } catch (err) {
+    logToDatabase(
+      "error",
+      logFilePath,
+      `Error during storing log message to file: ${err.message}`
+    );
     console.log("Error during storing log message to file: ", err.message);
   }
 };
