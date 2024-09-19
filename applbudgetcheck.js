@@ -119,4 +119,6 @@ const updateFeedStatus = async () => {
   }
 };
 
+console.log("Running applbudgetcheck.js script...");
+
 updateFeedStatus();

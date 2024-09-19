@@ -1,4 +1,4 @@
-require("dotenv").config();
+// require("dotenv").config();
 
 const fs = require("fs");
 const mysql = require("mysql");
@@ -184,11 +184,13 @@ async function streamResultsToXml(
           }
         });
 
-        let customUrl = `https://appljack.com${config.envPath}applpass.php?c=${encodeURIComponent(
-          custid
-        )}&f=${encodeURIComponent(feedid)}&j=${encodeURIComponent(
-          job.job_reference
-        )}&jpid=${encodeURIComponent(jobpoolid)}`;
+        let customUrl = `https://appljack.com${
+          config.envPath
+        }applpass.php?c=${encodeURIComponent(custid)}&f=${encodeURIComponent(
+          feedid
+        )}&j=${encodeURIComponent(job.job_reference)}&jpid=${encodeURIComponent(
+          jobpoolid
+        )}`;
         customUrl = customUrl.replace(/&/g, "&amp;");
         fileStream.write(`    <url>${customUrl}</url>\n`);
         fileStream.write(`    <cpc>${job.effective_cpc}</cpc>\n`);
@@ -279,14 +281,20 @@ function buildQueryFromCriteria(criteria) {
 
   // Handle custom fields
   for (let i = 1; i <= 5; i++) {
-      if (criteria[`custquerycustom${i}`]) {
-          const customField = criteria[`custquerycustom${i}`].split(',');
-          const customIncludes = customField.filter(cf => !cf.trim().startsWith('NOT ')).map(cf => `aj.custom${i} LIKE '%${cf.trim()}%'`);
-          const customExcludes = customField.filter(cf => cf.trim().startsWith('NOT ')).map(cf => `aj.custom${i} NOT LIKE '%${cf.trim().substring(4)}%'`);
+    if (criteria[`custquerycustom${i}`]) {
+      const customField = criteria[`custquerycustom${i}`].split(",");
+      const customIncludes = customField
+        .filter((cf) => !cf.trim().startsWith("NOT "))
+        .map((cf) => `aj.custom${i} LIKE '%${cf.trim()}%'`);
+      const customExcludes = customField
+        .filter((cf) => cf.trim().startsWith("NOT "))
+        .map((cf) => `aj.custom${i} NOT LIKE '%${cf.trim().substring(4)}%'`);
 
-          if (customIncludes.length) conditions.push(`(${customIncludes.join(' OR ')})`);
-          if (customExcludes.length) conditions.push(`(${customExcludes.join(' AND ')})`);
-      }
+      if (customIncludes.length)
+        conditions.push(`(${customIncludes.join(" OR ")})`);
+      if (customExcludes.length)
+        conditions.push(`(${customExcludes.join(" AND ")})`);
+    }
   }
 
   if (conditions.length) {

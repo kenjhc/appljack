@@ -1,12 +1,12 @@
 const dotenv = require("dotenv");
 const path = require("path");
 
+const currentPath = __dirname;
+
 // Load .env file from the current directory
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config({ path: path.resolve(currentPath, ".env") });
 
 const getEnvPath = () => {
-  const currentPath = __dirname; // Get current directory path
-
   if (currentPath.includes("admin")) {
     return "/admin/"; // If directory includes 'admin'
   } else if (currentPath.includes("dev")) {
