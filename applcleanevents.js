@@ -153,7 +153,7 @@ const criteria = `
 `;
 
 // Execute the move function 
-db.connect((err) => {
+connection.connect((err) => {
   if (err) throw err;
   console.log("Connected to database.");
   moveRecords(criteria);
