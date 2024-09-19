@@ -57,7 +57,7 @@ const logMessage = (message, logFilePath) => {
     if (!fs.existsSync(logFilePath)) {
       fs.writeFileSync(logFilePath, "", { flag: "w" }); // Create an empty file if it doesn't exist
     }
-    console.log("Saving file...");
+    console.log(`Saving file... : ${message} | ${logFilePath}`);
     fs.appendFileSync(logFilePath, logMessage, "utf8");
   } catch (err) {
     console.log("Error during storing log message to file: ", err.message);
