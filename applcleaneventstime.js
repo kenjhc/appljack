@@ -16,6 +16,7 @@ const pool = mysql.createPool({
 });
 
 const logFilePath = "applcleanevents.log";
+console.log("uss 2: ", config.password);
 
 // Function to generate the correct time range in EDT timezone
 const generateTimeRange = () => {

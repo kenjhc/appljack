@@ -15,6 +15,7 @@ const connection = mysql.createConnection({
 });
 
 const logFilePath = "applcleanevents.log";
+console.log("uss: 3 ", config.password);
 
 // Function to move records based on criteria
 const moveRecords = (criteria) => {
