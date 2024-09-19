@@ -48,10 +48,10 @@ const moveRecords = (criteria) => {
     logToDatabase(
       "success",
       "applcleanevents.js",
-      `Inserted ${results.affectedRows} rows into appleventsdel`
+      `Inserted ${results.affectedRows} rows into appleventsdel 2 `
     );
 
-    console.log(`Inserted ${results.affectedRows} rows into appleventsdel`);
+    console.log(`Inserted ${results.affectedRows} rows into appleventsdel 5`);
 
     // After inserting, delete the matching rows from the applevents table
     const deleteQuery = `DELETE FROM applevents WHERE ${criteria}`;
