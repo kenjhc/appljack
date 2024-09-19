@@ -41,7 +41,7 @@ const moveRecords = (criteria) => {
     }
 
     logMessage(
-      `Inserted ${results.affectedRows} rows into appleventsdel`,
+      `Inserted ${results.affectedRows} rows into appleventsdel 1 `,
       logFilePath
     );
 
@@ -71,16 +71,16 @@ const moveRecords = (criteria) => {
         console.error("Error executing delete query:", error);
       } else {
         logMessage(
-          `Deleted ${results.affectedRows} rows from applevents`,
+          `Deleted ${results.affectedRows} rows from applevents 2`,
           logFilePath
         );
         logToDatabase(
           "warning",
           "applcleanevents.js",
-          `Deleted ${results.affectedRows} rows from applevents`
+          `Deleted ${results.affectedRows} rows from applevents 3 `
         );
 
-        console.log(`Deleted ${results.affectedRows} rows from applevents`);
+        console.log(`Deleted ${results.affectedRows} rows from applevents 4`);
       }
 
       logMessage(`Script completed successfully.`, logFilePath);
