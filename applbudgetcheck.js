@@ -1,6 +1,6 @@
 // require('dotenv').config();
 const mysql = require("mysql2/promise");
-const config = require("./config");
+// const config = require("./config");
 const dotenv = require("dotenv");
 const path = require("path");
 
@@ -16,7 +16,7 @@ const pool = mysql.createPool({
   charset: process.env.DB_CHARSET,
 });
 
-console.log("uss: ", config.username);
+console.log("uss: ", process.env.DB_USERNAME);
 
 const updateFeedStatus = async () => {
   let connection;
