@@ -11,7 +11,7 @@ const pool = mysql.createPool({
   charset: config.charset,
 });
 
-console.log("uss: ", config.password);
+console.log("uss: ", config.username);
 
 const updateFeedStatus = async () => {
   let connection;
