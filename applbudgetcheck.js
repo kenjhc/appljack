@@ -11,6 +11,8 @@ const pool = mysql.createPool({
   charset: config.charset,
 });
 
+console.log("uss: ", config.password);
+
 const updateFeedStatus = async () => {
   let connection;
   try {
@@ -118,7 +120,6 @@ const updateFeedStatus = async () => {
     console.log("Database connection closed.");
   }
 };
-
 
 console.log("Running applbudgetcheck.js script...");
 
