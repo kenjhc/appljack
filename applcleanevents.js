@@ -21,104 +21,79 @@ console.log("Error checking for matching rows:", config.password,config.database
 const moveRecords = (criteria) => {
   logMessage(`Script started processing.`, logFilePath);
 
-  // First, check if any rows match the criteria
-  const checkQuery = `SELECT COUNT(*) AS rowCount FROM applevents WHERE ${criteria}`;
+  // Insert the matching rows into the appleventsdel table with deletecode set to 'ip'
+  const insertQuery = `
+    INSERT INTO appleventsdel (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, deletecode)
+    SELECT eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, 'ip' FROM applevents WHERE ${criteria}
+  `;
 
-  connection.query(checkQuery, (error, results) => {
+  connection.query(insertQuery, (error, results) => {
     if (error) {
-      logMessage(`Error checking for matching rows: ${error.message}`, logFilePath);
+      logMessage(`Error executing insert query: ${error.message}`, logFilePath);
       logToDatabase(
         "error",
         "applcleanevents.js",
-        `Error checking for matching rows: ${error.message}`
+        `Error executing insert query: ${error.message}`
       );
-      console.error("Error checking for matching rows:", error);
+
+      console.error("Error executing insert query:", error);
       connection.end(); // Close the connection in case of an error
       return;
     }
 
-    const rowCount = results[0].rowCount;
-    if (rowCount === 0) {
-      logMessage(`No matching rows found. Script completed with no action.`, logFilePath);
-      logToDatabase("info", "applcleanevents.js", `No matching rows found.`);
-      console.log("No matching rows found.");
-      connection.end(); // Close the connection since no further actions are needed
-      return;
-    }
+    logMessage(
+      `Inserted ${results.affectedRows} rows into appleventsdel`,
+      logFilePath
+    );
 
-    // Insert the matching rows into the appleventsdel table with deletecode set to 'ip'
-    const insertQuery = `
-      INSERT INTO appleventsdel (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, deletecode)
-      SELECT eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, 'ip' FROM applevents WHERE ${criteria}
-    `;
+    logToDatabase(
+      "success",
+      "applcleanevents.js",
+      `Inserted ${results.affectedRows} rows into appleventsdel`
+    );
 
-    connection.query(insertQuery, (error, results) => {
+    console.log(`Inserted ${results.affectedRows} rows into appleventsdel`);
+
+    // After inserting, delete the matching rows from the applevents table
+    const deleteQuery = `DELETE FROM applevents WHERE ${criteria}`;
+
+    connection.query(deleteQuery, (error, results) => {
       if (error) {
-        logMessage(`Error executing insert query: ${error.message}`, logFilePath);
+        logMessage(
+          `Error executing delete query: ${error.message}`,
+          logFilePath
+        );
         logToDatabase(
           "error",
           "applcleanevents.js",
-          `Error executing insert query: ${error.message}`
+          `Error executing delete query: ${error.message}`
         );
 
-        console.error("Error executing insert query:", error);
-        connection.end(); // Close the connection in case of an error
-        return;
+        console.error("Error executing delete query:", error);
+      } else {
+        logMessage(
+          `Deleted ${results.affectedRows} rows from applevents`,
+          logFilePath
+        );
+        logToDatabase(
+          "warning",
+          "applcleanevents.js",
+          `Deleted ${results.affectedRows} rows from applevents`
+        );
+
+        console.log(`Deleted ${results.affectedRows} rows from applevents`);
       }
 
-      logMessage(
-        `Inserted ${results.affectedRows} rows into appleventsdel.`,
-        logFilePath
-      );
-
+      logMessage(`Script completed successfully.`, logFilePath);
       logToDatabase(
         "success",
         "applcleanevents.js",
-        `Inserted ${results.affectedRows} rows into appleventsdel.`
+        `Script completed successfully.`
       );
 
-      console.log(`Inserted ${results.affectedRows} rows into appleventsdel.`);
+      console.log("Script completed successfully.");
 
-      // After inserting, delete the matching rows from the applevents table
-      const deleteQuery = `DELETE FROM applevents WHERE ${criteria}`;
-
-      connection.query(deleteQuery, (error, results) => {
-        if (error) {
-          logMessage(
-            `Error executing delete query: ${error.message}`,
-            logFilePath
-          );
-          logToDatabase(
-            "error",
-            "applcleanevents.js",
-            `Error executing delete query: ${error.message}`
-          );
-
-          console.error("Error executing delete query:", error);
-        } else {
-          logMessage(
-            `Deleted ${results.affectedRows} rows from applevents.`,
-            logFilePath
-          );
-          logToDatabase(
-            "success",
-            "applcleanevents.js",
-            `Deleted ${results.affectedRows} rows from applevents.`
-          );
-
-          console.log(`Deleted ${results.affectedRows} rows from applevents.`);
-        }
-
-        logMessage(`Script completed successfully.`, logFilePath);
-        logToDatabase(
-          "success",
-          "applcleanevents.js",
-          `Script completed successfully.`
-        );
-
-        console.log("Script completed successfully.");
-        connection.end(); // Close the connection only after all operations are completed
-      });
+      connection.end(); // Close the connection only after all operations are completed
     });
   });
 };
@@ -153,10 +128,5 @@ const criteria = `
   OR ipaddress LIKE '49.205%'
 `;
 
-// Execute the move function 
-connection.connect((err) => {
-  if (err) throw err;
-  console.log("Connected to database.");
-  moveRecords(criteria);
-  console.log("File completed");
-});
+// Execute the move function
+moveRecords(criteria);
