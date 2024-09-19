@@ -29,21 +29,12 @@ echo "Running applcleanevents.js $(date)" >> "$LOGFILE"
 "$NODE" "$DIR/applcleanevents.js" >> "$LOGFILE" 2>&1
 
 # Run the script to clean events by time range, and ip/feedid/jobid match before checking budget status
-# echo "Running applcleaneventstime.js $(date)" >> "$LOGFILE"
-# "$NODE" "$DIR/applcleaneventstime.js" >> "$LOGFILE" 2>&1
-
-# # Run the script to check revenue vs budget caps
-# echo "Running applbudgetcheck.js $(date)" >> "$LOGFILE"
-# "$NODE" "$DIR/applbudgetcheck.js" >> "$LOGFILE" 2>&1
-
-echo "Starting applcleaneventstime.js $(date)" >> "$LOGFILE"
+echo "Running applcleaneventstime.js $(date)" >> "$LOGFILE"
 "$NODE" "$DIR/applcleaneventstime.js" >> "$LOGFILE" 2>&1
-echo "Completed applcleaneventstime.js $(date)" >> "$LOGFILE"
 
-echo "Starting applbudgetcheck.js $(date)" >> "$LOGFILE"
+# Run the script to check revenue vs budget caps
+echo "Running applbudgetcheck.js $(date)" >> "$LOGFILE"
 "$NODE" "$DIR/applbudgetcheck.js" >> "$LOGFILE" 2>&1
-echo "Completed applbudgetcheck.js $(date)" >> "$LOGFILE"
-
 
 # Release lock
 rmdir "$LOCKFILE"

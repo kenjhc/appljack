@@ -3,14 +3,15 @@
 const mysql = require("mysql");
 const fs = require("fs");
 const { logMessage, logToDatabase } = require("./utils/helpers");
+const config = require("./config");
 
 // Create a connection to the database
 const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'appljack_johnny',
-    password: 'app1j0hnny01$',
-    database: 'appljack_core',
-    charset: 'utf8mb4',
+  host: config.host,
+  user: config.username,
+  password: config.password,
+  database: config.database,
+  charset: config.charset,
 });
 
 const logFilePath = "applcleanevents.log";
@@ -28,7 +29,7 @@ const moveRecords = (criteria) => {
   connection.query(insertQuery, (error, results) => {
     if (error) {
       logMessage(`Error executing insert query: ${error.message}`, logFilePath);
-      logToDatabase( 
+      logToDatabase(
         "error",
         "applcleanevents.js",
         `Error executing insert query: ${error.message}`
@@ -36,6 +37,7 @@ const moveRecords = (criteria) => {
 
       console.error("Error executing insert query:", error);
       connection.end(); // Close the connection in case of an error
+      process.exit(1); // Exit with error code 1
       return;
     }
 
@@ -44,7 +46,7 @@ const moveRecords = (criteria) => {
       logFilePath
     );
 
-    logToDatabase( 
+    logToDatabase(
       "success",
       "applcleanevents.js",
       `Inserted ${results.affectedRows} rows into appleventsdel`
@@ -61,19 +63,22 @@ const moveRecords = (criteria) => {
           `Error executing delete query: ${error.message}`,
           logFilePath
         );
-        logToDatabase( 
+        logToDatabase(
           "error",
           "applcleanevents.js",
           `Error executing delete query: ${error.message}`
         );
 
         console.error("Error executing delete query:", error);
+        connection.end(); // Close the connection in case of an error
+        process.exit(1); // Exit with error code 1
+        return;
       } else {
         logMessage(
           `Deleted ${results.affectedRows} rows from applevents`,
           logFilePath
         );
-        logToDatabase( 
+        logToDatabase(
           "warning",
           "applcleanevents.js",
           `Deleted ${results.affectedRows} rows from applevents`
@@ -83,7 +88,7 @@ const moveRecords = (criteria) => {
       }
 
       logMessage(`Script completed successfully.`, logFilePath);
-      logToDatabase( 
+      logToDatabase(
         "success",
         "applcleanevents.js",
         `Script completed successfully.`
@@ -92,6 +97,7 @@ const moveRecords = (criteria) => {
       console.log("Script completed successfully.");
 
       connection.end(); // Close the connection only after all operations are completed
+      process.exit(0); // Exit with success code 0
     });
   });
 };
@@ -125,6 +131,9 @@ const criteria = `
   OR ipaddress LIKE '117.195%'
   OR ipaddress LIKE '49.205%'
 `;
+
+
+console.log("Running applcleanevents.js script...");
 
 // Execute the move function
 moveRecords(criteria);
