@@ -11,20 +11,16 @@ const pool = mysql.createPool({
   charset: config.charset,
 });
 
-console.log("uss: ", config.username);
-
 const updateFeedStatus = async () => {
   let connection;
   try {
     const currentDate = new Date();
     const yearMonthDay = currentDate.toISOString().slice(0, 10); // Daily check date format
     const yearMonth = currentDate.toISOString().slice(0, 7); // Monthly check date format
-    console.log("I'm inn.. 1");
+
     connection = await pool.getConnection();
-    console.log("I'm inn.. 2");
 
     const [feeds] = await connection.query("SELECT * FROM applcustfeeds");
-    console.log("I'm inn.. 3");
 
     for (const feed of feeds) {
       // Skip checking if the feed status is 'stopped'
