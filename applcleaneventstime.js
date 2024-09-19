@@ -248,5 +248,7 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
   processBatch();
 };
 
+console.log("Starting applcleaneventstime.js script...");
+
 const batchSize = 200;
 moveDuplicateRecordsInBatches(batchSize);

@@ -3,19 +3,17 @@
 const mysql = require("mysql");
 const fs = require("fs");
 const { logMessage, logToDatabase } = require("./utils/helpers");
-const config = require("./config");
 
 // Create a connection to the database
 const connection = mysql.createConnection({
-  host: config.host,
-  user: config.username,
-  password: config.password,
-  database: config.database,
-  charset: config.charset,
+    host: 'localhost',
+    user: 'appljack_johnny',
+    password: 'app1j0hnny01$',
+    database: 'appljack_core',
+    charset: 'utf8mb4',
 });
 
 const logFilePath = "applcleanevents.log";
-console.log("Error checking for matching rows:", config.password,config.database );
 
 // Function to move records based on criteria
 const moveRecords = (criteria) => {
@@ -30,7 +28,7 @@ const moveRecords = (criteria) => {
   connection.query(insertQuery, (error, results) => {
     if (error) {
       logMessage(`Error executing insert query: ${error.message}`, logFilePath);
-      logToDatabase(
+      logToDatabase( 
         "error",
         "applcleanevents.js",
         `Error executing insert query: ${error.message}`
@@ -46,7 +44,7 @@ const moveRecords = (criteria) => {
       logFilePath
     );
 
-    logToDatabase(
+    logToDatabase( 
       "success",
       "applcleanevents.js",
       `Inserted ${results.affectedRows} rows into appleventsdel`
@@ -63,7 +61,7 @@ const moveRecords = (criteria) => {
           `Error executing delete query: ${error.message}`,
           logFilePath
         );
-        logToDatabase(
+        logToDatabase( 
           "error",
           "applcleanevents.js",
           `Error executing delete query: ${error.message}`
@@ -75,7 +73,7 @@ const moveRecords = (criteria) => {
           `Deleted ${results.affectedRows} rows from applevents`,
           logFilePath
         );
-        logToDatabase(
+        logToDatabase( 
           "warning",
           "applcleanevents.js",
           `Deleted ${results.affectedRows} rows from applevents`
@@ -85,7 +83,7 @@ const moveRecords = (criteria) => {
       }
 
       logMessage(`Script completed successfully.`, logFilePath);
-      logToDatabase(
+      logToDatabase( 
         "success",
         "applcleanevents.js",
         `Script completed successfully.`
@@ -94,7 +92,6 @@ const moveRecords = (criteria) => {
       console.log("Script completed successfully.");
 
       connection.end(); // Close the connection only after all operations are completed
-      return;
     });
   });
 };
