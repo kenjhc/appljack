@@ -132,7 +132,6 @@ const criteria = `
   OR ipaddress LIKE '49.205%'
 `;
 
-
 console.log("Running applcleanevents.js script...");
 
 // Execute the move function

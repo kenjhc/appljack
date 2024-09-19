@@ -31,8 +31,15 @@ const logToDatabase = async (
       [logType, logLevel, scriptTxt, message]
     );
   } catch (err) {
+    const logFilePath = "appl_logs_errors.log";
+
+    // Ensure the file exists, or create it if it doesn't
+    if (!fs.existsSync(logFilePath)) {
+      fs.writeFileSync(logFilePath, "", { flag: "w" }); // Create an empty file if it doesn't exist
+    }
+
     fs.appendFileSync(
-      "appl_logs_errors.log",
+      logFilePath,
       `${new Date().toISOString()} - Failed to log error to database: ${
         err.message
       }\n`,
@@ -45,7 +52,16 @@ const logToDatabase = async (
 
 const logMessage = (message, logFilePath) => {
   const logMessage = `${new Date().toISOString()} - ${message}\n`;
-  fs.appendFileSync(logFilePath, logMessage, "utf8");
+
+  try {
+    if (!fs.existsSync(logFilePath)) {
+      fs.writeFileSync(logFilePath, "", { flag: "w" }); // Create an empty file if it doesn't exist
+    }
+    console.log("Saving file...");
+    fs.appendFileSync(logFilePath, logMessage, "utf8");
+  } catch (err) {
+    console.log("Error during storing log message to file: ", err.message);
+  }
 };
 
 // Export the functions
