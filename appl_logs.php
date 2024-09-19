@@ -249,29 +249,97 @@ $db->close();
 
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    <?php if ($page > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page - 1 ?>" aria-label="Previous">
-                                &laquo;
-                            </a>
-                        </li>
-                    <?php endif; ?>
 
-                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                        <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                            <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $i ?>">
-                                <?= $i ?>
-                            </a>
-                        </li>
-                    <?php endfor; ?>
 
-                    <?php if ($page < $totalPages): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page + 1 ?>" aria-label="Next">
-                                &raquo;
-                            </a>
-                        </li>
-                    <?php endif; ?>
+                    <div class="pagination">
+                        <?php
+                        if (($page > 1) && ($page > 1)) {
+                        ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page - 1 ?>" aria-label="Previous">
+                                    &laquo;
+                                </a>
+                            </li>
+
+                        <?php } ?>
+                        <?php
+                        if (($page - 1) > 1) {
+                        ?>
+                            <li class="page-item <?= 1 === $page ? 'active' : '' ?>">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=1">
+                                    1
+                                </a>
+                            </li>
+
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                    ...
+                                </a>
+                            </li>
+                        <?php
+                        }
+
+                        for ($i = ($page - 1); $i <= ($page + 1); $i++) {
+                            if ($i < 1)
+                                continue;
+                            if ($i > $totalPages)
+                                break;
+                            if ($i == $page) {
+                                $class = "active";
+                            } else {
+                                $class = "page-a-link";
+                            }
+                        ?>
+                            <li class="page-item <?= $class ?>">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?php echo $i; ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+
+                        <?php
+                        }
+
+                        if (($totalPages - ($page + 1)) >= 1) {
+                        ?>
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                    ...
+                                </a>
+                            </li>
+                        <?php
+                        }
+                        if (($totalPages - ($page + 1)) > 0) {
+                            if ($page == $totalPages) {
+                                $class = "active";
+                            } else {
+                                $class = "page-a-link";
+                            }
+                        ?>
+
+                            <li class="page-item <?= $class ?>">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?php echo $totalPages; ?>">
+                                    <?= $totalPages ?>
+                                </a>
+                            </li>
+
+                        <?php
+                        }
+                        ?>
+                        <?php
+                        if (($page < $totalPages)) {
+                        ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page + 1 ?>" aria-label="Next">
+                                    &raquo;
+                                </a>
+                            </li>
+
+                        <?php
+                        }
+                        ?>
+                    </div>
+
+
                 </ul>
             </nav>
         </form>
