@@ -15,6 +15,7 @@ const connection = mysql.createConnection({
 });
 
 const logFilePath = "applcleanevents.log";
+console.log("Error checking for matching rows:", config.password,config.database );
 
 // Function to move records based on criteria
 const moveRecords = (criteria) => {
