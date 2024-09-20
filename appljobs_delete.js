@@ -37,7 +37,7 @@ const selectStaleJobs = async (offset) => {
   logMessage(`Selecting stale jobs with OFFSET ${offset}`, logFilePath);
   logToDatabase(
     "success",
-    "applupload8.js",
+    "appljobs_delete.js",
     `Selecting stale jobs with OFFSET ${offset}`
   );
 
@@ -59,7 +59,7 @@ const selectStaleJobs = async (offset) => {
         logMessage(`Error during selectStaleJobs query: ${err}`, logFilePath);
         logToDatabase(
           "error",
-          "applupload8.js",
+          "appljobs_delete.js",
           `Error during selectStaleJobs query: ${err}`
         );
 
@@ -72,7 +72,7 @@ const selectStaleJobs = async (offset) => {
       );
       logToDatabase(
         "success",
-        "applupload8.js",
+        "appljobs_delete.js",
         `Selected ${result.length} stale jobs to delete.`
       );
 
@@ -91,7 +91,7 @@ const deleteStaleJobs = async (jobs) => {
   logMessage(`Deleting ${jobs.length} jobs from appljobs...`, logFilePath);
   logToDatabase(
     "success",
-    "applupload8.js",
+    "appljobs_delete.js",
     `Deleting ${jobs.length} jobs from appljobs...`
   );
 
@@ -106,7 +106,7 @@ const deleteStaleJobs = async (jobs) => {
         logMessage(`Error during deleteStaleJobs query: ${err}`, logFilePath);
         logToDatabase(
           "error",
-          "applupload8.js",
+          "appljobs_delete.js",
           `Error during deleteStaleJobs query: ${err}`
         );
 
@@ -119,7 +119,7 @@ const deleteStaleJobs = async (jobs) => {
       );
       logToDatabase(
         "warning",
-        "applupload8.js",
+        "appljobs_delete.js",
         `Deleted ${result.affectedRows} jobs from appljobs.`
       );
 
@@ -136,7 +136,7 @@ const processDeletions = async () => {
     logMessage(`Starting the deletion process...`, logFilePath);
     logToDatabase(
       "success",
-      "applupload8.js",
+      "appljobs_delete.js",
       `Starting the deletion process...`
     );
 
@@ -145,7 +145,7 @@ const processDeletions = async () => {
     logMessage(`Found ${freshCount} records in appljobsfresh.`, logFilePath);
     logToDatabase(
       "success",
-      "applupload8.js",
+      "appljobs_delete.js",
       `Found ${freshCount} records in appljobsfresh.`
     );
 
@@ -158,7 +158,7 @@ const processDeletions = async () => {
       );
       logToDatabase(
         "warning",
-        "applupload8.js",
+        "appljobs_delete.js",
         `No records in appljobsfresh. Deletion process aborted.`
       );
 
@@ -173,7 +173,7 @@ const processDeletions = async () => {
       logMessage(`Processing batch with offset ${offset}...`, logFilePath);
       logToDatabase(
         "success",
-        "applupload8.js",
+        "appljobs_delete.js",
         `Processing batch with offset ${offset}...`
       );
 
@@ -194,7 +194,7 @@ const processDeletions = async () => {
       );
       logToDatabase(
         "success",
-        "applupload8.js",
+        "appljobs_delete.js",
         `Deleted ${deletedRows} jobs in this batch. Total deleted so far: ${totalDeleted}. Processed ${totalRecords} records.`
       );
 
@@ -210,7 +210,7 @@ const processDeletions = async () => {
     );
     logToDatabase(
       "warning",
-      "applupload8.js",
+      "appljobs_delete.js",
       `Deletion process complete. Total jobs deleted: ${totalDeleted}`
     );
   } catch (err) {
@@ -218,7 +218,7 @@ const processDeletions = async () => {
     logMessage(`Error during deletion process: ${err}`, logFilePath);
     logToDatabase(
       "error",
-      "applupload8.js",
+      "appljobs_delete.js",
       `Error during deletion process: ${err}`
     );
   } finally {
@@ -233,7 +233,7 @@ const truncateFreshTable = async () => {
   logMessage(`Truncating appljobsfresh table...`, logFilePath);
   logToDatabase(
     "success",
-    "applupload8.js",
+    "appljobs_delete.js",
     `Truncating appljobsfresh table...`
   );
 
@@ -245,7 +245,7 @@ const truncateFreshTable = async () => {
         logMessage(`Error truncating appljobsfresh: ${err}`, logFilePath);
         logToDatabase(
           "error",
-          "applupload8.js",
+          "appljobs_delete.js",
           `Error truncating appljobsfresh: ${err}`
         );
 
@@ -255,7 +255,7 @@ const truncateFreshTable = async () => {
       logMessage(`appljobsfresh table truncated successfully.`, logFilePath);
       logToDatabase(
         "success",
-        "applupload8.js",
+        "appljobs_delete.js",
         `appljobsfresh table truncated successfully.`
       );
 
@@ -270,7 +270,7 @@ processDeletions().then(() => {
   logMessage(`All deletions and truncations complete.`, logFilePath);
   logToDatabase(
     "warning",
-    "applupload8.js",
+    "appljobs_delete.js",
     `All deletions and truncations complete.`
   );
 });
