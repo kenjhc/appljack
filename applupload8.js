@@ -61,7 +61,7 @@ const createTempTableOnce = async () => {
           console.log("Temporary table created successfully");
           logMessage("Temporary table created successfully", logFilePath);
           logToDatabase(
-            "error",
+            "success",
             "applupload8.js",
             `Temporary table created successfully`
           );
@@ -88,7 +88,7 @@ const truncateTempTable = async () => {
       }
       console.log("Temp table truncated.");
       logMessage(`Temp table truncated.`, logFilePath);
-      logToDatabase("error", "applupload8.js", `Temp table truncated.`);
+      logToDatabase("success", "applupload8.js", `Temp table truncated.`);
       tempTableRecordCount = 0; // Reset temp table record count
       resolve(result);
     });
@@ -222,7 +222,7 @@ const insertIntoTempTable = async (batch) => {
         logFilePath
       );
       logToDatabase(
-        "error",
+        "success",
         "applupload8.js",
         `Batch of ${batch.length} records inserted into temp table.`
       );
@@ -308,7 +308,7 @@ const transferToApplJobsTable = async () => {
               logFilePath
             );
             logToDatabase(
-              "error",
+              "success",
               "applupload8.js",
               `Total jobs added to appljobs: ${totalRecordsAdded}`
             );
@@ -340,7 +340,7 @@ const processQueue = async (feedId) => {
         logFilePath
       );
       logToDatabase(
-        "error",
+        "success",
         "applupload8.js",
         `Transferring records from temp table to appljobs...`
       );
@@ -367,7 +367,7 @@ const processBatch = async (batch, feedId) => {
       logFilePath
     );
     logToDatabase(
-      "error",
+      "warning",
       "applupload8.js",
       `Processing a batch of ${batch.length} records for feedId ${feedId}`
     );
@@ -398,7 +398,7 @@ const processBatch = async (batch, feedId) => {
           logFilePath
         );
         logToDatabase(
-          "error",
+          "success",
           "applupload8.js",
           `Transferring records from temp table to appljobs...`
         );
@@ -415,7 +415,11 @@ const processBatch = async (batch, feedId) => {
       global.gc(); // Force garbage collection
       console.log("Garbage collection triggered.");
       logMessage(`Garbage collection triggered.`, logFilePath);
-      logToDatabase("error", "applupload8.js", `Garbage collection triggered.`);
+      logToDatabase(
+        "warning",
+        "applupload8.js",
+        `Garbage collection triggered.`
+      );
     }
 
     // Log memory usage after processing batch
@@ -432,7 +436,7 @@ const processBatch = async (batch, feedId) => {
       logFilePath
     );
     logToDatabase(
-      "error",
+      "warning",
       "applupload8.js",
       `Memory Usage: Heap Used: ${(usedMemory.heapUsed / 1024 / 1024).toFixed(
         2
@@ -450,7 +454,7 @@ const parseXmlFile = async (filePath) => {
   console.log(`Starting to process file: ${filePath}`);
   logMessage(`Starting to process file: ${filePath}`, logFilePath);
   logToDatabase(
-    "error",
+    "success",
     "applupload8.js",
     `Starting to process file: ${filePath}`
   );
@@ -530,7 +534,7 @@ const parseXmlFile = async (filePath) => {
               logFilePath
             );
             logToDatabase(
-              "error",
+              "warning",
               "applupload8.js",
               `Invalid date format found: ${currentItem.posted_at}`
             );
@@ -557,7 +561,7 @@ const parseXmlFile = async (filePath) => {
           logFilePath
         );
         logToDatabase(
-          "error",
+          "success",
           "applupload8.js",
           `Transferring remaining records from temp table to appljobs...`
         );
@@ -638,7 +642,7 @@ const logProgress = () => {
     logFilePath
   );
   logToDatabase(
-    "error",
+    "warning",
     "applupload8.js",
     `Processed ${recordCount} records, Time elapsed ${elapsedTime.toFixed(
       2
@@ -664,7 +668,7 @@ const closeConnectionPool = () => {
       console.log("Connection pool closed successfully.");
       logMessage(`Connection pool closed successfully.`, logFilePath);
       logToDatabase(
-        "error",
+        "success",
         "applupload8.js",
         `Connection pool closed successfully.`
       );
@@ -677,7 +681,7 @@ processFiles()
   .then(() => {
     console.log("All processing complete.");
     logMessage(`All processing complete.`, logFilePath);
-    logToDatabase("error", "applupload8.js", `All processing complete.`);
+    logToDatabase("success", "applupload8.js", `All processing complete.`);
   })
   .catch((error) => {
     console.error("An error occurred during processing:", error);
