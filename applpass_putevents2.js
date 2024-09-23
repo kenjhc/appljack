@@ -52,27 +52,36 @@ function checkForRequiredFields(eventData) {
 async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
   try {
     // First Query: Check applcustfeeds for active feedid
-    const [feedRows] = await connection.execute(
+    const result = await connection.execute(
       "SELECT cpc FROM applcustfeeds WHERE feedid = ? AND status = 'active'",
       [feedid]
     );
-
+    if (!Array.isArray(result)) {
+      logMessage(
+        `Unexpected response from database for applcustfeeds`,
+        logFilePath
+      );
+      logToDatabase(
+        "error",
+        "applpass_putevents2.js",
+        `Unexpected response from database for applcustfeeds`
+      );
+      return 0.0;
+    }
+    const [feedRows] = result;
     // If a result is found and cpc is not 0.0, return this cpc value
     if (feedRows.length > 0 && feedRows[0].cpc !== 0.0) {
       return feedRows[0].cpc;
     }
-
     // Fallback Query: Check appljobs for job_reference and jobpoolid
     const [jobRows] = await connection.execute(
       "SELECT cpc FROM appljobs WHERE job_reference = ? AND jobpoolid = ?",
       [job_reference, jobpoolid]
     );
-
     // If a result is found, return this cpc value
     if (jobRows.length > 0) {
       return jobRows[0].cpc;
     }
-
     // If both queries fail, return 0.0
     return 0.0;
   } catch (err) {
