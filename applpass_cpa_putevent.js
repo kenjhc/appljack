@@ -33,6 +33,9 @@ console.log('====================================');
 async function processCPAEvents() {
   let connection;
   try {
+
+console.log(`Checking the file exists: ${queueFilePath}`);
+
     // Move contents of the queue file to the processing file
     if (fs.existsSync(queueFilePath)) {
       fs.renameSync(queueFilePath, processingFilePath);
@@ -53,12 +56,20 @@ async function processCPAEvents() {
 
     // Create a write stream for the backup file
     const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" });
+    console.log(`Reading file: ${processingFilePath}`);
 
     for await (const line of rl) {
+
+    console.log(`in a loop of lines...`);
+
       if (line.trim()) {
         let eventData;
+        
         try {
           eventData = JSON.parse(line);
+
+    console.log(`ipaddress from file json: ${eventData.ipaddress}`);
+
         } catch (jsonError) {
           logMessage(
             `JSON Parsing Error: ${jsonError.message} - Skipping this line`,
@@ -80,6 +91,8 @@ async function processCPAEvents() {
                          ORDER BY timestamp DESC LIMIT 1`,
             [eventData.userAgent, eventData.ipaddress]
           );
+
+    console.log(`Length of rows from query and process the cpa event: ${rows.length}`);
 
           if (rows.length === 0) {
             logMessage(
