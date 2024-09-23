@@ -47,8 +47,11 @@ $NODE "$DIR/xmldl_all.js" >> "$LOGFILE" 2>&1
 echo "Running applfeedtransform.js" >> "$LOGFILE"
 $NODE "$DIR/applfeedtransform.js" >> "$LOGFILE" 2>&1
 
-echo "Running applupload7.js" >> "$LOGFILE"
-$NODE "$DIR/applupload7.js" >> "$LOGFILE" 2>&1
+echo "Running applupload8.js" >> "$LOGFILE"
+$NODE --expose-gc "$DIR/applupload8.js" >> "$LOGFILE" 2>&1
+
+# echo "Running appljobs_delete.js"
+# $NODE "$DIR/appljobs_delete.js" >> "$LOGFILE" 2>&1
 
 echo "Running dbtoxml_appl2.js" >> "$LOGFILE"
 $NODE "$DIR/dbtoxml_appl2.js" >> "$LOGFILE" 2>&1
