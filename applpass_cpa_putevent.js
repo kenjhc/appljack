@@ -20,7 +20,14 @@ const dbConfig = {
 const queueFilePath = path.join(__dirname, "applpass_cpa_queue.json");
 const processingFilePath = path.join(__dirname, "applpass_cpa_processing.json");
 const backupFilePath = path.join(__dirname, "applpass_cpa_backup.json");
-const logFilePath = path.join(__dirname, "applpass_cpa.log"); // Log file path
+const logFilePath = path.join(__dirname, "applpass_cpa.log");
+
+console.log('====================================');
+console.log(`Queue File Path: ${queueFilePath}`);
+console.log(`Processing File Path: ${processingFilePath}`);
+console.log(`Backup File Path: ${backupFilePath}`);
+console.log(`Log File Path: ${logFilePath}`);
+console.log('====================================');
 
 // Function to process CPA events
 async function processCPAEvents() {
