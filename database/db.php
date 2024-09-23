@@ -21,12 +21,27 @@ function loadEnv($file)
         if (strpos(trim($line), '#') === 0) {
             continue;
         }
-        list($key, $value) = explode('=', $line, 2);
-        $vars[trim($key)] = trim($value);
+        
+        // Split the line into key and value
+        $parts = explode('=', $line, 2);
+
+        // Ensure the line contains exactly one '=' character
+        if (count($parts) !== 2) {
+            // Handle lines that don't contain exactly one '='
+            error_log("[" . date('Y-m-d H:i:s') . "] Invalid line in .env file: " . $line);
+            continue; // Skip this line
+        }
+
+        $key = trim($parts[0]);
+        $value = trim($parts[1]);
+
+        // Store the key-value pair in the array
+        $vars[$key] = $value;
     }
 
     return $vars;
-} 
+}
+
 
 // Database configuration from .env file
 $host = $env['DB_HOST'];
@@ -87,3 +102,5 @@ function handleDbError($errorMessage)
     }
     exit;
 }
+
+

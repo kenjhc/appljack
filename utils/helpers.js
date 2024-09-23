@@ -1,14 +1,17 @@
-require("dotenv").config();
+const dotenv = require("dotenv");
 const mysql = require("mysql2/promise");
 const fs = require("fs");
+const path = require("path");
 
-const dbConfig = {
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
+
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
   user: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  charset: process.env.DB_CHARSET,
-}; 
+  connectionLimit: 10,
+});
 
 const logToDatabase = async (
   logLevel,
@@ -17,10 +20,10 @@ const logToDatabase = async (
   logType = "cronjob"
 ) => {
   const error = new Error();
-  const stackLine = error.stack.split("\n")[2]; // Get the third line from the stack trace
-  const lineNumber = stackLine.match(/:(\d+):\d+\)$/)?.[1]; // Extract the line number
-  
-  const connection = await mysql.createConnection(dbConfig);
+  const stackLine = error.stack.split("\n")[2];
+  const lineNumber = stackLine.match(/:(\d+):\d+\)$/)?.[1];
+
+  const connection = await pool.getConnection();
   const scriptTxt = `${lineNumber + ":" ?? "-"} ${scriptName}`;
   try {
     await connection.execute(
@@ -28,21 +31,45 @@ const logToDatabase = async (
       [logType, logLevel, scriptTxt, message]
     );
   } catch (err) {
+    const logFilePath = path.resolve(__dirname, "..", "appl_logs_errors.log");
+
+    // Ensure the file exists, or create it if it doesn't
+    if (!fs.existsSync(logFilePath)) {
+      fs.writeFileSync(logFilePath, "", { flag: "w" }); // Create an empty file if it doesn't exist
+    }
+
     fs.appendFileSync(
-      "appl_logs_errors.log",
+      logFilePath,
       `${new Date().toISOString()} - Failed to log error to database: ${
         err.message
       }\n`,
       "utf8"
     );
   } finally {
-    await connection.end();
+    connection.release();
   }
 };
 
 const logMessage = (message, logFilePath) => {
   const logMessage = `${new Date().toISOString()} - ${message}\n`;
-  fs.appendFileSync(logFilePath, logMessage, "utf8");
+
+  try {
+    const resolvedLogFilePath = path.resolve(__dirname, "..", logFilePath);
+
+    // Ensure the file exists, or create it if it doesn't
+    if (!fs.existsSync(resolvedLogFilePath)) {
+      fs.writeFileSync(resolvedLogFilePath, "", { flag: "w" }); // Create an empty file if it doesn't exist
+    }
+
+    fs.appendFileSync(resolvedLogFilePath, logMessage, "utf8");
+  } catch (err) {
+    logToDatabase(
+      "error",
+      logFilePath,
+      `Error during storing log message to file: ${err.message}`
+    );
+    console.log("Error during storing log message to file: ", err.message);
+  }
 };
 
 // Export the functions

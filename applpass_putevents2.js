@@ -23,7 +23,7 @@ const toBeProcessedFilePath = path.join(
   "applpass_tobeprocessed.json"
 );
 const backupFilePath = path.join(__dirname, "applpass_queue_backup.json");
-const logFilePath = path.join(__dirname, "applpass_putevents.log"); // Log file path
+const logFilePath = path.join(__dirname, "applpass_putevents_test.log"); // Log file path
 
 // Function to check for missing or null values in required fields
 function checkForRequiredFields(eventData) {

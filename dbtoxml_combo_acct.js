@@ -1,4 +1,4 @@
-require("dotenv").config();
+// require("dotenv").config();
 
 const fs = require("fs");
 const mysql = require("mysql");
@@ -192,7 +192,7 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
                 }
             });
 
-            let customUrl = `https://appljack.com/admin/applpass.php?c=${encodeURIComponent(criteria.custid)}&f=${encodeURIComponent(criteria.feedid)}&j=${encodeURIComponent(job.job_reference)}&jpid=${encodeURIComponent(criteria.jobpoolid)}`;
+            let customUrl = `https://appljack.com${config.envPath}applpass.php?c=${encodeURIComponent(criteria.custid)}&f=${encodeURIComponent(criteria.feedid)}&j=${encodeURIComponent(job.job_reference)}&jpid=${encodeURIComponent(criteria.jobpoolid)}`;
             customUrl = customUrl.replace(/&/g, '&amp;');
             fileStream.write(`    <url>${customUrl}</url>\n`);
             fileStream.write(`    <cpc>${job.effective_cpc}</cpc>\n`);

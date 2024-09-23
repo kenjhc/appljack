@@ -5,7 +5,7 @@ include 'database/db.php';
 ini_set("error_log", "/chroot/home/appljack/appljack.com/html/applpass7.log");
 
 error_log("Script started...");
- 
+
 // Extract query parameters
 $custid = $_GET['c'] ?? 'default';
 $feedid = $_GET['f'] ?? 'default';
@@ -21,15 +21,15 @@ error_log("jobpoolid: " . $jobpoolid);
 
 // Ensure critical parameters are provided
 if ($job_reference === 'default' || $jobpoolid === 'default') {
-    error_log("Missing critical query parameters: job_reference or jobpoolid."); 
+    error_log("Missing critical query parameters: job_reference or jobpoolid.");
     setToastMessage('error', "Error: Required parameters not provided.");
     exit;
 }
-  
+
 // Fetch URL from database
 $query = $db->prepare("SELECT url FROM appljobs WHERE job_reference = ? AND jobpoolid = ?");
 if (!$query) {
-    error_log("Prepare failed: " . $db->error); 
+    error_log("Prepare failed: " . $db->error);
     setToastMessage('error', "Error: Query preparation failed.");
     exit;
 }
@@ -37,7 +37,7 @@ $query->bind_param("ss", $job_reference, $jobpoolid);
 $query->execute();
 $result = $query->get_result();
 if (!$result) {
-    error_log("Query execution failed: " . $db->error); 
+    error_log("Query execution failed: " . $db->error);
     setToastMessage('error', "Error: Query execution failed.");
     exit;
 }
@@ -67,7 +67,7 @@ $eventData = [
 error_log("Event data to write: " . json_encode($eventData));
 
 // Attempt to write event data to a JSON file
-$file_path = '/chroot/home/appljack/appljack.com/html/admin/applpass_queue.json';
+$file_path = "/chroot/home/appljack/appljack.com/html" . getEnvPath() . "applpass_queue.json";
 $write_result = file_put_contents($file_path, json_encode($eventData) . PHP_EOL, FILE_APPEND | LOCK_EX);
 
 // Log the result of the file write operation
@@ -111,4 +111,3 @@ error_log("Final URL with UTM and existing parameters: " . $finalUrl);
 // Redirect to the final URL with UTM and existing parameters
 header('Location: ' . $finalUrl);
 exit;
-?>
