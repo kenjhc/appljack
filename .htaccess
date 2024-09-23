@@ -16,18 +16,14 @@
     Require all denied
 </FilesMatch>
 
+# Deny access to an entire folder
+# <Directory "database">
+#     Order allow,deny
+#     Deny from all
+# </Directory>
+
 # Return 403 Forbidden instead of default error page
 ErrorDocument 403 "Access Denied"
 
 # Prevent directory browsing
 Options -Indexes
-
-# ----------------------------
-# Unconditional Redirection
-# ----------------------------
-
-# Enable URL rewriting
-RewriteEngine On
-
-# Unconditionally redirect any request to applmasterview.php
-RewriteRule ^.*$ /applmasterview.php [L]
