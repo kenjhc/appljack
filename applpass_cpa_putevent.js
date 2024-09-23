@@ -22,19 +22,18 @@ const processingFilePath = path.join(__dirname, "applpass_cpa_processing.json");
 const backupFilePath = path.join(__dirname, "applpass_cpa_backup.json");
 const logFilePath = path.join(__dirname, "applpass_cpa.log");
 
-console.log('====================================');
+console.log("====================================");
 console.log(`Queue File Path: ${queueFilePath}`);
 console.log(`Processing File Path: ${processingFilePath}`);
 console.log(`Backup File Path: ${backupFilePath}`);
 console.log(`Log File Path: ${logFilePath}`);
-console.log('====================================');
+console.log("====================================");
 
 // Function to process CPA events
 async function processCPAEvents() {
   let connection;
   try {
-
-console.log(`Checking the file exists: ${queueFilePath}`);
+    console.log(`Checking the file exists: ${queueFilePath}`);
 
     // Move contents of the queue file to the processing file
     if (fs.existsSync(queueFilePath)) {
@@ -56,20 +55,19 @@ console.log(`Checking the file exists: ${queueFilePath}`);
 
     // Create a write stream for the backup file
     const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" });
-    console.log(`Reading file: ${processingFilePath}`);
+    console.log(`Reading file`);
+    console.log(`Length of applpass_cpa_processing.json: ${rl.length}`);
 
     for await (const line of rl) {
-
-    console.log(`in a loop of lines...`);
+      console.log(`line: ${line}`);
 
       if (line.trim()) {
         let eventData;
-        
+
         try {
           eventData = JSON.parse(line);
 
-    console.log(`ipaddress from file json: ${eventData.ipaddress}`);
-
+          console.log(`ipaddress from file json: ${eventData.ipaddress}`);
         } catch (jsonError) {
           logMessage(
             `JSON Parsing Error: ${jsonError.message} - Skipping this line`,
@@ -92,7 +90,9 @@ console.log(`Checking the file exists: ${queueFilePath}`);
             [eventData.userAgent, eventData.ipaddress]
           );
 
-    console.log(`Length of rows from query and process the cpa event: ${rows.length}`);
+          console.log(
+            `Length of rows from query and process the cpa event: ${rows.length}`
+          );
 
           if (rows.length === 0) {
             logMessage(
