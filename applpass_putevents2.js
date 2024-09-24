@@ -195,8 +195,8 @@ async function processEvents() {
           await connection.commit();
 
           // After successful insertion, write the line to the backup file
-          // console.log("Inserting event to backup and incrementing successful inserts");
-          console.log("Inserting values into DB:", values);
+          console.log("Inserting event to backup and incrementing successful inserts");
+          // console.log("Inserting values into DB:", values);
 
           backupStream.write(line + "\n");
           successfulInserts++; // Increment counter
