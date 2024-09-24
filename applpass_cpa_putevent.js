@@ -211,6 +211,10 @@ async function processCPAEvents() {
 
     // Empty the processing file after processing
     fs.writeFileSync(processingFilePath, "", "utf8");
+
+    // Graceful exit
+    console.log("Processing completed successfully.");
+    process.exit(0); // Exit successfully
   } catch (error) {
     logMessage(`Process failed: ${error.message}`, logFilePath);
     logToDatabase(
@@ -218,6 +222,7 @@ async function processCPAEvents() {
       "applpass_cpa_putevent.js",
       `Process failed: ${error.message}`
     );
+    process.exit(1); // Exit with error
   } finally {
     if (connection) {
       await connection.end();
