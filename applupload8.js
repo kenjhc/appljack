@@ -664,6 +664,7 @@ const closeConnectionPool = () => {
         "applupload8.js",
         `Failed to close the connection pool: ${err}`
       );
+      process.exit(1);
     } else {
       console.log("Connection pool closed successfully.");
       logMessage(`Connection pool closed successfully.`, logFilePath);
@@ -672,6 +673,7 @@ const closeConnectionPool = () => {
         "applupload8.js",
         `Connection pool closed successfully.`
       );
+      process.exit(0);
     }
   });
 };
@@ -682,6 +684,7 @@ processFiles()
     console.log("All processing complete.");
     logMessage(`All processing complete.`, logFilePath);
     logToDatabase("success", "applupload8.js", `All processing complete.`);
+    process.exit(0);
   })
   .catch((error) => {
     console.error("An error occurred during processing:", error);

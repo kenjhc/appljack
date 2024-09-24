@@ -10,3 +10,5 @@ appl_logs_errors.log
 applcleanevents.log
 appljobs_delete.log
 applupload8.log
+applpass_cpa_queue.json
+applpass_tobeprocessed.json

@@ -31,7 +31,6 @@ echo "Running applonoffxmls.js $(date)" >> "$LOGFILE"
 # Run the script to check the count of jobs in the appljobs table based on query in campaign
 echo "Running applcountjobs2.js $(date)" >> "$LOGFILE"
 "$NODE" "$DIR/applcountjobs2.js" >> "$LOGFILE" 2>&1
-echo ".sh completed.... $(date)" >> "$LOGFILE"
 
 # Release lock
 rmdir "$LOCKFILE"
