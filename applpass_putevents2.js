@@ -47,7 +47,7 @@ function checkForRequiredFields(eventData) {
     }
   });
 
-  console.log("Missing fields:", missingFields); // Log missing fields if any
+  // console.log("Missing fields:", missingFields); // Log missing fields if any
   return missingFields;
 }
 
@@ -62,7 +62,7 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
       [feedid]
     );
 
-    console.log("Feed rows result:", feedRows); // Log query result for applcustfeeds
+    // console.log("Feed rows result:", feedRows); // Log query result for applcustfeeds
 
     // If a result is found and cpc is not 0.0, return this cpc value
     if (feedRows.length > 0 && feedRows[0].cpc !== 0.0) {
@@ -75,7 +75,7 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
       [job_reference, jobpoolid]
     );
 
-    console.log("Job rows result:", jobRows); // Log query result for appljobs
+    // console.log("Job rows result:", jobRows); // Log query result for appljobs
 
     // If a result is found, return this cpc value
     if (jobRows.length > 0) {
@@ -188,7 +188,7 @@ async function processEvents() {
             eventData.feedid,
           ];
 
-          console.log("Executing insert query with values:", values); // Log the query values
+          // console.log("Executing insert query with values:", values); // Log the query values
           await connection.execute(query, values);
 
           // After successful insertion, write the line to the backup file
@@ -227,6 +227,7 @@ async function processEvents() {
         "applpass_putevents2.js",
         "All records processed successfully"
       );
+      process.exit(0); // Exit with success
     } else {
       const discrepancyMessage = `Discrepancy found: ${
         totalRecords - successfulInserts
@@ -235,18 +236,21 @@ async function processEvents() {
       console.log(discrepancyMessage); // Log any discrepancies
       logMessage(discrepancyMessage, logFilePath);
       logToDatabase("warning", "applpass_putevents2.js", discrepancyMessage);
+      process.exit(1); // Exit with failure
     }
-  } catch (err) {
-    const message = `Processing Error: ${err.message}`;
-    console.log(message); // Log processing error
-    logMessage(message, logFilePath);
-    logToDatabase("error", "applpass_putevents2.js", message);
+  } catch (error) {
+    console.log("Error in processEvents:", error.message); // Log any other errors
+    logMessage(`Error in processEvents: ${error.message}`, logFilePath);
+    logToDatabase(
+      "error",
+      "applpass_putevents2.js",
+      `Error in processEvents: ${error.message}`
+    );
+    process.exit(1); // Exit with failure
   } finally {
-    // Close the database connection
     if (connection) {
-      console.log("Closing database connection..."); // Log database connection close
-      await connection.end();
-      console.log("Database connection closed.");
+      console.log("Closing the database connection...");
+      connection.end(); // Close the database connection
     }
   }
 }
