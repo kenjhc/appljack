@@ -21,7 +21,7 @@ function loadEnv($file)
         if (strpos(trim($line), '#') === 0) {
             continue;
         }
-        
+
         // Split the line into key and value
         $parts = explode('=', $line, 2);
 
@@ -59,8 +59,7 @@ $options = [
 
 try {
     // Establish a PDO connection
-    $pdo = new PDO($dsn, $user, $pass, $options);
-    $conn = $pdo;
+    $pdo = $conn = new PDO($dsn, $user, $pass, $options);
 
     $db = new mysqli($host, $user, $pass, $db);
     $db->set_charset($charset);
@@ -102,5 +101,3 @@ function handleDbError($errorMessage)
     }
     exit;
 }
-
-
