@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const readline = require("readline");
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 const path = require("path");
 const { logMessage, logToDatabase } = require("./utils/helpers");
 const config = require("./config");
