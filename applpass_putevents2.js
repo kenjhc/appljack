@@ -27,6 +27,8 @@ const logFilePath = path.join(__dirname, "applpass_putevents_test.log"); // Log 
 
 // Function to check for missing or null values in required fields
 function checkForRequiredFields(eventData) {
+  console.log("Checking required fields for eventData:", eventData); // Log event data
+
   const requiredFields = [
     "eventid",
     "timestamp",
@@ -45,17 +47,22 @@ function checkForRequiredFields(eventData) {
     }
   });
 
+  console.log("Missing fields:", missingFields); // Log missing fields if any
   return missingFields;
 }
 
 // Function to get cpc value from applcustfeeds and appljobs tables
 async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
+  console.log(`Fetching CPC for feedid: ${feedid}, job_reference: ${job_reference}, jobpoolid: ${jobpoolid}`); // Log input parameters
+
   try {
     // First Query: Check applcustfeeds for active feedid
     const [feedRows] = await connection.execute(
       "SELECT cpc FROM applcustfeeds WHERE feedid = ? AND status = 'active'",
       [feedid]
     );
+
+    console.log("Feed rows result:", feedRows); // Log query result for applcustfeeds
 
     // If a result is found and cpc is not 0.0, return this cpc value
     if (feedRows.length > 0 && feedRows[0].cpc !== 0.0) {
@@ -67,6 +74,8 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
       "SELECT cpc FROM appljobs WHERE job_reference = ? AND jobpoolid = ?",
       [job_reference, jobpoolid]
     );
+
+    console.log("Job rows result:", jobRows); // Log query result for appljobs
 
     // If a result is found, return this cpc value
     if (jobRows.length > 0) {
@@ -95,8 +104,12 @@ async function processEvents() {
   try {
     // Move contents of the original file to the to-be-processed file
     if (fs.existsSync(originalFilePath)) {
+      console.log(`Moving ${originalFilePath} to ${toBeProcessedFilePath}`);
       fs.renameSync(originalFilePath, toBeProcessedFilePath);
     }
+
+    console.log(`Database: ${config.database}`);
+    console.log(`applpass_queue.json: ${originalFilePath}`);
 
     // Create an empty original file to continue receiving new events
     fs.writeFileSync(originalFilePath, "", "utf8");
@@ -108,11 +121,13 @@ async function processEvents() {
       .filter(Boolean);
     totalRecords = lines.length;
 
-    // Log the total number of records
+    console.log(`Total records to be processed: ${totalRecords}`); // Log total number of records
     logMessage(`Total records to be processed: ${totalRecords}`, logFilePath);
 
     // Connect to the database
+    console.log("Connecting to the database...");
     connection = await mysql.createConnection(dbConfig);
+    console.log("Database connected successfully.");
 
     // Create a read stream for the to-be-processed file
     const fileStream = fs.createReadStream(toBeProcessedFilePath);
@@ -123,9 +138,11 @@ async function processEvents() {
 
     // Create a write stream for the backup file
     const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" });
+    console.log("Length of file:", rl.length); // Log current line being processed
 
     for await (const line of rl) {
       if (line.trim()) {
+        console.log("Processing line:", line); // Log current line being processed
         const eventData = JSON.parse(line);
 
         // Check for missing or null required fields
@@ -136,19 +153,20 @@ async function processEvents() {
           )}] for eventID: ${eventData.eventid || "UNKNOWN"} - Skipped`;
 
           logMessage(`${message}`, logFilePath);
-
           logToDatabase("warning", "applpass_putevents2.js", message);
           continue; // Skip this event
         }
 
         try {
           // Get the cpc value from applcustfeeds and appljobs tables
+          console.log("Fetching CPC value...");
           const cpcValue = await getCPCValue(
             connection,
             eventData.feedid,
             eventData.job_reference,
             eventData.jobpoolid
           );
+          console.log(`Fetched CPC value: ${cpcValue}`); // Log fetched CPC value
 
           // Insert data into applevents table
           const query = `
@@ -170,12 +188,15 @@ async function processEvents() {
             eventData.feedid,
           ];
 
+          console.log("Executing insert query with values:", values); // Log the query values
           await connection.execute(query, values);
 
           // After successful insertion, write the line to the backup file
+          console.log("Inserting event to backup and incrementing successful inserts");
           backupStream.write(line + "\n");
           successfulInserts++; // Increment counter
         } catch (dbError) {
+          console.log(`Database Insertion Error: ${dbError.message}`); // Log database error
           logMessage(
             `Database Insertion Error: ${dbError.message}`,
             logFilePath
@@ -186,15 +207,20 @@ async function processEvents() {
     }
 
     // Close the streams
+    console.log("Closing streams...");
     backupStream.end();
     fileStream.close();
 
     // Empty the to-be-processed file after processing
+    console.log("Emptying to-be-processed file...");
     fs.writeFileSync(toBeProcessedFilePath, "", "utf8");
 
     // Log the total number of successful inserts and compare with the total records
+    console.log(`Total successful inserts: ${successfulInserts}`); // Log total successful inserts
     logMessage(`Total successful inserts: ${successfulInserts}`, logFilePath);
+
     if (totalRecords === successfulInserts) {
+      console.log("All records processed successfully."); // Log success if all records are processed
       logMessage(`All records processed successfully.`, logFilePath);
       logToDatabase(
         "success",
@@ -206,20 +232,24 @@ async function processEvents() {
         totalRecords - successfulInserts
       } records were not processed.`;
 
+      console.log(discrepancyMessage); // Log any discrepancies
       logMessage(discrepancyMessage, logFilePath);
-
       logToDatabase("warning", "applpass_putevents2.js", discrepancyMessage);
     }
   } catch (err) {
     const message = `Processing Error: ${err.message}`;
+    console.log(message); // Log processing error
     logMessage(message, logFilePath);
     logToDatabase("error", "applpass_putevents2.js", message);
   } finally {
+    // Close the database connection
     if (connection) {
+      console.log("Closing database connection..."); // Log database connection close
       await connection.end();
+      console.log("Database connection closed.");
     }
   }
 }
 
-// Run the event processing function
+// Call the function to process events
 processEvents();
