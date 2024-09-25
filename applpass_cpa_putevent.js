@@ -20,12 +20,21 @@ const dbConfig = {
 const queueFilePath = path.join(__dirname, "applpass_cpa_queue.json");
 const processingFilePath = path.join(__dirname, "applpass_cpa_processing.json");
 const backupFilePath = path.join(__dirname, "applpass_cpa_backup.json");
-const logFilePath = path.join(__dirname, "applpass_cpa.log"); // Log file path
+const logFilePath = path.join(__dirname, "applpass_cpa.log");
+
+console.log("====================================");
+console.log(`Queue File Path: ${queueFilePath}`);
+console.log(`Processing File Path: ${processingFilePath}`);
+console.log(`Backup File Path: ${backupFilePath}`);
+console.log(`Log File Path: ${logFilePath}`);
+console.log("====================================");
 
 // Function to process CPA events
 async function processCPAEvents() {
   let connection;
   try {
+    console.log(`Checking the file exists: ${queueFilePath}`);
+
     // Move contents of the queue file to the processing file
     if (fs.existsSync(queueFilePath)) {
       fs.renameSync(queueFilePath, processingFilePath);
@@ -46,12 +55,19 @@ async function processCPAEvents() {
 
     // Create a write stream for the backup file
     const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" });
+    console.log(`Reading file`);
+    console.log(`Length of applpass_cpa_processing.json: ${rl.length}`);
 
     for await (const line of rl) {
+      console.log(`line: ${line}`);
+
       if (line.trim()) {
         let eventData;
+
         try {
           eventData = JSON.parse(line);
+
+          console.log(`ipaddress from file json: ${eventData.ipaddress}`);
         } catch (jsonError) {
           logMessage(
             `JSON Parsing Error: ${jsonError.message} - Skipping this line`,
@@ -72,6 +88,10 @@ async function processCPAEvents() {
                          WHERE useragent = ? AND ipaddress = ?
                          ORDER BY timestamp DESC LIMIT 1`,
             [eventData.userAgent, eventData.ipaddress]
+          );
+
+          console.log(
+            `Length of rows from query and process the cpa event: ${rows.length}`
           );
 
           if (rows.length === 0) {
@@ -191,6 +211,10 @@ async function processCPAEvents() {
 
     // Empty the processing file after processing
     fs.writeFileSync(processingFilePath, "", "utf8");
+
+    // Graceful exit
+    console.log("Processing completed successfully.");
+    process.exit(0); // Exit successfully
   } catch (error) {
     logMessage(`Process failed: ${error.message}`, logFilePath);
     logToDatabase(
@@ -198,6 +222,7 @@ async function processCPAEvents() {
       "applpass_cpa_putevent.js",
       `Process failed: ${error.message}`
     );
+    process.exit(1); // Exit with error
   } finally {
     if (connection) {
       await connection.end();

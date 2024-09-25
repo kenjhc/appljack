@@ -295,7 +295,9 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
           }
         });
 
-        let customUrl = `https://appljack.com${config.envPath}applpass.php?c=${encodeURIComponent(
+        let customUrl = `https://appljack.com${
+          config.envPath
+        }applpass.php?c=${encodeURIComponent(
           criteria.custid
         )}&f=${encodeURIComponent(criteria.feedid)}&j=${encodeURIComponent(
           job.job_reference
@@ -318,9 +320,11 @@ async function closePool() {
       if (err) {
         console.error("Failed to close the pool:", err);
         reject(err);
+        process.exit(1);
       } else {
         console.log("Pool closed successfully.");
         resolve();
+        process.exit(0);
       }
     });
   });

@@ -4,6 +4,7 @@ const mysql = require("mysql2/promise");
 const fs = require("fs").promises; // Use fs promises API for async operations
 const path = require("path");
 const config = require("./config");
+
 // Configure your database connection here
 const pool = mysql.createPool({
   host: config.host,
@@ -43,6 +44,9 @@ const generateXmlFilesForFeeds = async () => {
     if (connection) await connection.release();
     await pool.end();
     console.log("Database connection closed.");
+    
+    // Explicitly exit the process
+    process.exit(0);
   }
 };
 
