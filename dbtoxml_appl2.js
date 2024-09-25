@@ -214,9 +214,11 @@ async function closePool() {
       if (err) {
         console.error("Failed to close the pool:", err);
         reject(err);
+        process.exit(1);
       } else {
         console.log("Pool closed successfully.");
         resolve();
+        process.exit(0);
       }
     });
   });

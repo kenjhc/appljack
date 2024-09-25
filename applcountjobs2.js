@@ -61,6 +61,7 @@ async function processXmlFiles() {
       }
     }
     console.log("All XML files processed.");
+    process.exit(0); // Exit the process once all files have been processed
   } catch (error) {
     console.error("Error processing XML files:", error);
 
@@ -69,11 +70,12 @@ async function processXmlFiles() {
       "applcountjobs2.js",
       `Error processing XML files: ${error}`
     );
+    process.exit(1); // Exit with an error code in case of failure
   } finally {
     pool.end();
   }
 }
-// this has been pushed by Ken
+
 // Function to count <job> nodes using a SAX parser
 function countJobNodesSax(filePath) {
   return new Promise((resolve, reject) => {
@@ -131,4 +133,7 @@ async function updateNumJobs(feedid, numJobs) {
 }
 
 // Start processing the XML files
-processXmlFiles().catch(console.error);
+processXmlFiles().catch((err) => {
+  console.error(err);
+  process.exit(1); // Exit with an error code in case of a fatal error
+});
