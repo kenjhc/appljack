@@ -1,7 +1,7 @@
 // require('dotenv').config();
 const mysql = require("mysql2/promise");
 const config = require("./config");
-  
+
 // Configure your database connection here
 const pool = mysql.createPool({
   host: config.host,
@@ -118,5 +118,7 @@ const updateFeedStatus = async () => {
     console.log("Database connection closed.");
   }
 };
+
+console.log("Running applbudgetcheck.js script...");
 
 updateFeedStatus();

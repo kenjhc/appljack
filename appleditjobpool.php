@@ -1,20 +1,21 @@
 <?php
 
 include 'database/db.php';
- 
+
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();
-} 
+}
 
 $error = ''; // Initialize $error to avoid undefined variable notices
 $jobpoolid = $_GET['jobpoolid'] ?? ''; // Ensure $jobpoolid is initialized before use
-  
+
 $acctnum = $_SESSION['acctnum']; // Retrieve account number from session
 $filepath = "/chroot/home/appljack/appljack.com/html/feedsclean/{$acctnum}-{$jobpoolid}.xml"; // Construct the file path
 
 // Function to sanitize and reformat the field name for XML
-function sanitizeFieldName($fieldName) {
+function sanitizeFieldName($fieldName)
+{
     // Remove invalid characters
     $fieldName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $fieldName);
 
@@ -179,7 +180,8 @@ if (!file_exists($filepath)) {
         } else {
             $firstJob = $jobs[0];
             // Flatten the XML structure
-            function flattenXml($xml, $prefix = '') {
+            function flattenXml($xml, $prefix = '')
+            {
                 $result = [];
                 foreach ($xml as $key => $value) {
                     $fullKey = $prefix ? $prefix . '.' . $key : $key;
@@ -219,6 +221,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>View Job XML Mapping | Appljack</title>
@@ -245,196 +248,259 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
         document.addEventListener('DOMContentLoaded', function() {
             toggleDropdown('custom_staticvalue', 'custom_appljobsmap');
         });
-
     </script>
 </head>
+
 <body>
-<?php include 'appltopnav.php'; ?>
+    <?php include 'appltopnav.php'; ?>
 
-<h1>Edit Settings for Job Pool #<?= htmlspecialchars($jobpoolid) ?>
-    <button onclick="confirmReset()">Reset All Mappings</button>
-</h1>
-
-<div class="edit-jobpoolname-form-container">
-    <h2>Edit Job Pool Name</h2>
-    <form action="" method="post">
-        <label for="jobpoolname">Job Pool Name:</label>
-        <input type="text" id="jobpoolname" name="jobpoolname" value="<?= htmlspecialchars($currentJobPoolName) ?>" required>
-        <button type="submit">Update Job Pool Name</button>
-    </form>
-</div>
-
-<div class="edit-jobpoolurl-form-container">
-    <h2>Edit Job Pool URL</h2>
-    <form action="" method="post">
-        <label for="jobpoolurl">Job Pool URL:</label>
-        <input type="text" id="jobpoolurl" name="jobpoolurl" value="<?= htmlspecialchars($currentJobPoolURL) ?>" required>
-        <button type="submit">Update Job Pool URL</button>
-    </form>
-</div>
-
-<div class="arbitrage-form-container">
-    <h2>Set Arbitrage %</h2>
-    <form action="" method="post">
-        <label for="arbitrage">Arbitrage:</label>
-        <input type="number" id="arbitrage" name="arbitrage" step="0.01" max="100" value="<?= htmlspecialchars($currentArbitrage) ?>" required>
-        <span>%</span>
-        <button type="submit">Set Arbitrage</button>
-    </form>
-</div>
-
-<h2>XML Mappings for Job Pool #<?= htmlspecialchars($jobpoolid) ?></h2>
-
-<?php if ($error): ?>
-    <p class="error"><?= htmlspecialchars($error); ?></p>
-<?php else: ?>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>XML Node</th>
-                    <th>Value</th>
-                    <th>Database Column</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($flattenedJob): foreach ($flattenedJob as $nodeName => $nodeValue):
-                    $mappedColumn = $mappings[$nodeName] ?? ($nodeName);
-                    $color = $mappedColumn ? 'blue' : (in_array($nodeName, $columns) ? 'green' : 'red');
-                ?>
-                <tr>
-                    <td><?= htmlspecialchars($nodeName) ?></td>
-                    <td><?= htmlspecialchars($nodeValue) ?></td>
-                    <td style="color: <?= $color ?>;">
-                        <?php
-                            if ($mappedColumn && $mappedColumn !== $nodeName) {
-                                echo 'Mapped';
-                            } elseif (in_array($nodeName, $columns)) {
-                                echo 'Matched';
-                            } else {
-                                echo 'No Match';
-                            }
-                        ?>
-                    </td>
-                    <td>
+    <?php echo renderHeader(
+        "Edit Settings for Job Pool #" . htmlspecialchars($jobpoolid),
+        '<button onclick="confirmReset()" class="btn_green">Reset All Mappings</button>',
+        0
+    ); ?>
+    <section class="job_section">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12 col-md-4">
+                    <div class="job_card">
                         <form action="" method="post">
-                            <input type="hidden" name="xml_tag" value="<?= htmlspecialchars($nodeName) ?>">
-                            <select name="db_column">
-                                <option value="">Remove Mapping</option>
-                                <?php
-                                    foreach ($columns as $column):
-                                        if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])):
-                                ?>
-                                    <option value="<?= htmlspecialchars($column) ?>" <?= $column === $mappedColumn ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($column) ?>
-                                    </option>
-                                <?php
-                                        endif;
-                                    endforeach;
-                                ?>
-                            </select>
-                            <button type="submit">Set Mapping</button>
+                            <p class="job_title">Edit Job Pool Name</p>
+                            <input type="text" class="job_input" name="jobpoolname" placeholder="Enter Job Pool Name" value="<?= htmlspecialchars($currentJobPoolName) ?>" required>
+                            <button type="submit" class="update_btn">Update Job Pool Name </button>
                         </form>
-                    </td>
-                </tr>
-                <?php endforeach; else: ?>
-                    <tr>
-                        <td colspan="4">No job data available in the XML file.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-<?php endif; ?>
+                    </div>
+                </div>
 
-<h2>Custom Fields and Mappings</h2>
-<?php if ($customFields): ?>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Field Name</th>
-                    <th>Static Value</th>
-                    <th>App Jobs Map</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($customFields as $field): ?>
-                <tr>
-                    <td><?= htmlspecialchars($field['fieldname']) ?></td>
-                    <td><?= htmlspecialchars($field['staticvalue']) ?></td>
-                    <td><?= htmlspecialchars($field['appljobsmap']) ?></td>
-                    <td>
+                <div class="col-sm-12 col-md-4">
+                    <div class="job_card">
                         <form action="" method="post">
-                            <input type="hidden" name="custom_id" value="<?= htmlspecialchars($field['id']) ?>">
-                            <input type="text" name="custom_fieldname" value="<?= htmlspecialchars($field['fieldname']) ?>" required>
-                            <input type="text" id="custom_staticvalue_<?= htmlspecialchars($field['id']) ?>" name="custom_staticvalue" value="<?= htmlspecialchars($field['staticvalue']) ?>" oninput="toggleDropdown('custom_staticvalue_<?= htmlspecialchars($field['id']) ?>', 'custom_appljobsmap_<?= htmlspecialchars($field['id']) ?>')">
-                            <select id="custom_appljobsmap_<?= htmlspecialchars($field['id']) ?>" name="custom_appljobsmap" <?= !empty($field['staticvalue']) ? 'disabled' : '' ?>>
-                                <option value="">Remove Mapping</option>
-                                <?php
-                                    foreach ($columns as $column):
-                                        if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])):
-                                ?>
-                                    <option value="<?= htmlspecialchars($column) ?>" <?= $column === $field['appljobsmap'] ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($column) ?>
-                                    </option>
-                                <?php
-                                        endif;
-                                    endforeach;
-                                ?>
-                            </select>
-                            <button type="submit">Update</button>
+                            <p class="job_title">Edit Job URL</p>
+                            <input type="text" class="job_input" name="jobpoolurl" placeholder="Enter Job Pool URL" value="<?= htmlspecialchars($currentJobPoolURL) ?>" required>
+                            <button class="update_btn" type="submit">Update Job Pool URL </button>
                         </form>
-                        <form action="" method="post" style="display:inline;">
-                            <input type="hidden" name="delete_custom_field" value="<?= htmlspecialchars($field['id']) ?>">
-                            <button type="submit" onclick="return confirm('Are you sure you want to delete this custom field?');">Delete</button>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-md-4">
+                    <div class="job_card">
+                        <form action="" method="post">
+                            <p class="job_title">Set Arbitrage %</p>
+                            <input type="text" class="job_input" name="arbitrage" placeholder="Enter Arbitrage " step="0.01" max="100" value="<?= htmlspecialchars($currentArbitrage) ?>" required>
+                            <button class="update_btn" type="submit">Set Arbitrage % </button>
                         </form>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-<?php else: ?>
-    <p>No Custom Fields or Mappings for This Job Pool.</p>
-<?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <div class="row xml_mapping_sec">
+                <div class="col-sm-12 col-md-12">
+                    <div class="">
+                        <div class="card ">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between ">
+                                    <h5 class="card-title">XML Mappings for Job Pool #<?= htmlspecialchars($jobpoolid) ?></h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <?php if ($error): ?>
+                                        <p class="error"><?= htmlspecialchars($error); ?></p>
+                                    <?php else: ?>
+                                        <div class="custom_padding">
+                                            <table
+                                                id="zero_config"
+                                                class="table table-striped table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>XML Node</th>
+                                                        <th>Value</th>
+                                                        <th>Database Column</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if ($flattenedJob): foreach ($flattenedJob as $nodeName => $nodeValue):
+                                                            $mappedColumn = $mappings[$nodeName] ?? ($nodeName);
+                                                            $color = $mappedColumn ? 'blue' : (in_array($nodeName, $columns) ? 'green' : 'red');
+                                                    ?>
+                                                            <tr>
+                                                                <td><?= htmlspecialchars($nodeName) ?></td>
+                                                                <td><?= htmlspecialchars($nodeValue) ?></td>
+                                                                <td style="color: <?= $color ?>;">
+                                                                    <?php
+                                                                    if ($mappedColumn && $mappedColumn !== $nodeName) {
+                                                                        echo 'Mapped';
+                                                                    } elseif (in_array($nodeName, $columns)) {
+                                                                        echo 'Matched';
+                                                                    } else {
+                                                                        echo 'No Match';
+                                                                    }
+                                                                    ?>
+                                                                </td>
+                                                                <td>
+                                                                    <form action="" method="post">
+                                                                        <input type="hidden" name="xml_tag" value="<?= htmlspecialchars($nodeName) ?>">
+                                                                        <select name="db_column">
+                                                                            <option value="">Remove Mapping</option>
+                                                                            <?php
+                                                                            foreach ($columns as $column):
+                                                                                if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])):
+                                                                            ?>
+                                                                                    <option value="<?= htmlspecialchars($column) ?>" <?= $column === $mappedColumn ? 'selected' : '' ?>>
+                                                                                        <?= htmlspecialchars($column) ?>
+                                                                                    </option>
+                                                                            <?php
+                                                                                endif;
+                                                                            endforeach;
+                                                                            ?>
+                                                                        </select>
+                                                                        <button type="submit">Set Mapping</button>
+                                                                    </form>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach;
+                                                    else: ?>
+                                                        <tr>
+                                                            <td colspan="4">No job data available in the XML file.</td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<h2>Add Custom Field</h2>
-<form action="" method="post">
-    <label for="custom_fieldname">Field Name:</label>
-    <input type="text" id="custom_fieldname" name="custom_fieldname" required>
-    <label for="custom_staticvalue">Static Value:</label>
-    <input type="text" id="custom_staticvalue" name="custom_staticvalue" oninput="toggleDropdown('custom_staticvalue', 'custom_appljobsmap')">
-    <input type="hidden" id="hidden_custom_appljobsmap" name="custom_appljobsmap" value="">
-    <label for="custom_appljobsmap">App Jobs Map:</label>
-    <select id="custom_appljobsmap" name="custom_appljobsmap">
-        <option value="">Select Mapping</option>
-        <?php foreach ($columns as $column): if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])): ?>
-            <option value="<?= htmlspecialchars($column) ?>"><?= htmlspecialchars($column) ?></option>
-        <?php endif; endforeach; ?>
-    </select>
-    <button type="submit">Add Custom Field</button>
-</form>
-<script>
-    document.getElementById('custom_staticvalue').addEventListener('input', function() {
-        const dropdown = document.getElementById('custom_appljobsmap');
-        const hiddenDropdown = document.getElementById('hidden_custom_appljobsmap');
-        if (this.value.trim() !== "") {
-            dropdown.disabled = true;
-            hiddenDropdown.value = dropdown.value; // Set hidden input value
-        } else {
-            dropdown.disabled = false;
-        }
-    });
-</script>
+
+            <!-- another section  -->
+            <div class="row xml_mapping_sec second">
+                <div class="col-sm-12 col-md-12">
+                    <div class="">
+                        <div class="card ">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between ">
+                                    <h5 class="card-title">Custom Fields and Mappings</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <?php if ($customFields): ?>
+                                        <div class="custom_padding">
+                                            <table
+                                                id="zero_config"
+                                                class="table table-striped table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Field Name</th>
+                                                        <th>Static Value</th>
+                                                        <th>App Jobs Map</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($customFields as $field): ?>
+                                                        <tr>
+                                                            <td><?= htmlspecialchars($field['fieldname']) ?></td>
+                                                            <td><?= htmlspecialchars($field['staticvalue']) ?></td>
+                                                            <td><?= htmlspecialchars($field['appljobsmap']) ?></td>
+                                                            <td>
+                                                                <form action="" method="post">
+                                                                    <input type="hidden" name="custom_id" value="<?= htmlspecialchars($field['id']) ?>">
+                                                                    <input type="text" name="custom_fieldname" value="<?= htmlspecialchars($field['fieldname']) ?>" required>
+                                                                    <input type="text" id="custom_staticvalue_<?= htmlspecialchars($field['id']) ?>" name="custom_staticvalue" value="<?= htmlspecialchars($field['staticvalue']) ?>" oninput="toggleDropdown('custom_staticvalue_<?= htmlspecialchars($field['id']) ?>', 'custom_appljobsmap_<?= htmlspecialchars($field['id']) ?>')">
+                                                                    <select id="custom_appljobsmap_<?= htmlspecialchars($field['id']) ?>" name="custom_appljobsmap" <?= !empty($field['staticvalue']) ? 'disabled' : '' ?>>
+                                                                        <option value="">Remove Mapping</option>
+                                                                        <?php
+                                                                        foreach ($columns as $column):
+                                                                            if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])):
+                                                                        ?>
+                                                                                <option value="<?= htmlspecialchars($column) ?>" <?= $column === $field['appljobsmap'] ? 'selected' : '' ?>>
+                                                                                    <?= htmlspecialchars($column) ?>
+                                                                                </option>
+                                                                        <?php
+                                                                            endif;
+                                                                        endforeach;
+                                                                        ?>
+                                                                    </select>
+                                                                    <button type="submit">Update</button>
+                                                                </form>
+                                                                <form action="" method="post" style="display:inline;">
+                                                                    <input type="hidden" name="delete_custom_field" value="<?= htmlspecialchars($field['id']) ?>">
+                                                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this custom field?');">Delete</button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php else: ?>
+                                        <p class="error">No Custom Fields or Mappings for This Job Pool.</p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
-<form id="resetMappingsForm" action="" method="post" style="display:none;">
-    <input type="hidden" name="reset_mappings" value="1">
-</form>
+            <!-- another section  -->
+            <div class="row xml_mapping_sec second">
+                <div class="col-sm-12 col-md-12">
+                    <div class="add_field_form">
+                        <div class="card ">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between ">
+                                    <h5 class="card-title">Custom Fields and Mappings</h5>
+                                </div>
+                                <form action="" method="post" class="custom_padding">
+                                    <label for="custom_fieldname">Field Name:</label>
+                                    <input type="text" id="custom_fieldname" class="job_input" name="custom_fieldname" required>
+                                    <label for="custom_staticvalue">Static Value:</label>
+                                    <input type="text" id="custom_staticvalue" class="job_input" name="custom_staticvalue" oninput="toggleDropdown('custom_staticvalue', 'custom_appljobsmap')">
+                                    <input type="hidden" id="hidden_custom_appljobsmap" class="job_input" name="custom_appljobsmap" value="">
+                                    <label for="custom_appljobsmap">App Jobs Map:</label>
+                                    <select id="custom_appljobsmap" name="custom_appljobsmap">
+                                        <option value="">Select Mapping</option>
+                                        <?php foreach ($columns as $column): if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])): ?>
+                                                <option value="<?= htmlspecialchars($column) ?>"><?= htmlspecialchars($column) ?></option>
+                                        <?php endif;
+                                        endforeach; ?>
+                                    </select>
+                                    <button type="submit" class="update_btn">Add Custom Field</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<?php include 'footer.php'; ?>
+
+        </div>
+
+    </section>
+
+
+    <script>
+        document.getElementById('custom_staticvalue').addEventListener('input', function() {
+            const dropdown = document.getElementById('custom_appljobsmap');
+            const hiddenDropdown = document.getElementById('hidden_custom_appljobsmap');
+            if (this.value.trim() !== "") {
+                dropdown.disabled = true;
+                hiddenDropdown.value = dropdown.value; // Set hidden input value
+            } else {
+                dropdown.disabled = false;
+            }
+        });
+    </script>
+
+
+    <form id="resetMappingsForm" action="" method="post" style="display:none;">
+        <input type="hidden" name="reset_mappings" value="1">
+    </form>
+
+    <?php include 'footer.php'; ?>
 </body>
+
 </html>

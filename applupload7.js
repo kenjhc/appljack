@@ -1,4 +1,4 @@
-require("dotenv").config();
+// require("dotenv").config();
 
 const fs = require("fs");
 const path = require("path");
@@ -137,7 +137,7 @@ const pool = mysql.createPool({
   database: config.database,
   charset: config.charset,
 });
- 
+
 const checkConnection = async () => {
   return new Promise((resolve, reject) => {
     tempConnection.ping((err) => {
@@ -489,8 +489,13 @@ const closeConnectionPool = () => {
     tempConnection.release(); // Release the connection back to the pool
   }
   pool.end((err) => {
-    if (err) console.error("Failed to close the connection pool:", err);
-    else console.log("Connection pool closed successfully.");
+    if (err) {
+      console.error("Failed to close the connection pool:", err);
+      process.exit(1);
+    } else {
+      console.log("Connection pool closed successfully.");
+      process.exit(0);
+    }
   });
 };
 
@@ -535,6 +540,7 @@ const processFiles = async () => {
 processFiles()
   .then(() => {
     console.log("All processing complete.");
+    process.exit(0); // Exit with success code 0
   })
   .catch((error) => {
     console.error("An error occurred during processing:", error);

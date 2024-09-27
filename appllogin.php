@@ -9,7 +9,7 @@ if (isset($_POST['login'])) {
     $custpw = $_POST['acctpw'];
 
     // Query the database for user
-    $query = $db->prepare("SELECT acctnum, acctpw, acctrole FROM applacct WHERE acctemail = ?");
+    $query = $db->prepare("SELECT acctfname, acctlname, acctnum, acctpw, acctrole FROM applacct WHERE acctemail = ?");
     if (!$query) {
         handleDbError("Prepare failed: " . $db->error);
     }
@@ -24,6 +24,9 @@ if (isset($_POST['login'])) {
             // Authentication successful
             $_SESSION['acctnum'] = $user['acctnum']; // Store acctnum in session
             $_SESSION['acctrole'] = $user['acctrole']; // Store acctnum in session
+            $_SESSION['acctfname'] = $user['acctfname']; // Store acctnum in session
+            $_SESSION['acctlname'] = $user['acctlname']; // Store acctnum in session
+            $_SESSION['acctname'] = $user['acctfname'] . " " . $user['acctlname']; // Store acctnum in session
             setToastMessage('success', "Login successfully.");
             header("Location: applmasterview.php"); // Redirect to portal.php
             exit();
@@ -50,25 +53,25 @@ if (isset($_POST['login'])) {
 <body>
 
     <?php include 'appltopnav.php'; ?>
-    <div class="page-heading login">
-        <h1>Login</h1>
-    </div>
+    <?php echo renderHeader(
+        "Login"
+    ); ?>
     <section class="login_sec">
         <div class="container-fluid">
-     
-        <div class="px-4 px-md-5 py-4">
-            <div class="row">
-                <div class="col-md-8 mx-auto"> 
-                    <form action="appllogin.php" method="post">
-                        <label for="email" class="m-0">Email:</label>
-                        <input type="email" id="email" name="acctemail" required>
-                        <label for="pw" class="m-0">Password:</label>
-                        <input type="password" id="pw" name="acctpw" required>
-                        <button type="submit" name="login">Login</button>
-                    </form>
+
+            <div class="px-4 px-md-5 py-4">
+                <div class="row">
+                    <div class="col-md-8 mx-auto">
+                        <form action="appllogin.php" method="post">
+                            <label for="email" class="m-0">Email:</label>
+                            <input type="email" id="email" name="acctemail" required>
+                            <label for="pw" class="m-0">Password:</label>
+                            <input type="password" id="pw" name="acctpw" required>
+                            <button type="submit" name="login">Login</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
     </section>
     <?php include 'footer.php'; ?>

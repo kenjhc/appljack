@@ -60,10 +60,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
     <?php include 'appltopnav.php'; ?>
-    <div class="page-heading">
-        <h1>Create Account</h1>
-    </div>
-    <div class="px-4 px-md-5 py-4">
+    <?php echo renderHeader(
+        "Create account"
+    ); ?>
+    <div class="job_section">
         <div class="row">
             <div class="col-md-8 mx-auto">
                 <form method="post">
@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <label for="isAdmin">Is Admin:</label>
                         <input type="checkbox" id="isAdmin" name="is_admin" value="1"><br><br>
                     </div>
-                    <input type="submit" class="form-control" value="Create Account">
+                    <input type="submit" class="update_btn" value="Create Account">
                 </form>
             </div>
         </div>

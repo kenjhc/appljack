@@ -141,42 +141,14 @@ try {
 </head>
 
 <body>
-    
+
 
     <?php include 'appltopnav.php'; ?>
 
-    <div class="page-heading">
-        <h1>Edit Setting for Job Pool #015316315</h1>
+    <?php echo renderHeader(
+        "Edit Setting for Job Pool #015316315"
+    ); ?>
 
-       <div class="d-flex align-items-center">
-
-            <div class="notification_wrapper">
-                <button class="notify_btn">
-                    <i class="fa-regular fa-bell"></i>
-                    <span>15</span>
-                </button>
-            </div>
-
-            <div class="account dropdown">
-                <button class="btn d-flex align-items-center text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="profile_img">
-                        <img src="https://www.profilebakery.com/wp-content/uploads/2023/04/ai-headshot-generator-4.jpg" alt="profile_img">
-                    </span>
-                    <div class="d-flex flex-column justify-content-start align-items-start">
-                        <span class="title">Claudia Bernard</span>
-                        <span class="subtitle">System Admin</span>
-                    </div>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><a class="dropdown-item" href="#">Accounts</a></li>
-                    <li><a class="dropdown-item" href="#">Users</a></li>
-                </ul>
-            </div>
-       </div>
-       
-
-    </div>
     <section class="job_section">
 
         <div class="container-fluid">
@@ -207,82 +179,81 @@ try {
 
                 <!-- another section  -->
 
-               
+
             </div>
             <div class="row xml_mapping_sec">
                 <div class="col-sm-12 col-md-12">
                     <div class="">
                         <div class="card ">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between ">
-                              <h5 class="card-title">XML Mappings for Job Pool #015316315</h5>
-                            </div>
-                            <div class="table-responsive">
-                                <div class="custom_padding">
-                                    <table
-                                        id="zero_config"
-                                        class="table table-striped table-bordered"
-                                    >
-                                        <thead>
-                                        <tr>
-                                            <th>XML Node</th>
-                                            <th>Value</th>
-                                            <th>Database Column</th>
-                                            <th>Action</th>
-                                            <th></th>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between ">
+                                    <h5 class="card-title">XML Mappings for Job Pool #015316315</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <div class="custom_padding">
+                                        <table
+                                            id="zero_config"
+                                            class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>XML Node</th>
+                                                    <th>Value</th>
+                                                    <th>Database Column</th>
+                                                    <th>Action</th>
+                                                    <th></th>
 
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td>Title</td>
-                                            <td>Test Job 1</td>
-                                            <td>Matched</td>
-                                            <td>
-                                                <select name="select" id="">
-                                                    <option value="title">Title</option>
-                                                    <option value="job">Job</option>
-                                                </select>
-                                            </td>
-                                            <td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Title</td>
+                                                    <td>Test Job 1</td>
+                                                    <td>Matched</td>
+                                                    <td>
+                                                        <select name="select" id="">
+                                                            <option value="title">Title</option>
+                                                            <option value="job">Job</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
 
-                                                <button class="update_btn">Set Mapping</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Title</td>
-                                            <td>Test Job 1</td>
-                                            <td>Matched</td>
-                                            <td>
-                                                <select name="select" id="">
-                                                    <option value="title">Title</option>
-                                                    <option value="job">Job</option>
-                                                </select>
-                                            </td>
-                                            <td>
+                                                        <button class="update_btn">Set Mapping</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Title</td>
+                                                    <td>Test Job 1</td>
+                                                    <td>Matched</td>
+                                                    <td>
+                                                        <select name="select" id="">
+                                                            <option value="title">Title</option>
+                                                            <option value="job">Job</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
 
-                                                <button class="update_btn">Set Mapping</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Title</td>
-                                            <td>Test Job 1</td>
-                                            <td>Matched</td>
-                                            <td>
-                                                <select name="select" id="">
-                                                    <option value="title">Title</option>
-                                                    <option value="job">Job</option>
-                                                </select>
-                                            </td>
-                                            <td>
+                                                        <button class="update_btn">Set Mapping</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Title</td>
+                                                    <td>Test Job 1</td>
+                                                    <td>Matched</td>
+                                                    <td>
+                                                        <select name="select" id="">
+                                                            <option value="title">Title</option>
+                                                            <option value="job">Job</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
 
-                                                <button class="update_btn">Set Mapping</button>
-                                            </td>
-                                        </tr>
+                                                        <button class="update_btn">Set Mapping</button>
+                                                    </td>
+                                                </tr>
 
-                                
-                                        </tbody>
-                                        <!-- <tfoot>
+
+                                            </tbody>
+                                            <!-- <tfoot>
                                         <tr>
                                         <th>XML Node</th>
                                             <th>Value</th>
@@ -291,10 +262,10 @@ try {
                                             <th></th>
                                         </tr>
                                         </tfoot> -->
-                                    </table>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </div>
@@ -305,106 +276,105 @@ try {
                 <div class="col-sm-12 col-md-12">
                     <div class="">
                         <div class="card ">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between ">
-                              <h5 class="card-title">Custom Fields and Mappings</h5>
-                            </div>
-                            <div class="table-responsive">
-                                <div class="custom_padding">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between ">
+                                    <h5 class="card-title">Custom Fields and Mappings</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <div class="custom_padding">
 
-                                    <table
-                                        id="zero_config"
-                                        class="table table-striped table-bordered"
-                                    >
-                                        <thead>
-                                        <tr>
-                                            <th>Field Name</th>
-                                            <th>Static Value</th>
-                                            <th>App Jobs Map</th>
-                                            <th>Action</th>
-                    
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td>Test Field</td>
-                                            <td>abcde</td>
-                                            <td>cpc</td>
-                                        <td class="custom_td_width">
-                                            <div class="custom_td_input">
+                                        <table
+                                            id="zero_config"
+                                            class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Field Name</th>
+                                                    <th>Static Value</th>
+                                                    <th>App Jobs Map</th>
+                                                    <th>Action</th>
 
-                                                <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="Test Field">
-                                                <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="abcde">
-                                                
-                                                <select name="select" id="">
-                                                    <option value="title">Title</option>
-                                                    <option value="job">Job</option>
-                                                </select>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Test Field</td>
+                                                    <td>abcde</td>
+                                                    <td>cpc</td>
+                                                    <td class="custom_td_width">
+                                                        <div class="custom_td_input">
 
-                                            </div>
-                                            <div class="custom_td_btn">
+                                                            <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="Test Field">
+                                                            <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="abcde">
 
-                                                <button class="update_btn">Update</button>
-                                                <button class="update_btn">Delete</button>
-                                            </div>
-                                        </td>
-                                                            
-                                        </tr>
-                                    
+                                                            <select name="select" id="">
+                                                                <option value="title">Title</option>
+                                                                <option value="job">Job</option>
+                                                            </select>
 
-                                        <tr>
-                                            <td>Test Field</td>
-                                            <td>abcde</td>
-                                            <td>cpc</td>
-                                        <td class="custom_td_width">
-                                            <div class="custom_td_input">
+                                                        </div>
+                                                        <div class="custom_td_btn">
 
-                                                <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="Test Field">
-                                                <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="abcde">
-                                                
-                                                <select name="select" id="">
-                                                    <option value="title">Title</option>
-                                                    <option value="job">Job</option>
-                                                </select>
+                                                            <button class="update_btn">Update</button>
+                                                            <button class="update_btn">Delete</button>
+                                                        </div>
+                                                    </td>
 
-                                            </div>
-                                            <div class="custom_td_btn">
+                                                </tr>
 
-                                                <button class="update_btn">Update</button>
-                                                <button class="update_btn">Delete</button>
-                                            </div>
-                                        </td>
-                                                            
-                                        </tr>
-                                    
 
-                                        <tr>
-                                            <td>Test Field</td>
-                                            <td>abcde</td>
-                                            <td>cpc</td>
-                                        <td class="custom_td_width">
-                                            <div class="custom_td_input">
+                                                <tr>
+                                                    <td>Test Field</td>
+                                                    <td>abcde</td>
+                                                    <td>cpc</td>
+                                                    <td class="custom_td_width">
+                                                        <div class="custom_td_input">
 
-                                                <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="Test Field">
-                                                <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="abcde">
-                                                
-                                                <select name="select" id="">
-                                                    <option value="title">Title</option>
-                                                    <option value="job">Job</option>
-                                                </select>
+                                                            <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="Test Field">
+                                                            <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="abcde">
 
-                                            </div>
-                                            <div class="custom_td_btn">
+                                                            <select name="select" id="">
+                                                                <option value="title">Title</option>
+                                                                <option value="job">Job</option>
+                                                            </select>
 
-                                                <button class="update_btn">Update</button>
-                                                <button class="update_btn">Delete</button>
-                                            </div>
-                                        </td>
-                                                            
-                                        </tr>
-                                    
-                                        </tbody>
-                                        <!-- <tfoot>
+                                                        </div>
+                                                        <div class="custom_td_btn">
+
+                                                            <button class="update_btn">Update</button>
+                                                            <button class="update_btn">Delete</button>
+                                                        </div>
+                                                    </td>
+
+                                                </tr>
+
+
+                                                <tr>
+                                                    <td>Test Field</td>
+                                                    <td>abcde</td>
+                                                    <td>cpc</td>
+                                                    <td class="custom_td_width">
+                                                        <div class="custom_td_input">
+
+                                                            <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="Test Field">
+                                                            <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="abcde">
+
+                                                            <select name="select" id="">
+                                                                <option value="title">Title</option>
+                                                                <option value="job">Job</option>
+                                                            </select>
+
+                                                        </div>
+                                                        <div class="custom_td_btn">
+
+                                                            <button class="update_btn">Update</button>
+                                                            <button class="update_btn">Delete</button>
+                                                        </div>
+                                                    </td>
+
+                                                </tr>
+
+                                            </tbody>
+                                            <!-- <tfoot>
                                         <tr>
                                         <th>XML Node</th>
                                             <th>Value</th>
@@ -413,49 +383,49 @@ try {
                                             <th></th>
                                         </tr>
                                         </tfoot> -->
-                                    </table>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            
+
             <!-- another section  -->
             <div class="row xml_mapping_sec second">
                 <div class="col-sm-12 col-md-12">
-                 <div class="add_field_form">
-                    <div class="card ">
+                    <div class="add_field_form">
+                        <div class="card ">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between ">
-                                <h5 class="card-title">Custom Fields and Mappings</h5>
+                                    <h5 class="card-title">Custom Fields and Mappings</h5>
                                 </div>
 
                                 <form action="#" class="custom_padding">
                                     <label for="fieldName">Field Name:</label>
-                                    <input type="text" class="job_input" name="fieldName" >
+                                    <input type="text" class="job_input" name="fieldName">
                                     <label for="staticValue">Field Name:</label>
-                                    <input type="text" class="job_input" name="staticValue" >
+                                    <input type="text" class="job_input" name="staticValue">
                                     <label for="select">Apply Job Map:</label>
                                     <select name="select" id="">
-                                        
+
                                         <option value="title">Title</option>
                                         <option value="job">Job</option>
                                     </select>
                                     <button class="update_btn">Add Custom Field</button>
                                 </form>
                             </div>
+                        </div>
+
                     </div>
-               
-                 </div>
                 </div>
             </div>
 
 
         </div>
-        
+
     </section>
     <?php include 'footer.php'; ?>
 

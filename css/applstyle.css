@@ -21,7 +21,7 @@ h1 {
   margin-bottom: 20px;
 }
 
-#content{
+#content {
   /* padding: 20px; */
 }
 
@@ -166,6 +166,7 @@ label {
 
 input[type="text"],
 input[type="password"],
+input[type="number"],
 input[type="email"],
 select {
   width: 100%; /* Full width */
@@ -252,9 +253,8 @@ button[type="submit"]:hover {
   gap: 5px; /* Space between icon and text */
   border-top-right-radius: 5px;
   border-left: 2px solid #fff;
-
 }
-.add-customer-button:hover{
+.add-customer-button:hover {
   color: #fff;
   background-color: #4e6766;
   border-left: 2px solid #fff;
@@ -513,6 +513,22 @@ button[type="submit"]:hover {
   text-decoration: none; /* No underline */
 }
 
+.btn_green {
+  background-color: #7aaa4b; /* Green background */
+  color: white; /* White text */
+  padding: 8px 15px; /* Padding */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  font-size: 16px; /* Font size */
+  cursor: pointer; /* Hand cursor */
+  display: inline-block; /* To keep it in the flow of the document */
+  text-decoration: none; /* No underline */
+}
+
+.btn_green:hover {
+  opacity: 0.6;
+}
+
 .edit-feed-button:hover {
   background-color: #5c8038; /* Darker on hover */
 }
@@ -720,7 +736,7 @@ button[type="submit"]:hover {
   gap: 16px;
 }
 
-#sidebar{
+#sidebar {
   /* max-width: max-content!important;
   min-width: max-content!important; */
 }
@@ -756,8 +772,6 @@ button[type="submit"]:hover {
   /* font-size: 2rem; */
 }
 
-
-
 #sidebarCollapse {
   position: absolute;
   top: 80px;
@@ -771,16 +785,16 @@ button[type="submit"]:hover {
 
 #sidebar {
   position: relative;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    width: -webkit-fill-available;
-    height: 100%;
-    height: 100vh;
-    position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: -webkit-fill-available;
+  height: 100%;
+  height: 100vh;
+  position: sticky;
 }
 
-#sidebar .sidebar_wrapper{
+#sidebar .sidebar_wrapper {
   height: 100%;
 }
 
@@ -797,8 +811,8 @@ button[type="submit"]:hover {
   justify-content: space-between;
   align-items: center;
   position: fixed;
-    width: -webkit-fill-available;
-    z-index: 1;
+  width: -webkit-fill-available;
+  z-index: 2;
 }
 
 .page-heading h1 {
@@ -807,33 +821,35 @@ button[type="submit"]:hover {
   color: white;
   font-size: 30px;
   padding: 0px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
 }
 
-.main_view_note{
+.main_view_note {
   margin-top: 100px;
 }
 
-
 /* job page css starts  */
 
-.job_section{
+.job_section {
   padding: 20px 20px;
   /* position: relative; */
   margin-top: 100px;
 }
-.job_section .job_card{
+.job_section .job_card {
   padding: 20px 12px;
   background-color: #fff;
   box-shadow: 2px 2px 10px #00000018;
   border-radius: 8px;
 }
 
-
 .job_section .job_card .update_btn,
-.update_btn{
+.update_btn {
   width: 100%;
-  background-color:#2a3d44;
-  color:#fff;
+  background-color: #2a3d44 !important;
+  color: #fff;
   outline: none;
   border: none;
   padding: 5px 10px;
@@ -844,52 +860,48 @@ button[type="submit"]:hover {
 }
 
 .job_section .job_card .update_btn:hover,
-.update_btn:hover{
-  background-color: #fff;
+.update_btn:hover {
+  background-color: #fff !important;
   color: #2a3d44;
 }
 
-
-.job_section .job_card .job_title{
+.job_section .job_card .job_title {
   color: #2a3d44;
   font-size: 25px;
   text-align: center;
   font-weight: 600;
-
 }
 
-
-
-.job_section .job_card .job_input{
+.job_section .job_card .job_input {
   padding: 5px 10px;
   background-color: #ecebe7;
-
 }
-.job_section .job_card .job_input::placeholder{
+
+.job_section .job_card .job_input::placeholder {
   /* background-color: #ecebe7; */
 }
 
-.xml_mapping_sec{
-  padding: 20px 0px 50px 0px;
+.xml_mapping_sec {
+  padding: 20px 0px 20px 0px;
 }
 
-.xml_mapping_sec.second{
+.xml_mapping_sec.second {
   padding: 0px 0px 20px 0px;
 }
-.xml_mapping_sec.second table tr td{
+.xml_mapping_sec.second table tr td {
   padding-top: 20px;
   padding-bottom: 25px;
 }
 
-.xml_mapping_sec .card-body{
+.xml_mapping_sec .card-body {
   padding: 0px;
 }
 
-.xml_mapping_sec .table-responsive{
+.xml_mapping_sec .table-responsive {
   /* padding: 20px; */
 }
 
-.xml_mapping_sec .table-responsive table{
+.xml_mapping_sec .table-responsive table {
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
   /* padding: 20px; */
@@ -900,25 +912,24 @@ button[type="submit"]:hover {
   overflow: hidden;
 }
 
-.xml_mapping_sec .table-bordered th,.xml_mapping_sec .table-bordered td{
+.xml_mapping_sec .table-bordered th,
+.xml_mapping_sec .table-bordered td {
   border: none;
 }
 
-.xml_mapping_sec .table-responsive th:first-child{
+.xml_mapping_sec .table-responsive th:first-child {
   border-top-left-radius: 5px;
 }
-.xml_mapping_sec .table-responsive th:last-child{
+.xml_mapping_sec .table-responsive th:last-child {
   border-top-right-radius: 5px;
 }
 
-
-
-.xml_mapping_sec .table-responsive th{
+.xml_mapping_sec .table-responsive th {
   background-color: #2a3d44;
   color: #fff;
 }
 
-.xml_mapping_sec .card-title{
+.xml_mapping_sec .card-title {
   background-color: #4e6766;
   padding: 10px 20px;
   color: #fff;
@@ -933,55 +944,53 @@ button[type="submit"]:hover {
   background-color: #ecebe7;
 }
 
-.xml_mapping_sec .add_field_form .job_input{
+.xml_mapping_sec .add_field_form .job_input {
   background-color: #fff;
   padding: 5px 10px;
 }
 
-.xml_mapping_sec .add_field_form .update_btn{
+.xml_mapping_sec .add_field_form .update_btn {
   margin-top: 20px;
   padding: 10px 10px;
   font-size: 18px;
 }
 
-.xml_mapping_sec .custom_td_input{
+.xml_mapping_sec .custom_td_input {
   display: flex;
   align-items: center;
 }
 
 .xml_mapping_sec .job_input,
-.xml_mapping_sec select{
+.xml_mapping_sec select {
   padding: 5px 10px;
-    background-color: #fff;
+  background-color: #fff;
   margin-right: 10px;
   height: 32px;
   border: 2px solid #2a3d44;
+}
+.xml_mapping_sec select {
+  margin-right: 0px;
+}
 
-  }
-  .xml_mapping_sec select{
-    margin-right: 0px;
-  }
-
-.xml_mapping_sec .custom_td_width{
+.xml_mapping_sec .custom_td_width {
   width: 50%;
 }
 
-.xml_mapping_sec table td{
+.xml_mapping_sec table td {
   vertical-align: middle;
 }
 
-.xml_mapping_sec .custom_td_btn{
+.xml_mapping_sec .custom_td_btn {
   display: flex;
   justify-content: space-between;
   column-gap: 12px;
 }
 
-
-.notification_wrapper .notify_btn i{
+.notification_wrapper .notify_btn i {
   color: #fff;
   padding-right: 10px;
 }
-.notification_wrapper .notify_btn span{
+.notification_wrapper .notify_btn span {
   color: #fff;
   background-color: red;
   padding: 0px 10px;
@@ -990,7 +999,7 @@ button[type="submit"]:hover {
   border-radius: 20px;
 }
 
-.notification_wrapper .notify_btn{
+.notification_wrapper .notify_btn {
   background-color: #2a3d44;
   padding: 5px 8px;
   outline: none;
@@ -1001,111 +1010,105 @@ button[type="submit"]:hover {
   margin-right: 10px;
 }
 
-.page-heading .account.dropdown{
-  padding: 5px 20px ;
+.page-heading .account.dropdown {
+  padding: 5px 20px;
   background-color: #2a3d44;
   color: #fff;
 }
 
-.page-heading .account.dropdown .dropdown-menu{
+.page-heading .account.dropdown .dropdown-menu {
   padding: 0px;
   /* left: 45px!important; */
   min-width: -webkit-fill-available;
 }
-.page-heading .account.dropdown .dropdown-menu .dropdown-item:hover{
+.page-heading .account.dropdown .dropdown-menu .dropdown-item:hover {
   background-color: #2a3d44;
   color: #fff;
 }
 
-.page-heading .account .dropdown-toggle::after{
+.page-heading .account .dropdown-toggle::after {
   right: 12px;
   font-size: 25px;
 }
 
-.page-heading .account.dropdown .profile_img img{
+.page-heading .account.dropdown .profile_img img {
   width: 50px;
   height: 50px;
   border-radius: 50px;
   margin-right: 10px;
   border: 2px solid #ffffffc7;
 }
-.page-heading .account.dropdown .title{
+.page-heading .account.dropdown .title {
   font-size: 14px;
 }
-.page-heading .account.dropdown .subtitle{
+.page-heading .account.dropdown .subtitle {
   font-size: 12px;
 }
-.page-heading .account.dropdown .btn{
+.page-heading .account.dropdown .btn {
   margin-right: 25px;
   padding: 10px 0px;
-
 }
 
-.xml_mapping_sec.second .table-responsive{
+.xml_mapping_sec.second .table-responsive {
   overflow: hidden;
 }
 
 /* job page css end  */
 
-
 /* main/customer page  */
 
-.account_master_view_sec .xml_mapping_sec{
+.account_master_view_sec .xml_mapping_sec {
   row-gap: 30px;
 }
 
 .job-pools-table .edit_btn,
 .job-pools-table .delete_btn,
 .customers-table .edit_btn,
-.customers-table .delete_btn{
-    /* border: 2px solid grey; */
-    font-size: 14px;
-    outline: none;
-    background-color: #7aab4a;
-    border-radius: 4px;
-    padding: 5px 10px;
-    transition: 0.2s ease-in-out;
-    color: #fff;
+.customers-table .delete_btn {
+  /* border: 2px solid grey; */
+  font-size: 14px;
+  outline: none;
+  background-color: #7aab4a;
+  border-radius: 4px;
+  padding: 5px 10px;
+  transition: 0.2s ease-in-out;
+  color: #fff;
 }
 
 .customers-table .delete_btn,
-.job-pools-table .delete_btn{
-    background-color: red;
-    color: #fff;
+.job-pools-table .delete_btn {
+  background-color: red;
+  color: #fff;
 }
-
 
 .customers-table .edit_btn:hover,
-.job-pools-table .edit_btn:hover{
-    background-color: #2d5802;
-    color: #fff;
+.job-pools-table .edit_btn:hover {
+  background-color: #2d5802;
+  color: #fff;
 }
-.date_filter_form_wrapper{
+.date_filter_form_wrapper {
   padding: 20px 20px 0px 20px;
 }
-.date_filter_form_wrapper .date_filter_form{
+.date_filter_form_wrapper .date_filter_form {
   justify-content: end;
 }
 
-
-
 /* create_customer_sec */
-.create_customer_sec{
+.create_customer_sec {
   margin-top: 100px;
 }
-.create_customer_sec .create_customer_form{
+.create_customer_sec .create_customer_form {
   padding: 50px 0px;
 }
 
-.xml_mapping_sec .custom_padding{
+.xml_mapping_sec .custom_padding {
   padding: 20px 10px;
   width: 98%;
   margin: 0 auto;
 }
 
-
 /* rescources_sec */
-.rescources_sec{
+.rescources_sec {
   padding: 20px;
   margin-top: 100px;
 }
@@ -1114,18 +1117,15 @@ button[type="submit"]:hover {
   padding: 20px 0px;
 }
 
-.login_sec{
+.login_sec {
   margin-top: 100px;
 }
-
 
 /* 
 .table-striped>tbody>tr:nth-of-type(odd) {
   --bs-table-accent-bg: var(--bs-table-striped-bg);
   color: var(--bs-table-striped-color);
 } */
-
-
 
 @media (min-width: 768px) {
   .page-heading {
@@ -1135,4 +1135,8 @@ button[type="submit"]:hover {
 
 footer p {
   margin: 0;
+}
+
+.error {
+  padding: 12px;
 }

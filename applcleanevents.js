@@ -37,6 +37,7 @@ const moveRecords = (criteria) => {
 
       console.error("Error executing insert query:", error);
       connection.end(); // Close the connection in case of an error
+      process.exit(1); // Exit with error code 1
       return;
     }
 
@@ -69,6 +70,9 @@ const moveRecords = (criteria) => {
         );
 
         console.error("Error executing delete query:", error);
+        connection.end(); // Close the connection in case of an error
+        process.exit(1); // Exit with error code 1
+        return;
       } else {
         logMessage(
           `Deleted ${results.affectedRows} rows from applevents`,
@@ -93,6 +97,7 @@ const moveRecords = (criteria) => {
       console.log("Script completed successfully.");
 
       connection.end(); // Close the connection only after all operations are completed
+      process.exit(0); // Exit with success code 0
     });
   });
 };
@@ -126,6 +131,8 @@ const criteria = `
   OR ipaddress LIKE '117.195%'
   OR ipaddress LIKE '49.205%'
 `;
+
+console.log("Running applcleanevents.js script...");
 
 // Execute the move function
 moveRecords(criteria);

@@ -193,6 +193,7 @@ $db->close();
             background-color: #2a3d45;
             color: #fff;
             border-color: #2a3d45;
+            z-index: 0;
         }
 
         .page-item.disabled .page-link {
@@ -211,161 +212,289 @@ $db->close();
 <body>
     <?php include 'appltopnav.php'; ?>
 
-    <div class="page-heading">
-        <h1>Application Logs</h1>
-    </div>
-    <div class="px-4 px-md-5 py-4">
+    <?php echo renderHeader(
+        "Application Logs"
+    ); ?>
 
-        <form method="get" class="logs_filter mb-4 d-flex justify-between items-center">
-            <div>
+    <section class="job_section">
+        <div class="">
+
+            <form method="get" class="logs_filter mb-4 d-flex justify-between items-center">
                 <div>
-                    <label for="type">Log Type:</label>
-                    <select name="type" id="type" class="form-control">
-                        <option value="cronjob" <?= $logType === 'cronjob' ? 'selected' : '' ?>>Cronjob</option>
-                        <option value="error" <?= $logType === 'error' ? 'selected' : '' ?>>Error</option>
-                        <option value="info" <?= $logType === 'info' ? 'selected' : '' ?>>Info</option>
-                    </select>
+                    <div>
+                        <label for="type">Log Type:</label>
+                        <select name="type" id="type" class="form-control">
+                            <option value="cronjob" <?= $logType === 'cronjob' ? 'selected' : '' ?>>Cronjob</option>
+                            <option value="error" <?= $logType === 'error' ? 'selected' : '' ?>>Error</option>
+                            <option value="info" <?= $logType === 'info' ? 'selected' : '' ?>>Info</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="level">Log Level:</label>
+                        <select name="level" id="level" class="form-control">
+                            <option value="all" <?= $logLevel === 'all' ? 'selected' : '' ?>>All</option>
+                            <option value="error" <?= $logLevel === 'error' ? 'selected' : '' ?>>Error</option>
+                            <option value="warning" <?= $logLevel === 'warning' ? 'selected' : '' ?>>Warning</option>
+                            <option value="success" <?= $logLevel === 'success' ? 'selected' : '' ?>>Success</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="script">Script Name:</label>
+                        <select name="script" id="script" class="form-control">
+                            <option value="">All</option>
+                            <?php foreach ($scripts as $script): ?>
+                                <option value="<?= htmlspecialchars($script['script_name']) ?>" <?= $scriptName === $script['script_name'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($script['script_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-0">Filter</button>
                 </div>
-                <div>
-                    <label for="level">Log Level:</label>
-                    <select name="level" id="level" class="form-control">
-                        <option value="all" <?= $logLevel === 'all' ? 'selected' : '' ?>>All</option>
-                        <option value="error" <?= $logLevel === 'error' ? 'selected' : '' ?>>Error</option>
-                        <option value="warning" <?= $logLevel === 'warning' ? 'selected' : '' ?>>Warning</option>
-                        <option value="success" <?= $logLevel === 'success' ? 'selected' : '' ?>>Success</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="script">Script Name:</label>
-                    <select name="script" id="script" class="form-control">
-                        <option value="">All</option>
-                        <?php foreach ($scripts as $script): ?>
-                            <option value="<?= htmlspecialchars($script['script_name']) ?>" <?= $scriptName === $script['script_name'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($script['script_name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary mb-0">Filter</button>
-            </div>
+
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <?php
+                        if (($page > 1) && ($page > 1)) {
+                        ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page - 1 ?>" aria-label="Previous">
+                                    &laquo;
+                                </a>
+                            </li>
+
+                        <?php } ?>
+                        <?php
+                        if (($page - 1) > 1) {
+                        ?>
+                            <li class="page-item <?= 1 === $page ? 'active' : '' ?>">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=1">
+                                    1
+                                </a>
+                            </li>
+
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                    ...
+                                </a>
+                            </li>
+                        <?php
+                        }
+
+                        for ($i = ($page - 1); $i <= ($page + 1); $i++) {
+                            if ($i < 1)
+                                continue;
+                            if ($i > $totalPages)
+                                break;
+                            if ($i == $page) {
+                                $class = "active";
+                            } else {
+                                $class = "page-a-link";
+                            }
+                        ?>
+                            <li class="page-item <?= $class ?>">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?php echo $i; ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+
+                        <?php
+                        }
+
+                        if (($totalPages - ($page + 1)) >= 1) {
+                        ?>
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                    ...
+                                </a>
+                            </li>
+                        <?php
+                        }
+                        if (($totalPages - ($page + 1)) > 0) {
+                            if ($page == $totalPages) {
+                                $class = "active";
+                            } else {
+                                $class = "page-a-link";
+                            }
+                        ?>
+
+                            <li class="page-item <?= $class ?>">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?php echo $totalPages; ?>">
+                                    <?= $totalPages ?>
+                                </a>
+                            </li>
+
+                        <?php
+                        }
+                        ?>
+                        <?php
+                        if (($page < $totalPages)) {
+                        ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page + 1 ?>" aria-label="Next">
+                                    &raquo;
+                                </a>
+                            </li>
+
+                        <?php
+                        }
+                        ?>
+                    </ul>
+                </nav>
+            </form>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Level</th>
+                        <th>Script/Line</th>
+                        <th>Message</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $count = (($page * $limit) - ($limit - 1));
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()):
+                            // Determine the background color based on the log level
+                            $backgroundColor = '';
+                            switch ($row['log_level']) {
+                                case 'error':
+                                    $backgroundColor = '#f8d7da'; // Light red
+                                    break;
+                                case 'warning':
+                                    $backgroundColor = '#fff3cd'; // Light yellow
+                                    break;
+                                case 'success':
+                                    $backgroundColor = '#d4edda'; // Light green
+                                    break;
+                                default:
+                                    $backgroundColor = '#f8f9fa'; // Light gray for others
+                                    break;
+                            }
+                    ?>
+                            <tr style="background-color: <?= htmlspecialchars($backgroundColor) ?>;">
+                                <td><?= htmlspecialchars($count) ?></td>
+                                <td><?= ucwords(htmlspecialchars($row['log_type'])) ?></td>
+                                <td><?= ucwords(htmlspecialchars($row['log_level'])) ?></td>
+                                <td><?= htmlspecialchars($row['script_name']) ?></td>
+                                <td><?= htmlspecialchars($row['message']) ?></td>
+                                <td><?= htmlspecialchars($row['timestamp']) ?></td>
+                            </tr>
+                        <?php
+                            $count++;
+                        endwhile;
+                    } else {
+                        ?>
+                        <tr>
+                            <td colspan="6" class="text-center">No logs found.</td>
+                        </tr>
+                    <?php
+                    }
+                    ?>
+                </tbody>
+            </table>
 
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    <?php if ($page > 1): ?>
+                    <?php
+                    if (($page > 1) && ($page > 1)) {
+                    ?>
                         <li class="page-item">
                             <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page - 1 ?>" aria-label="Previous">
                                 &laquo;
                             </a>
                         </li>
-                    <?php endif; ?>
 
-                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                        <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                            <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $i ?>">
+                    <?php } ?>
+                    <?php
+                    if (($page - 1) > 1) {
+                    ?>
+                        <li class="page-item <?= 1 === $page ? 'active' : '' ?>">
+                            <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=1">
+                                1
+                            </a>
+                        </li>
+
+                        <li class="page-item">
+                            <a class="page-link" href="#">
+                                ...
+                            </a>
+                        </li>
+                    <?php
+                    }
+
+                    for ($i = ($page - 1); $i <= ($page + 1); $i++) {
+                        if ($i < 1)
+                            continue;
+                        if ($i > $totalPages)
+                            break;
+                        if ($i == $page) {
+                            $class = "active";
+                        } else {
+                            $class = "page-a-link";
+                        }
+                    ?>
+                        <li class="page-item <?= $class ?>">
+                            <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?php echo $i; ?>">
                                 <?= $i ?>
                             </a>
                         </li>
-                    <?php endfor; ?>
 
-                    <?php if ($page < $totalPages): ?>
+                    <?php
+                    }
+
+                    if (($totalPages - ($page + 1)) >= 1) {
+                    ?>
+                        <li class="page-item">
+                            <a class="page-link" href="#">
+                                ...
+                            </a>
+                        </li>
+                    <?php
+                    }
+                    if (($totalPages - ($page + 1)) > 0) {
+                        if ($page == $totalPages) {
+                            $class = "active";
+                        } else {
+                            $class = "page-a-link";
+                        }
+                    ?>
+
+                        <li class="page-item <?= $class ?>">
+                            <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?php echo $totalPages; ?>">
+                                <?= $totalPages ?>
+                            </a>
+                        </li>
+
+                    <?php
+                    }
+                    ?>
+                    <?php
+                    if (($page < $totalPages)) {
+                    ?>
                         <li class="page-item">
                             <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page + 1 ?>" aria-label="Next">
                                 &raquo;
                             </a>
                         </li>
-                    <?php endif; ?>
+
+                    <?php
+                    }
+                    ?>
                 </ul>
             </nav>
-        </form>
-
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Type</th>
-                    <th>Level</th>
-                    <th>Script/Line</th>
-                    <th>Message</th>
-                    <th>Time</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $count = (($page * $limit) - ($limit - 1));
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()):
-                        // Determine the background color based on the log level
-                        $backgroundColor = '';
-                        switch ($row['log_level']) {
-                            case 'error':
-                                $backgroundColor = '#f8d7da'; // Light red
-                                break;
-                            case 'warning':
-                                $backgroundColor = '#fff3cd'; // Light yellow
-                                break;
-                            case 'success':
-                                $backgroundColor = '#d4edda'; // Light green
-                                break;
-                            default:
-                                $backgroundColor = '#f8f9fa'; // Light gray for others
-                                break;
-                        }
-                ?>
-                        <tr style="background-color: <?= htmlspecialchars($backgroundColor) ?>;">
-                            <td><?= htmlspecialchars($count) ?></td>
-                            <td><?= ucwords(htmlspecialchars($row['log_type'])) ?></td>
-                            <td><?= ucwords(htmlspecialchars($row['log_level'])) ?></td>
-                            <td><?= htmlspecialchars($row['script_name']) ?></td>
-                            <td><?= htmlspecialchars($row['message']) ?></td>
-                            <td><?= htmlspecialchars($row['timestamp']) ?></td>
-                        </tr>
-                    <?php
-                        $count++;
-                    endwhile;
-                } else {
-                    ?>
-                    <tr>
-                        <td colspan="6" class="text-center">No logs found.</td>
-                    </tr>
-                <?php
-                }
-                ?>
-            </tbody>
-        </table>
-
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                <?php if ($page > 1): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page - 1 ?>" aria-label="Previous">
-                            &laquo;
-                        </a>
-                    </li>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                        <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $i ?>">
-                            <?= $i ?>
-                        </a>
-                    </li>
-                <?php endfor; ?>
-
-                <?php if ($page < $totalPages): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?type=<?= urlencode($logType) ?>&level=<?= urlencode($logLevel) ?>&script=<?= urlencode($scriptName) ?>&page=<?= $page + 1 ?>" aria-label="Next">
-                            &raquo;
-                        </a>
-                    </li>
-                <?php endif; ?>
-            </ul>
-        </nav>
 
 
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    </div>
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        </div>
+    </section>
+
     <?php include 'footer.php'; ?>
 
 </body>

@@ -55,41 +55,12 @@ try {
 </head>
 
 <body>
-    <?php include 'appltopnav.php'; ?>
+    <?php include 'appltopnav.php'; ?> 
 
-    <div class="page-heading">
-        <h1>Account Resources</h1>
-
-       <div class="d-flex align-items-center">
-
-            <div class="notification_wrapper">
-                <button class="notify_btn">
-                    <i class="fa-regular fa-bell"></i>
-                    <span>15</span>
-                </button>
-            </div>
-
-            <div class="account dropdown">
-                <button class="btn d-flex align-items-center text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="profile_img">
-                        <img src="https://www.profilebakery.com/wp-content/uploads/2023/04/ai-headshot-generator-4.jpg" alt="profile_img">
-                    </span>
-                    <div class="d-flex flex-column justify-content-start align-items-start">
-                        <span class="title">Claudia Bernard</span>
-                        <span class="subtitle">System Admin</span>
-                    </div>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><a class="dropdown-item" href="#">Accounts</a></li>
-                    <li><a class="dropdown-item" href="#">Users</a></li>
-                </ul>
-            </div>
-       </div>
-       
-
-    </div>
-
+    <?php echo renderHeader(
+        "Account Resources"
+    ); ?>
+ 
     <section class="rescources_sec">
 
         <div class="container-fluid">

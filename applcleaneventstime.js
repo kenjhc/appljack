@@ -83,7 +83,9 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
           `Error executing duplicate query: ${error.message}`
         );
 
-        pool.end();
+        pool.end(() => {
+          process.exit(1); // Exit with error code
+        });
         return;
       }
 
@@ -102,7 +104,9 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
           } batches.`
         );
 
-        pool.end();
+        pool.end(() => {
+          process.exit(1); // Exit with error code
+        });
         return;
       }
 
@@ -136,7 +140,9 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
             `Error getting connection: ${err.message}`
           );
 
-          pool.end();
+          pool.end(() => {
+            process.exit(1); // Exit with error code
+          });
           return;
         }
 
@@ -152,7 +158,9 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
               `Error starting transaction: ${transactionError.message}`
             );
             connection.release();
-            pool.end();
+            pool.end(() => {
+              process.exit(1); // Exit with error code
+            });
             return;
           }
 
@@ -176,7 +184,9 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
               );
               return connection.rollback(() => {
                 connection.release();
-                pool.end();
+                pool.end(() => {
+                  process.exit(1); // Exit with error code
+                });
               });
             }
 
@@ -204,7 +214,9 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
                 );
                 return connection.rollback(() => {
                   connection.release();
-                  pool.end();
+                  pool.end(() => {
+                    process.exit(1); // Exit with error code
+                  });
                 });
               }
 
@@ -230,7 +242,9 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
                   );
                   return connection.rollback(() => {
                     connection.release();
-                    pool.end();
+                    pool.end(() => {
+                      process.exit(1); // Exit with error code
+                    });
                   });
                 }
 
@@ -249,4 +263,6 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
 };
 
 const batchSize = 200;
+
+console.log("Running applcleaneventstime.js script...");
 moveDuplicateRecordsInBatches(batchSize);
