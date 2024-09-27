@@ -8,6 +8,28 @@ if (!isset($_SESSION['acctnum'])) {
 
 $feedid = $_GET['feedid'] ?? $_POST['feedid'] ?? '';
 
+// Fetch the activepubs field value from the database for the current feed
+$activePubs = [];
+if ($feedid) {
+    $stmt = $pdo->prepare("SELECT activepubs FROM applcustfeeds WHERE feedid = ? AND custid = ?");
+    $stmt->execute([$feedid, $_SESSION['custid']]);
+    $result = $stmt->fetch();
+    if ($result) {
+        $activePubs = explode(',', $result['activepubs']);  // Convert activepubs to an array of publisher IDs
+    }
+}
+
+// Fetch available publishers for the current account
+$stmt = $pdo->prepare("SELECT publisherid, publishername FROM applpubs WHERE acctnum = ?");
+$stmt->execute([$_SESSION['acctnum']]);
+$publishers = $stmt->fetchAll();
+
+// Initialize empty arrays for companies
+$includeCompanies = [];
+$excludeCompanies = [];
+$currentActivePubs = explode(',', $feed['activepubs'] ?? '');
+
+// Function to handle include/exclude logic
 function extractIncludeExclude($query)
 {
     $allItems = explode(', ', $query ?? '');
@@ -25,23 +47,27 @@ function extractIncludeExclude($query)
     return [$includeItems, $excludeItems];
 }
 
+// Flag to display the "Update Successful" message
+$updateSuccess = false;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $feedname = filter_input(INPUT_POST, 'feedname', FILTER_SANITIZE_STRING);
-    $feedbudget = filter_input(INPUT_POST, 'feedbudget', FILTER_SANITIZE_STRING);
-    $feedcpc = filter_input(INPUT_POST, 'feedcpc', FILTER_SANITIZE_STRING);
-    $cpa_amount = filter_input(INPUT_POST, 'cpa_amount', FILTER_SANITIZE_STRING);
-    $dailybudget = filter_input(INPUT_POST, 'dailybudget', FILTER_SANITIZE_STRING);
+    // Handle feed update fields
+    $feedname = filter_input(INPUT_POST, 'feedname', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $feedbudget = filter_input(INPUT_POST, 'feedbudget', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $feedcpc = filter_input(INPUT_POST, 'feedcpc', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $cpa_amount = filter_input(INPUT_POST, 'cpa_amount', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $dailybudget = filter_input(INPUT_POST, 'dailybudget', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     if (empty($feedbudget)) {
         setToastMessage('error', "Please provide a valid budget.");
     }
 
-    // Handle the optional feedcpc and cpa fields
     $feedcpc = $feedcpc === '' ? null : $feedcpc;
     $cpa_amount = $cpa_amount === '' ? null : $cpa_amount;
 
-    $keywords_include = filter_input(INPUT_POST, 'keywords_include', FILTER_SANITIZE_STRING);
-    $keywords_exclude = filter_input(INPUT_POST, 'keywords_exclude', FILTER_SANITIZE_STRING);
+    // Handle keywords
+    $keywords_include = filter_input(INPUT_POST, 'keywords_include', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $keywords_exclude = filter_input(INPUT_POST, 'keywords_exclude', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $keywords_include_array = array_filter(array_map('trim', explode(',', $keywords_include)), 'strlen');
     $keywords_exclude_array = array_filter(array_map('trim', explode(',', $keywords_exclude)), 'strlen');
@@ -54,8 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $custquerykws = implode(', ', array_merge($keywords_include_array, $keywords_exclude_array));
 
-    $company_include = filter_input(INPUT_POST, 'company_include', FILTER_SANITIZE_STRING);
-    $company_exclude = filter_input(INPUT_POST, 'company_exclude', FILTER_SANITIZE_STRING);
+    // Handle companies
+    $company_include = filter_input(INPUT_POST, 'company_include', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $company_exclude = filter_input(INPUT_POST, 'company_exclude', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $company_include_array = array_filter(array_map('trim', explode(',', $company_include)), 'strlen');
     $company_exclude_array = array_filter(array_map('trim', explode(',', $company_exclude)), 'strlen');
@@ -68,8 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $custqueryco = implode(', ', array_merge($company_include_array, $company_exclude_array));
 
-    $industry_include = filter_input(INPUT_POST, 'industry_include', FILTER_SANITIZE_STRING);
-    $industry_exclude = filter_input(INPUT_POST, 'industry_exclude', FILTER_SANITIZE_STRING);
+    // Handle industries
+    $industry_include = filter_input(INPUT_POST, 'industry_include', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $industry_exclude = filter_input(INPUT_POST, 'industry_exclude', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $industry_include_array = array_filter(array_map('trim', explode(',', $industry_include)), 'strlen');
     $industry_exclude_array = array_filter(array_map('trim', explode(',', $industry_exclude)), 'strlen');
@@ -82,8 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $custqueryindustry = implode(', ', array_merge($industry_include_array, $industry_exclude_array));
 
-    $city_include = filter_input(INPUT_POST, 'city_include', FILTER_SANITIZE_STRING);
-    $city_exclude = filter_input(INPUT_POST, 'city_exclude', FILTER_SANITIZE_STRING);
+    // Handle cities
+    $city_include = filter_input(INPUT_POST, 'city_include', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $city_exclude = filter_input(INPUT_POST, 'city_exclude', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $city_include_array = array_filter(array_map('trim', explode(',', $city_include)), 'strlen');
     $city_exclude_array = array_filter(array_map('trim', explode(',', $city_exclude)), 'strlen');
@@ -96,8 +125,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $custquerycity = implode(', ', array_merge($city_include_array, $city_exclude_array));
 
-    $state_include = filter_input(INPUT_POST, 'state_include', FILTER_SANITIZE_STRING);
-    $state_exclude = filter_input(INPUT_POST, 'state_exclude', FILTER_SANITIZE_STRING);
+    // Handle states
+    $state_include = filter_input(INPUT_POST, 'state_include', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $state_exclude = filter_input(INPUT_POST, 'state_exclude', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $state_include_array = array_filter(array_map('trim', explode(',', $state_include)), 'strlen');
     $state_exclude_array = array_filter(array_map('trim', explode(',', $state_exclude)), 'strlen');
@@ -110,10 +140,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $custquerystate = implode(', ', array_merge($state_include_array, $state_exclude_array));
 
+    // Handle custom fields
     $customFields = [];
     for ($i = 1; $i <= 5; $i++) {
-        $customInclude = filter_input(INPUT_POST, "custom_field_{$i}_include", FILTER_SANITIZE_STRING);
-        $customExclude = filter_input(INPUT_POST, "custom_field_{$i}_exclude", FILTER_SANITIZE_STRING);
+        $customInclude = filter_input(INPUT_POST, "custom_field_{$i}_include", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $customExclude = filter_input(INPUT_POST, "custom_field_{$i}_exclude", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
         $customIncludeArray = array_filter(array_map('trim', explode(',', $customInclude)), 'strlen');
         $customExcludeArray = array_filter(array_map('trim', explode(',', $customExclude)), 'strlen');
@@ -127,33 +158,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $customFields[$i] = implode(', ', array_merge($customIncludeArray, $customExcludeArray));
     }
 
+    // Handle publisher actions
+    $publisherActions = $_POST['publisher_action'] ?? [];
+    $currentActivePubs = explode(',', $feed['activepubs'] ?? '');
+    $updatedActivePubs = $currentActivePubs;
+
+    foreach ($publisherActions as $publisherId => $action) {
+        $publisherId = trim($publisherId);
+        if ($action === 'add' && !in_array($publisherId, $updatedActivePubs)) {
+            $updatedActivePubs[] = $publisherId;
+        } elseif ($action === 'remove') {
+            $updatedActivePubs = array_diff($updatedActivePubs, [$publisherId]);
+        }
+    }
+
+    $updatedActivePubs = array_filter($updatedActivePubs, 'strlen');
+    $updatedActivePubsStr = implode(',', $updatedActivePubs);
+
+    // Update the applcustfeeds table with the new data
     try {
-        $stmt = $pdo->prepare("UPDATE applcustfeeds SET feedname = ?, budget = ?, budgetdaily = ?, cpc = ?, cpa = ?, custquerykws = ?, custqueryco = ?, custqueryindustry = ?, custquerycity = ?, custquerystate = ?, custquerycustom1 = ?, custquerycustom2 = ?, custquerycustom3 = ?, custquerycustom4 = ?, custquerycustom5 = ? WHERE feedid = ? AND custid = ?");
+        $stmt = $pdo->prepare("UPDATE applcustfeeds
+                               SET feedname = ?, budget = ?, budgetdaily = ?, cpc = ?, cpa = ?,
+                                   custquerykws = ?, custqueryco = ?, custqueryindustry = ?,
+                                   custquerycity = ?, custquerystate = ?, custquerycustom1 = ?,
+                                   custquerycustom2 = ?, custquerycustom3 = ?, custquerycustom4 = ?,
+                                   custquerycustom5 = ?, activepubs = ?
+                               WHERE feedid = ? AND custid = ?");
         $stmt->execute([
-            $feedname,
-            $feedbudget,
-            $dailybudget,
-            $feedcpc,
-            $cpa_amount,
-            $custquerykws,
-            $custqueryco,
-            $custqueryindustry,
-            $custquerycity,
-            $custquerystate,
-            $customFields[1],
-            $customFields[2],
-            $customFields[3],
-            $customFields[4],
-            $customFields[5],
-            $feedid,
-            $_SESSION['custid']
+            $feedname, $feedbudget, $dailybudget, $feedcpc, $cpa_amount,
+            $custquerykws, $custqueryco, $custqueryindustry, $custquerycity,
+            $custquerystate, $customFields[1], $customFields[2], $customFields[3],
+            $customFields[4], $customFields[5], $updatedActivePubsStr, $feedid, $_SESSION['custid']
         ]);
-        header("Location: applportal.php");
+
+        // Redirect back to the page with the feedid
+        header("Location: editfeed.php?feedid=" . urlencode($feedid) . "&success=1");
         exit();
+
+
     } catch (PDOException $e) {
         setToastMessage('error', "Database error: " . $e->getMessage());
-        header("Location: applmasterview.php");
-        exit;
+        exit();
     }
 } else {
     $feed = null;
@@ -166,6 +211,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$feed) {
         setToastMessage('error', "No feed found with the provided ID.");
     }
+
+    // Initialize empty arrays if no data is found
+    $includeCompanies = [];
+    $excludeCompanies = [];
 
     $allKeywords = explode(', ', $feed['custquerykws'] ?? '');
     $includeKeywords = [];
@@ -191,7 +240,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-
     // Repeat this pattern for industry, city, state and custom fields
     list($includeIndustry, $excludeIndustry) = extractIncludeExclude($feed['custqueryindustry']);
     list($includeCity, $excludeCity) = extractIncludeExclude($feed['custquerycity']);
@@ -202,9 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $customFields[$i] = ['include' => $includeCustom, 'exclude' => $excludeCustom];
     }
 }
-
-// HTML and form continue here...
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -217,6 +264,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <?php include 'appltopnav.php'; ?>
     <a href="applportal.php"><-- Back to your portal</a>
+
+    <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
+        <div class="success-message">Update Successful!</div>
+    <?php endif; ?>
+
+
             <h1>Edit Campaign (<?php echo htmlspecialchars($feed['feedname'] ?? ''); ?>) - Status: <?php echo htmlspecialchars($feed['status'] ?? ''); ?></h1>
             <?php
             // Assuming $feed is the array of data fetched from the database for the current feed
@@ -246,7 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
             <div class="campaign-container">
-                <form action="editfeed.php" method="post">
+              <form action="editfeed.php?feedid=<?php echo htmlspecialchars($feedid); ?>" method="post">
                     <input type="hidden" name="feedid" value="<?php echo htmlspecialchars($feedid); ?>">
 
                     <div class="campaign-edit-row">
@@ -314,6 +367,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php endfor; ?>
                         </div>
                     </div>
+
+                    <div class="campaign-edit-column">
+                        <h2>Assign to Publishers</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Publisher Name</th>
+                                    <th>Publisher ID</th>
+                                    <th>Add</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($publishers as $publisher): ?>
+                                    <?php
+                                        $publisherId = $publisher['publisherid'];
+                                        $isActive = in_array($publisherId, $activePubs); // Check if publisher ID is in activepubs
+                                    ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($publisher['publishername']); ?></td>
+                                        <td><?php echo htmlspecialchars($publisherId); ?></td>
+                                        <td>
+                                            <input type="radio" name="publisher_action[<?php echo $publisherId; ?>]" value="add"
+                                                   <?php echo $isActive ? 'checked' : ''; ?>> Add
+                                        </td>
+                                        <td>
+                                            <input type="radio" name="publisher_action[<?php echo $publisherId; ?>]" value="remove"
+                                                   <?php echo !$isActive ? 'checked' : ''; ?>> Remove
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+
 
                     <input type="submit" value="Update Campaign">
                 </form>

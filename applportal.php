@@ -1,7 +1,5 @@
 <?php
-
 include 'database/db.php';
- 
 
 // Define default dates to cover the current month's range
 $defaultStartDate = date('Y-m-01');
@@ -13,14 +11,9 @@ $enddate = isset($_GET['enddate']) ? $_GET['enddate'] : date('Y-m-t');
 $startdate = date('Y-m-d', strtotime($startdate)) . " 00:00:00";
 $enddate = date('Y-m-d', strtotime($enddate)) . " 23:59:59";
 
-
-
 // Convert to readable formats for display
 $displayStartDate = date('F j, Y', strtotime($startdate));
 $displayEndDate = date('F j, Y', strtotime($enddate));
-
-// Output the dates for debugging
-// var_dump($startdate, $enddate);
 
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
@@ -28,8 +21,7 @@ if (!isset($_SESSION['acctnum'])) {
 }
 
 // Handle custid from dropdown or session
-$custid = filter_input(INPUT_GET, 'custid', FILTER_SANITIZE_NUMBER_INT); // Get custid from dropdown selection
-
+$custid = filter_input(INPUT_GET, 'custid', FILTER_SANITIZE_NUMBER_INT);
 if ($custid) {
     $_SESSION['custid'] = $custid; // Update session with new custid
 } else {
@@ -38,32 +30,47 @@ if ($custid) {
 
 // Fetch customer information
 $customerInfo = [];
-$jobPoolName = 'N/A'; // Default value if no job pool is associated or an error occurs
+$jobPoolName = 'N/A';
 
 if ($custid) {
     try {
-        // Fetch the customer's details
         $custInfoStmt = $pdo->prepare("SELECT custcompany, custtype, jobpoolid FROM applcust WHERE custid = ?");
         $custInfoStmt->execute([$custid]);
         $customerInfo = $custInfoStmt->fetch();
 
-        // If a jobpoolid is associated with the customer, fetch the job pool name
         if ($customerInfo && !empty($customerInfo['jobpoolid'])) {
             $jobPoolStmt = $pdo->prepare("SELECT jobpoolname FROM appljobseed WHERE jobpoolid = ?");
             $jobPoolStmt->execute([$customerInfo['jobpoolid']]);
-            $jobPoolName = $jobPoolStmt->fetchColumn() ?: 'N/A'; // Set to 'N/A' if not found
+            $jobPoolName = $jobPoolStmt->fetchColumn() ?: 'N/A';
         }
 
-        // Translate custtype value
-        $customerInfo['custtype'] = (is_array($customerInfo) && $customerInfo['custtype'] === 'emp') ? 'Employer' : ((is_array($customerInfo) && $customerInfo['custtype'] === 'pub') ? 'Publisher' : 'N/A');
+        $customerInfo['custtype'] = ($customerInfo['custtype'] === 'emp') ? 'Employer' : (($customerInfo['custtype'] === 'pub') ? 'Publisher' : 'N/A');
     } catch (PDOException $e) {
-        // Handle errors and print them out for debugging
         setToastMessage('error', "Database error: " . $e->getMessage());
         header("Location: applmasterview.php");
         exit;
     }
 }
 
+// Fetch active publishers for the current customer with multiple activepubs
+$publishers = [];
+if ($custid) {
+    try {
+        $publisherStmt = $pdo->prepare("
+            SELECT DISTINCT p.publishername, p.publisherid
+            FROM applcustfeeds f
+            JOIN applpubs p ON FIND_IN_SET(p.publisherid, f.activepubs)
+            WHERE f.custid = ? AND p.acctnum = ?
+            ORDER BY p.publishername ASC
+        ");
+        $publisherStmt->execute([$custid, $_SESSION['acctnum']]);
+        $publishers = $publisherStmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        setToastMessage('error', "Database error: " . $e->getMessage());
+        echo "Query error: " . $e->getMessage();
+        exit;
+    }
+}
 
 // Fetch all customer companies for dropdown
 try {
@@ -76,16 +83,6 @@ try {
     exit;
 }
 
-// Handle custid from dropdown or session
-$custid = filter_input(INPUT_GET, 'custid', FILTER_SANITIZE_NUMBER_INT); // Get custid from dropdown selection
-
-if ($custid) {
-    $_SESSION['custid'] = $custid; // Update session with new custid
-} else {
-    $custid = $_SESSION['custid'] ?? null; // Fallback to session custid or null
-}
-
-
 // Fetch feeds based on custid
 try {
     $stmt = $pdo->prepare("SELECT feedid, feedname, budget, status, numjobs
@@ -95,7 +92,6 @@ try {
     $feeds = $stmt->fetchAll();
 
     foreach ($feeds as &$feed) {
-        // Existing clickStmt
         $clickStmt = $pdo->prepare("SELECT COUNT(DISTINCT eventid) AS clicks, SUM(cpc) AS total_cpc
                                     FROM applevents
                                     WHERE custid = ? AND feedid = ? AND eventtype = 'cpc'
@@ -103,7 +99,6 @@ try {
         $clickStmt->execute([$custid, $feed['feedid'], $startdate, $enddate]);
         $clickData = $clickStmt->fetch();
 
-        // Existing appliesStmt
         $appliesStmt = $pdo->prepare("SELECT COUNT(*) AS applies, SUM(cpa) AS total_cpa
                                       FROM applevents
                                       WHERE custid = ? AND feedid = ? AND eventtype = 'cpa'
@@ -120,11 +115,10 @@ try {
         $feed['formatted_spend'] = '$' . number_format((float)$total_spend, 2, '.', '');
 
         $feed['spend_per_click'] = $feed['clicks'] > 0 ? '$' . number_format($feed['total_cpc'] / $feed['clicks'], 2, '.', '') : '$0.00';
-        // New calculation for spend_per_apply
         $feed['spend_per_apply'] = $feed['applies'] > 0 ? '$' . number_format($total_spend / $feed['applies'], 2, '.', '') : '$0.00';
         $feed['conversion_rate'] = $feed['clicks'] > 0 ? number_format(($feed['applies'] / $feed['clicks']) * 100, 2) . '%' : '0.00%';
     }
-    unset($feed); // Unset reference to last element
+    unset($feed);
 } catch (PDOException $e) {
     setToastMessage('error', "Database error: " . $e->getMessage());
     header("Location: applmasterview.php");
@@ -146,7 +140,6 @@ foreach ($feeds as $feed) {
     $dailySpendStmt->execute([$custid, $feed['feedid'], $startdate, $enddate]);
     $dailySpends = $dailySpendStmt->fetchAll();
 
-    // Prepare data for chart
     $dates = [];
     $spends = [];
     foreach ($dailySpends as $spend) {
@@ -173,7 +166,6 @@ foreach ($feeds as $feed) {
     <?php include 'header.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-
 </head>
 
 <body>
@@ -189,6 +181,20 @@ foreach ($feeds as $feed) {
                     <p>Customer Type: <?= htmlspecialchars($customerInfo['custtype']) ?></p>
                     <p>Job Pool: <?= htmlspecialchars($jobPoolName) ?></p>
                     <p>Customer-level Feed URL: <a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid); ?>.xml" target="_blank">https://appljack.com/applfeeds/<?= htmlspecialchars($custid); ?>.xml</a></p>
+
+                    <!-- New Section for Publisher Feed URLs -->
+                    <?php if (!empty($publishers)): ?>
+                        <p><b>Publisher Feed URLs:</b></p>
+                        <?php foreach ($publishers as $publisher): ?>
+                            <?= htmlspecialchars($publisher['publishername']); ?>:
+                            <a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml" target="_blank">
+                                https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml
+                            </a>
+                            <br/>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p>No active publishers associated with this customer.</p>
+                    <?php endif; ?>
                 <?php else: ?>
                     <p>No customer information available.</p>
                 <?php endif; ?>
@@ -220,7 +226,6 @@ foreach ($feeds as $feed) {
 
         </div>
 
-
         <div class="dashboard-header">
             <h1>Your Campaigns Dashboard: <?= $displayStartDate ?> to <?= $displayEndDate ?></h1>
             <a href="applcreatefeeds.php?custid=<?= htmlspecialchars($custid) ?>" class="add-campaign-button">
@@ -234,7 +239,6 @@ foreach ($feeds as $feed) {
         <div class="chart-container" style="width: 100%; height: 250px;">
             <canvas id="spendChart"></canvas>
         </div>
-
 
         <div class="table-container">
             <table>
