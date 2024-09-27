@@ -210,7 +210,7 @@ try {
                                 <th>Delete</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody> 
                             <?php foreach ($jobPools as $jobPool): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($jobPool['jobpoolname']) ?></td>

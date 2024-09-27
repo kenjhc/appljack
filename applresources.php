@@ -64,7 +64,7 @@ try {
     <p>Install this wherever you'd like to track a conversion against your CPA budget. We recommend using a tag manager and firing it only when the UTM source is "appljack."</p>
     <div class="details-container">
         <p><code>&lt;script&gt;<br />
-                console.log("firing the cpa event");<br />
+                console.log("firing the cpa event");<br /> 
                 fetch("https://appljack.com/cpa-event.php")<br />
                 .then(function(response) {<br />
                 console.log("success");<br />

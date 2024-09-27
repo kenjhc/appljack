@@ -30,7 +30,7 @@ logMessage("Starting applupload8.js script...", logFilePath);
 const pool = mysql.createPool({
   connectionLimit: 10,
   host: config.host,
-  user: config.username,
+  user: config.username, 
   password: config.password,
   database: config.database,
   charset: config.charset,

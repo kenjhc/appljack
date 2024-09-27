@@ -284,7 +284,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <h2>XML Mappings for Job Pool #<?= htmlspecialchars($jobpoolid) ?></h2>
-
+ 
 <?php if ($error): ?>
     <p class="error"><?= htmlspecialchars($error); ?></p>
 <?php else: ?>

@@ -46,4 +46,4 @@ function getEnvPath()
     } else {
         return "unknown";
     }
-}
+} 

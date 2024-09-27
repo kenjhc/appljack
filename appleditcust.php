@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
     <?php include 'header.php'; ?>
 </head>
 
-<body>
+<body> 
     <?php include 'appltopnav.php'; ?>
     <h1>Edit Customer</h1><a href="<?= getEnvPath(); ?>applmasterview.php">
         <p>
