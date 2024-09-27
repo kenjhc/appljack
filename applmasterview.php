@@ -142,153 +142,232 @@ try {
 
 <body>
     <?php include 'appltopnav.php'; ?>
+  
     <div class="page-heading">
         <h1>Account Master View</h1>
-    </div>
-    <div class="px-4 px-md-5 py-4">
-        <?php
-        // Create the XML URL using the current session's account number
-        $acctnum = $_SESSION['acctnum'];
-        $xmlUrl = "https://appljack.com/applfeeds/{$acctnum}.xml";
-        ?>
-        <p><b>Account-Level XML File:</b> <a href="<?= htmlspecialchars($xmlUrl) ?>" target="_blank"><?= htmlspecialchars($xmlUrl) ?></a><br>
-            This XML file combines all the jobs from all the active campaigns across every Customer. This feed has everything that is currently running.</p>
-        <div class="section">
-            <h2>Customer Accounts</h2>
-            <a href="applcreatecustomer.php" class="add-customer-button">
-                <i class="fa fa-plus"></i> Add Customer
-            </a>
 
-            <?php if (empty($customers)): ?>
-                <p>No customer accounts found.</p>
-            <?php else: ?>
-                <div class="table-container">
-                    <table class="customers-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>ID</th>
-                                <th>Edit</th>
-                                <th>Remove</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($customers as $customer): ?>
-                                <tr>
-                                    <td><a href="applportal.php?custid=<?= htmlspecialchars($customer['custid']) ?>"><?= htmlspecialchars($customer['custcompany']) ?></a></td>
-                                    <td><?= htmlspecialchars($customer['custid']) ?></td>
-                                    <td class="edit-button-cell">
-                                        <a href="appleditcust.php?custid=<?= $customer['custid'] ?>" class="edit-btn">Edit</a>
-                                    </td>
-                                    <td class="delete-button-cell">
-                                        <form method="POST" class="delete-form" onsubmit="return confirmDeleteCustomer('<?= addslashes(htmlspecialchars($customer['custcompany'])) ?>');">
-                                            <input type="hidden" name="delete_custid" value="<?= $customer['custid'] ?>">
-                                            <button type="submit">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
-        <div class="section">
-            <h2>Job Inventory Pools</h2>
-            <a href="applcreatepool.php" class="add-jobpool-button">
-                <i class="fa fa-plus"></i> Add Job Pool
-            </a>
-            <?php if (empty($jobPools)): ?>
-                <p>No job pools found.</p>
-            <?php else: ?>
-                <div class="table-container">
-                    <table class="job-pools-table">
-                        <thead>
-                            <tr>
-                                <th>Job Pool Name</th>
-                                <th>Arbitrage %</th>
-                                <th>URL</th>
-                                <th>Edit</th>
-                                <th>Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($jobPools as $jobPool): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($jobPool['jobpoolname']) ?></td>
-                                    <td><?= htmlspecialchars(number_format($jobPool['arbitrage'], 2)) ?></td>
-                                    <td><a href="<?= htmlspecialchars($jobPool['jobpoolurl']) ?>"><?= htmlspecialchars($jobPool['jobpoolurl']) ?></a></td>
-                                    <td class="edit-button-cell">
-                                        <a href="appleditjobpool.php?jobpoolid=<?= $jobPool['jobpoolid'] ?>" class="edit-btn">Edit</a>
-                                    </td>
-                                    <td class="delete-button-cell">
-                                        <form method="POST" class="delete-form" onsubmit="return confirmDelete('<?= addslashes(htmlspecialchars($jobPool['jobpoolname'])) ?>');">
-                                            <input type="hidden" name="delete_jobpoolid" value="<?= $jobPool['jobpoolid'] ?>">
-                                            <button type="submit">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
-        <div class="section">
-            <div class="d-flex justify-content-between w-100 align-items-center">
-                <h2>Customer Campaign Overview</h2>
-                <form action="applmasterview.php" method="get" class="mb-3">
-                    <div class="d-flex align-items-end gap-4">
-                        <div>
-                            <label class="mb-0" for="startdate">Start:</label>
-                            <input type="date" id="startdate" class="form-control" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
+       <div class="d-flex align-items-center">
+
+            <div class="notification_wrapper">
+                <button class="notify_btn">
+                    <i class="fa-regular fa-bell"></i>
+                    <span>15</span>
+                </button>
+            </div>
+
+            <div class="account dropdown">
+                <button class="btn d-flex align-items-center text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="profile_img">
+                        <img src="https://www.profilebakery.com/wp-content/uploads/2023/04/ai-headshot-generator-4.jpg" alt="profile_img">
+                    </span>
+                    <div class="d-flex flex-column justify-content-start align-items-start">
+                        <span class="title">Claudia Bernard</span>
+                        <span class="subtitle">System Admin</span>
+                    </div>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li><a class="dropdown-item" href="#">Accounts</a></li>
+                    <li><a class="dropdown-item" href="#">Users</a></li>
+                </ul>
+            </div>
+       </div>
+       
+
+    </div>
+    <section class="account_master_view_sec">
+            <?php
+            // Create the XML URL using the current session's account number
+            $acctnum = $_SESSION['acctnum'];
+            $xmlUrl = "https://appljack.com/applfeeds/{$acctnum}.xml";
+            ?>
+         
+        
+            <div class="container-fluid">
+
+            <p class="main_view_note"><b>Account-Level XML File:</b> <a href="<?= htmlspecialchars($xmlUrl) ?>" target="_blank"><?= htmlspecialchars($xmlUrl) ?></a><br>
+                This XML file combines all the jobs from all the active campaigns across every Customer. This feed has everything that is currently running.
+            </p>
+
+            <div class="row w-100 mx-auto xml_mapping_sec">
+
+            <div class="col-sm-12 col-md-12 px-0 ">
+                    
+                        <div class="card ">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between ">
+                              <h5 class="card-title">Customer Accounts</h5>
+                            </div>
+                          
+                            <a href="applcreatecustomer.php" class="add-customer-button"><i class="fa fa-plus"></i> Add Customer</a>
+
+                    <?php if (empty($customers)): ?>
+                        <p>No customer accounts found.</p>
+                    <?php else: ?>
+                        <div class=" table-responsive">
+                            <div class="custom_padding">
+                                <table class="customers-table table-striped ">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>ID</th>
+                                            <th>Edit</th>
+                                            <th>Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($customers as $customer): ?>
+                                            <tr>
+                                                <td><a href="applportal.php?custid=<?= htmlspecialchars($customer['custid']) ?>"><?= htmlspecialchars($customer['custcompany']) ?></a></td>
+                                                <td><?= htmlspecialchars($customer['custid']) ?></td>
+                                                <td class="edit-button-cell">
+                                                    <a href="appleditcust.php?custid=<?= $customer['custid'] ?>" class=" edit_btn">Edit</a>
+                                                </td>
+                                                <td class="delete-button-cell">
+                                                    <form method="POST" class="delete-form" onsubmit="return confirmDeleteCustomer('<?= addslashes(htmlspecialchars($customer['custcompany'])) ?>');">
+                                                        <input type="hidden" name="delete_custid" value="<?= $customer['custid'] ?>">
+                                                        <button type="submit" class="delete_btn">Delete</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div>
-                            <label class="mb-0" for="enddate">End:</label>
-                            <input type="date" id="enddate" class="form-control" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
+                    <?php endif; ?>
+                       
+                    </div>
+            </div>
+
+
+            
+            </div>
+            <div class="col-sm-12 col-md-12 px-0">
+                    <div class="">
+                        <div class="card ">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between ">
+                              <h5 class="card-title">Job Inventory Pools</h5>
+                            </div>
+
+                          
+                            <a href="applcreatecustomer.php" class="add-customer-button"><i class="fa fa-plus"></i> Add Job Pool</a>
+                            <?php if (empty($jobPools)): ?>
+                        <p>No job pools found.</p>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <div class="custom_padding">
+
+                                <table class="job-pools-table table-striped ">
+                                    <thead>
+                                        <tr>
+                                            <th>Job Pool Name</th>
+                                            <th>Arbitrage %</th>
+                                            <th>URL</th>
+                                            <th>Edit</th>
+                                            <th>Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($jobPools as $jobPool): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($jobPool['jobpoolname']) ?></td>
+                                                <td><?= htmlspecialchars(number_format($jobPool['arbitrage'], 2)) ?></td>
+                                                <td><a href="<?= htmlspecialchars($jobPool['jobpoolurl']) ?>"><?= htmlspecialchars($jobPool['jobpoolurl']) ?></a></td>
+                                                <td class="edit-button-cell">
+                                                    <a href="appleditjobpool.php?jobpoolid=<?= $jobPool['jobpoolid'] ?>" class="edit_btn">Edit</a>
+                                                </td>
+                                                <td class="delete-button-cell">
+                                                    <form method="POST" class="delete-form" onsubmit="return confirmDelete('<?= addslashes(htmlspecialchars($jobPool['jobpoolname'])) ?>');">
+                                                        <input type="hidden" name="delete_jobpoolid" value="<?= $jobPool['jobpoolid'] ?>">
+                                                        <button type="submit" class="delete_btn">Delete</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div>
-                            <button type="submit" class="btn btn-secondary my-0 w-auto py-2">Show Data</button>
+                    <?php endif; ?>
+                        </div>
                         </div>
                     </div>
-                </form>
             </div>
-            <div class="table-container">
-                <table class="campaign-overview-table">
-                    <thead>
-                        <tr>
-                            <th>Customer Name</th>
-                            <th>Status</th>
-                            <th>Budget</th>
-                            <th>Spend</th>
-                            <th>Clicks</th>
-                            <th>Applies</th>
-                            <th>CPA</th>
-                            <th>CPC</th>
-                            <th>Conv. Rate</th>
-                            <th>Num Jobs</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($customerData as $data): ?>
-                            <tr>
-                                <td><a href="https://appljack.com/applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
-                                <td><?= htmlspecialchars($data['status']); ?></td>
-                                <td>$<?= number_format($data['budget'], 2); ?></td>
-                                <td>$<?= number_format($data['spend'], 2); ?></td>
-                                <td><?= htmlspecialchars($data['clicks']); ?></td>
-                                <td><?= htmlspecialchars($data['applies']); ?></td>
-                                <td>$<?= number_format($data['cpa'], 2); ?></td>
-                                <td>$<?= number_format($data['cpc'], 2); ?></td>
-                                <td><?= number_format($data['conversion_rate'], 2); ?>%</td>
-                                <td><?= number_format($data['numjobs']); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+
+  
+
+            <div class="col-sm-12 col-md-12 px-0">
+                    <div class="">
+                        <div class="card ">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between ">
+                              <h5 class="card-title">Customer Campaign Overview</h5>
+                            </div>
+                            <form action="applmasterview.php" method="get" class="date_filter_form_wrapper">
+                                <div class="d-flex align-items-end date_filter_form">
+                                    <div>
+                                        <label class="mb-0" for="startdate">Start:</label>
+                                        <input type="date" id="startdate" class="form-control" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
+                                    </div>
+                                    <div>
+                                        <label class="mb-0" for="enddate">End:</label>
+                                        <input type="date" id="enddate" class="form-control" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="btn btn-secondary my-0 w-auto py-2">Show Data</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        <div class="table-responsive">
+                            <div class="custom_padding">
+                                <table class="campaign-overview-table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Status</th>
+                                            <th>Budget</th>
+                                            <th>Spend</th>
+                                            <th>Clicks</th>
+                                            <th>Applies</th>
+                                            <th>CPA</th>
+                                            <th>CPC</th>
+                                            <th>Conv. Rate</th>
+                                            <th>Num Jobs</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($customerData as $data): ?>
+                                            <tr>
+                                                <td><a href="https://appljack.com/applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
+                                                <td><?= htmlspecialchars($data['status']); ?></td>
+                                                <td>$<?= number_format($data['budget'], 2); ?></td>
+                                                <td>$<?= number_format($data['spend'], 2); ?></td>
+                                                <td><?= htmlspecialchars($data['clicks']); ?></td>
+                                                <td><?= htmlspecialchars($data['applies']); ?></td>
+                                                <td>$<?= number_format($data['cpa'], 2); ?></td>
+                                                <td>$<?= number_format($data['cpc'], 2); ?></td>
+                                                <td><?= number_format($data['conversion_rate'], 2); ?>%</td>
+                                                <td><?= number_format($data['numjobs']); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                    </div>
+                        
+                        </div>
+                        </div>
+                    </div>
             </div>
         </div>
-    </div>
+
+        </div>
+        
+    </section>
     <?php include 'footer.php'; ?>
 </body>
 

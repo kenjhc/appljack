@@ -59,82 +59,138 @@ try {
 
     <div class="page-heading">
         <h1>Account Resources</h1>
+
+       <div class="d-flex align-items-center">
+
+            <div class="notification_wrapper">
+                <button class="notify_btn">
+                    <i class="fa-regular fa-bell"></i>
+                    <span>15</span>
+                </button>
+            </div>
+
+            <div class="account dropdown">
+                <button class="btn d-flex align-items-center text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="profile_img">
+                        <img src="https://www.profilebakery.com/wp-content/uploads/2023/04/ai-headshot-generator-4.jpg" alt="profile_img">
+                    </span>
+                    <div class="d-flex flex-column justify-content-start align-items-start">
+                        <span class="title">Claudia Bernard</span>
+                        <span class="subtitle">System Admin</span>
+                    </div>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li><a class="dropdown-item" href="#">Accounts</a></li>
+                    <li><a class="dropdown-item" href="#">Users</a></li>
+                </ul>
+            </div>
+       </div>
+       
+
     </div>
-    <div class="px-4 px-md-5 py-4">
-        <p>Here you can quickly locate everything you need, from XML files to CPA tracking "pixels."</p>
+
+    <section class="rescources_sec">
+
+        <div class="container-fluid">
+            <div class="row">
+                    <div class="">
+                    <p>Here you can quickly locate everything you need, from XML files to CPA tracking "pixels."</p>
 
 
-        <h2>CPA Tracking "Pixel"</h2>
-        <p>Install this wherever you'd like to track a conversion against your CPA budget. We recommend using a tag manager and firing it only when the UTM source is "appljack."</p>
-        <div class="details-container">
-            <p><code>&lt;script&gt;<br />
-                    console.log("firing the cpa event");<br />
-                    fetch("https://appljack.com/cpa-event.php")<br />
-                    .then(function(response) {<br />
-                    console.log("success");<br />
-                    })<br />
-                    .catch(function(error) {<br />
-                    console.error('Fetch error:', error);<br />
-                    });<br /></p>
-            &lt;/script&gt;</code>
-        </div>
+                    <h2>CPA Tracking "Pixel"</h2>
+                    <p>Install this wherever you'd like to track a conversion against your CPA budget. We recommend using a tag manager and firing it only when the UTM source is "appljack."</p>
+                    <div class="details-container">
+                        <p><code>&lt;script&gt;<br />
+                                console.log("firing the cpa event");<br />
+                                fetch("https://appljack.com/cpa-event.php")<br />
+                                .then(function(response) {<br />
+                                console.log("success");<br />
+                                })<br />
+                                .catch(function(error) {<br />
+                                console.error('Fetch error:', error);<br />
+                                });<br /></p>
+                        &lt;/script&gt;</code>
+                    </div>
 
 
-        <h2>Secondary Event Tracking "Pixel"</h2>
-        <p>Install this wherever you'd like to track a secondary event. <strong>IMPORTANT: These events will NOT count against your set budget.</strong> We recommend using a tag manager and firing it only when the UTM source is "appljack."</p>
-        <div class="details-container">
-            <p><code>&lt;script&gt;<br />
-                    console.log("firing the cpa event");<br />
-                    fetch("https://appljack.com/secondary-event.php")<br />
-                    .then(function(response) {<br />
-                    console.log("success");<br />
-                    })<br />
-                    .catch(function(error) {<br />
-                    console.error('Fetch error:', error);<br />
-                    });<br /></p>
-            &lt;/script&gt;</code>
-        </div>
+                    <h2>Secondary Event Tracking "Pixel"</h2>
+                    <p>Install this wherever you'd like to track a secondary event. <strong>IMPORTANT: These events will NOT count against your set budget.</strong> We recommend using a tag manager and firing it only when the UTM source is "appljack."</p>
+                    <div class="details-container">
+                        <p><code>&lt;script&gt;<br />
+                                console.log("firing the cpa event");<br />
+                                fetch("https://appljack.com/secondary-event.php")<br />
+                                .then(function(response) {<br />
+                                console.log("success");<br />
+                                })<br />
+                                .catch(function(error) {<br />
+                                console.error('Fetch error:', error);<br />
+                                });<br /></p>
+                        &lt;/script&gt;</code>
+                    </div>
 
-        <h2>XML Feeds</h2>
-        <div class=table-container>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Account</th>
-                        <th>Customer Name</th>
-                        <th>Customer XML</th>
-                        <th>Campaign Name</th>
-                        <th>Campaign XML</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <a href="https://appljack.com/applfeeds/<?= htmlspecialchars($acctnum) ?>.xml">https://appljack.com/applfeeds/<?= htmlspecialchars($acctnum) ?>.xml</a>
-                        </td>
-                        <td colspan="4"></td>
-                    </tr>
-                    <?php foreach ($customerFeeds as $custid => $info): ?>
-                        <tr>
-                            <td></td>
-                            <td><?= htmlspecialchars($info['company']) ?></td>
-                            <td><a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>.xml">https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>.xml</a></td>
-                            <td colspan="2"></td>
-                        </tr>
-                        <?php foreach ($info['feeds'] as $feed): ?>
+
+                </div>
+            </div>
+            <div class="row xml_mapping_sec">
+            <div class="col-sm-12 col-md-12 px-0">
+                    <div class="">
+                        <div class="card ">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between ">
+                              <h5 class="card-title">XML Feeds</h5>
+                            </div>
+                         
+                            
+                        <div class="table-responsive">
+                            <div class="custom_padding">
+                            <table>
+                        <thead>
                             <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td><?= htmlspecialchars($feed['name']) ?></td>
-                                <td><a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($feed['id']) ?>.xml">https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($feed['id']) ?>.xml</a></td>
+                                <th>Account</th>
+                                <th>Customer Name</th>
+                                <th>Customer XML</th>
+                                <th>Campaign Name</th>
+                                <th>Campaign XML</th>
                             </tr>
-                        <?php endforeach; ?>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <a href="https://appljack.com/applfeeds/<?= htmlspecialchars($acctnum) ?>.xml">https://appljack.com/applfeeds/<?= htmlspecialchars($acctnum) ?>.xml</a>
+                                </td>
+                                <td colspan="4"></td>
+                            </tr>
+                            <?php foreach ($customerFeeds as $custid => $info): ?>
+                                <tr>
+                                    <td></td>
+                                    <td><?= htmlspecialchars($info['company']) ?></td>
+                                    <td><a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>.xml">https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>.xml</a></td>
+                                    <td colspan="2"></td>
+                                </tr>
+                                <?php foreach ($info['feeds'] as $feed): ?>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td><?= htmlspecialchars($feed['name']) ?></td>
+                                        <td><a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($feed['id']) ?>.xml">https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($feed['id']) ?>.xml</a></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                            </div>
+                        </div>
+                    
+                        </div>
+                        </div>
+                    </div>
+            </div>
+            </div>
         </div>
-    </div>
+    </section>
+
     <?php include 'footer.php'; ?>
 </body>
 

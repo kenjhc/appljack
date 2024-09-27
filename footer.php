@@ -1,5 +1,4 @@
-</div>
-</div>
+
 <footer>
     <p>&copy; 2024 Appljack | Powered by Job Hub Central</p>
     <!-- Add more footer elements here -->

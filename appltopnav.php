@@ -18,7 +18,7 @@
 
 <div class="wrapper d-flex align-items-stretch">
     <nav id="sidebar" class="active">
-        <div class="d-flex flex-column justify-content-between h-100">
+        <div class="d-flex flex-column justify-content-between sidebar_wrapper">
             <div>
                 <h1><a href="applmasterview.php" class="logo">
                         <img src="/images/logo-icon.png" class="logo-sm" alt="Logo">
@@ -31,13 +31,7 @@
                         </li>
                     <?php } else { ?>
                         <li class="active">
-                            <a href="applmasterview.php"><span class="fa fa-tachometer-alt"></span> <span class="text"> Dashboard </span></a>
-                        </li>
-                        <li>
-                            <a href="applresources.php"><span class="fa fa-book"></span> <span class="text"> Resources </span></a>
-                        </li>
-                        <li>
-                            <a href="applaccount.php"><span class="fa fa-user-cog"></span> <span class="text"> My Account </span></a>
+                            <a href="jobportal.php"><span class="fa fa-tachometer-alt"></span> <span class="text">Job Inventory Pool </span></a>
                         </li>
                     <?php } ?>
                 </ul>
@@ -53,6 +47,18 @@
                         </li>
                     <?php } ?>
                     <?php if (isset($_SESSION['acctnum'])) { ?>
+
+                        <li >
+                            <a href="applmasterview.php"><span class="fa fa-tachometer-alt"></span> <span class="text">Master View </span></a>
+                        </li>
+
+
+                        <li>
+                            <a href="applresources.php"><span class="fa fa-book"></span> <span class="text">Resources </span></a>
+                        </li>
+                        <li>
+                            <a href=""><span class="fa fa-sign-out-alt"></span> <span class="text"> My Account </span></a>
+                        </li>
                         <li>
                             <a href="appllogout.php"><span class="fa fa-sign-out-alt"></span> <span class="text"> Logout </span></a>
                         </li>
