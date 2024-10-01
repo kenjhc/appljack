@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const sax = require("sax");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const moment = require("moment");
 const config = require("./config");
 const { logMessage, logToDatabase } = require("./utils/helpers");
@@ -37,6 +37,28 @@ const pool = mysql.createPool({
   connectTimeout: 900000, // 15 minutes (in milliseconds)
   acquireTimeout: 900000, // 15 minutes (in milliseconds)
 });
+
+const updateLastUpload = async () => {
+  return new Promise((resolve, reject) => {
+    const query = `UPDATE upload_metadata SET last_upload = CURRENT_TIMESTAMP() WHERE id = 1`; // Adjust the WHERE clause if necessary.
+    pool.query(query, (err, result) => {
+      if (err) {
+        console.error("Error updating last_upload field:", err);
+        logMessage(`Error updating last_upload field: ${err}`, logFilePath);
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error updating last_upload field: ${err}`
+        );
+        return reject(err);
+      }
+      console.log("last_upload field updated.");
+      logMessage("last_upload field updated.", logFilePath);
+      logToDatabase("success", "applupload8.js", "last_upload field updated.");
+      resolve(result);
+    });
+  });
+};
 
 // Function to create the temp table once
 const createTempTableOnce = async () => {
@@ -231,8 +253,9 @@ const insertIntoTempTable = async (batch) => {
   });
 };
 
-// Transfer data from temp table to appljobs
 const transferToApplJobsTable = async () => {
+  const currentTimestamp = moment().format("YYYY-MM-DD HH:mm:ss");
+
   return new Promise((resolve, reject) => {
     tempConnection.beginTransaction((err) => {
       if (err) return reject(err);
@@ -264,7 +287,8 @@ const transferToApplJobsTable = async () => {
             aj.custom2 = ajt.custom2,
             aj.custom3 = ajt.custom3,
             aj.custom4 = ajt.custom4,
-            aj.custom5 = ajt.custom5;
+            aj.custom5 = ajt.custom5,
+            aj.last_seen = '${currentTimestamp}';  -- Update last_seen field
       `;
 
       tempConnection.query(updateExisting, (err, result) => {
@@ -277,11 +301,12 @@ const transferToApplJobsTable = async () => {
           INSERT INTO appljobs (feedId, location, title, city, state, zip, country, job_type,
                                 posted_at, job_reference, company, mobile_friendly_apply,
                                 category, html_jobs, url, body, jobpoolid, acctnum, industry,
-                                cpc, cpa, custom1, custom2, custom3, custom4, custom5)
+                                cpc, cpa, custom1, custom2, custom3, custom4, custom5, last_seen)
           SELECT ajt.feedId, ajt.location, ajt.title, ajt.city, ajt.state, ajt.zip, ajt.country,
                  ajt.job_type, ajt.posted_at, ajt.job_reference, ajt.company, ajt.mobile_friendly_apply,
                  ajt.category, ajt.html_jobs, ajt.url, ajt.body, ajt.jobpoolid, ajt.acctnum, ajt.industry,
-                 ajt.cpc, ajt.cpa, ajt.custom1, ajt.custom2, ajt.custom3, ajt.custom4, ajt.custom5
+                 ajt.cpc, ajt.cpa, ajt.custom1, ajt.custom2, ajt.custom3, ajt.custom4, ajt.custom5,
+                 '${currentTimestamp}'  -- Insert last_seen value
           FROM appljobs_temp ajt
           WHERE NOT EXISTS (
               SELECT 1 FROM appljobs aj WHERE aj.job_reference = ajt.job_reference AND aj.jobpoolid = ajt.jobpoolid
@@ -300,7 +325,7 @@ const transferToApplJobsTable = async () => {
               return;
             }
 
-            // Increment the global counter for total records added
+            // Additional logic remains the same
             totalRecordsAdded += result.affectedRows;
             console.log(`Total jobs added to appljobs: ${totalRecordsAdded}`);
             logMessage(
@@ -324,7 +349,7 @@ const transferToApplJobsTable = async () => {
 
 // Mutex-controlled processQueue function to avoid concurrency
 const processQueue = async (feedId) => {
-  if (isProcessingBatch || jobQueue.length < batchSize) return;
+  if (isProcessingBatch) return;
   isProcessingBatch = true;
   let batch = jobQueue.slice(0, batchSize);
   jobQueue = jobQueue.slice(batchSize);
@@ -333,7 +358,7 @@ const processQueue = async (feedId) => {
     await processBatch(batch, feedId); // Ensure this is awaited
 
     // If temp table reaches 100,000 records, transfer to appljobs
-    if (tempTableRecordCount >= tempTableThreshold) {
+    if (tempTableRecordCount >= 0) {
       console.log("Transferring records from temp table to appljobs...");
       logMessage(
         `Transferring records from temp table to appljobs...`,
@@ -352,7 +377,7 @@ const processQueue = async (feedId) => {
     logToDatabase("error", "applupload8.js", `Error processing queue: ${err}`);
   } finally {
     isProcessingBatch = false;
-    if (jobQueue.length >= batchSize) processQueue(feedId);
+    if (jobQueue.length >= 0) processQueue(feedId);
   }
 };
 
@@ -377,35 +402,35 @@ const processBatch = async (batch, feedId) => {
     await insertIntoApplJobsFresh(batch);
 
     // Check if temp table has reached 100,000 records
-    const countQuery = "SELECT COUNT(*) as count FROM appljobs_temp";
-    tempConnection.query(countQuery, async (err, result) => {
-      if (err) {
-        console.error("Error counting records in temp table:", err);
-        logMessage(`Error counting records in temp table: ${err}`, logFilePath);
-        logToDatabase(
-          "error",
-          "applupload8.js",
-          `Error counting records in temp table: ${err}`
-        );
-        return;
-      }
+    // const countQuery = "SELECT COUNT(*) as count FROM appljobs_temp";
+    try {
+      // const [rows] = await tempConnection.promise().query(countQuery);
 
-      const tempTableCount = result[0].count;
-      if (tempTableCount >= 100000) {
-        console.log("Transferring records from temp table to appljobs...");
-        logMessage(
-          `Transferring records from temp table to appljobs...`,
-          logFilePath
-        );
-        logToDatabase(
-          "success",
-          "applupload8.js",
-          `Transferring records from temp table to appljobs...`
-        );
-        await transferToApplJobsTable(); // Transfer records to appljobs
-        await truncateTempTable(); // Truncate temp table
-      }
-    });
+      // const tempTableCount = rows[0].count;
+
+      // if (tempTableCount >= 100000) {
+      console.log("Transferring records from temp table to appljobs...");
+      logMessage(
+        `Transferring records from temp table to appljobs...`,
+        logFilePath
+      );
+      logToDatabase(
+        "success",
+        "applupload8.js",
+        `Transferring records from temp table to appljobs...`
+      );
+      await transferToApplJobsTable(); // Transfer records to appljobs
+      await truncateTempTable(); // Truncate temp table
+      // }
+    } catch (err) {
+      console.error("Error counting records in temp table:", err);
+      logMessage(`Error counting records in temp table: ${err}`, logFilePath);
+      logToDatabase(
+        "error",
+        "applupload8.js",
+        `Error counting records in temp table: ${err}`
+      );
+    }
 
     // Clear the processed batch from memory
     batch = null;
@@ -544,7 +569,7 @@ const parseXmlFile = async (filePath) => {
 
         jobQueue.push(currentItem);
 
-        if (jobQueue.length >= batchSize) {
+        if (jobQueue.length >= 0) {
           processQueue(feedId); // Process queue when batch size is reached
         }
       }
@@ -590,6 +615,7 @@ const processFiles = async () => {
   const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
 
   try {
+    await updateLastUpload(); // Update last_upload before starting the file processing
     await createTempTableOnce(); // Create the temp table once before processing any batches
 
     const filePaths = fs
