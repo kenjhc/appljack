@@ -35,7 +35,7 @@ const pool = mysql.createPool({
   database: config.database,
   charset: config.charset,
   connectTimeout: 900000, // 15 minutes (in milliseconds)
-  acquireTimeout: 900000, // 15 minutes (in milliseconds)
+  // acquireTimeout: 900000, // 15 minutes (in milliseconds)
 });
 
 const updateLastUpload = async () => {
@@ -569,7 +569,7 @@ const parseXmlFile = async (filePath) => {
 
         jobQueue.push(currentItem);
 
-        if (jobQueue.length >= 0) {
+        if (jobQueue.length >= batchSize) {
           processQueue(feedId); // Process queue when batch size is reached
         }
       }
