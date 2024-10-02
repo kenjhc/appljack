@@ -22,7 +22,7 @@ $path = getEnvPath();
 </div> -->
 
 <div class="wrapper d-flex align-items-stretch">
-    <nav id="sidebar" class="active">
+    <nav id="sidebar" class="aactive">
         <div class="d-flex flex-column justify-content-between sidebar_wrapper">
             <div>
                 <h1><a href="<?= $path; ?>applmasterview.php" class="logo">
@@ -36,20 +36,34 @@ $path = getEnvPath();
                         </li>
                     <?php } else { ?>
                         <li class="active">
-                            <a href="<?= $path; ?>applmasterview.php"><span class="fa fa-tachometer-alt"></span> <span class="text">Job Inventory Pool </span></a>
+                            <a href="<?= $path; ?>jobinventorypool.php">
+                                <span class="fa fa-briefcase"></span>
+                                <span class="text">Job Inventory Pool </span>
+                            </a>
+                        </li>
+                        <li class="active">
+                            <a href="<?= $path; ?>custaccountspool.php">
+                                <span class="fa fa-users"></span>
+                                <span class="text">Customer Accounts </span>
+                            </a>
+                        </li>
+                        <li class="active">
+                            <a href="<?= $path; ?>publisherspool.php">
+                                <span class="fa fa-book"></span>
+                                <span class="text">Publishers </span>
+                            </a>
                         </li>
                     <?php } ?>
+
                 </ul>
             </div>
             <div class="d-flex flex-column justify-content-between">
                 <ul class="list-unstyled components mb-0">
 
                     <?php if (isset($_SESSION['acctnum'])) { ?>
-
                         <li>
-                            <a href="<?= $path; ?>applmasterview.php"><span class="fa fa-tachometer-alt"></span> <span class="text">Master View </span></a>
+                            <a href="<?= $path; ?>applmasterview.php"><span class="fa fa-tachometer-alt"></span> <span class="text">Campaigns Overview </span></a>
                         </li>
-
                         <li>
                             <a href="<?= $path; ?>applresources.php"><span class="fa fa-book"></span> <span class="text">Resources </span></a>
                         </li>

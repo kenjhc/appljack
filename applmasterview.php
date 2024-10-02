@@ -168,8 +168,8 @@ try {
                 This XML file combines all the jobs from all the active campaigns across every Customer. This feed has everything that is currently running.
             </p>
 
-            <div class="row w-100 mx-auto xml_mapping_sec">
-                <div class="col-sm-12 col-md-12 px-0 ">
+            <div class="row w-100 mx-auto xml_mapping_sec pt-0">
+                <div class="col-sm-12 col-md-12 px-0 d-none ">
                     <div class="card ">
                         <div class="card-body">
                             <div class="d-flex justify-content-between ">
@@ -216,7 +216,7 @@ try {
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-12 col-md-12 px-0">
+                <div class="col-sm-12 col-md-12 px-0 d-none">
                     <div class="">
                         <div class="card ">
                             <div class="card-body">
@@ -266,18 +266,13 @@ try {
                         </div>
                     </div>
                 </div>
-
-
-
                 <div class="col-sm-12 col-md-12 px-0">
                     <div class="">
                         <div class="card ">
                             <div class="card-body">
-                                <div class="d-flex justify-content-between ">
-                                    <h5 class="card-title">Customer Campaign Overview</h5>
-                                </div>
-                                <form action="applmasterview.php" method="get" class="date_filter_form_wrapper">
-                                    <div class="d-flex align-items-end date_filter_form">
+                                <div class="d-flex justify-content-between card-title">
+                                    <h5 class="card-title p-0">Customer Campaign Overview</h5>
+                                    <form action="applmasterview.php" method="get" class="d-flex align-items-end gap-3">
                                         <div>
                                             <label class="mb-0" for="startdate">Start:</label>
                                             <input type="date" id="startdate" class="form-control" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
@@ -287,10 +282,10 @@ try {
                                             <input type="date" id="enddate" class="form-control" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
                                         </div>
                                         <div>
-                                            <button type="submit" class="btn btn-secondary my-0 w-auto py-2">Show Data</button>
+                                            <button class="btn_green my-0 w-auto py-1 no-wrap">Show Data</button>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
 
                                 <div class="table-responsive">
                                     <div class="custom_padding">
@@ -334,8 +329,7 @@ try {
                         </div>
                     </div>
                 </div>
-
-                <div class="col-sm-12 col-md-12 px-0">
+                <div class="col-sm-12 col-md-12 px-0 d-none">
                     <div class="">
                         <div class="card ">
                             <div class="card-body">
