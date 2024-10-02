@@ -55,8 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
     <?php include 'header.php'; ?>
 </head>
 
-<body>
-
+<body> 
     <?php include 'appltopnav.php'; ?>
     <?php echo renderHeader(
         "Edit Customer",

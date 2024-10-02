@@ -18,6 +18,7 @@ $path = getEnvPath();
 
         <a href="<?= $path; ?>appllogout.php">Log Out</a>
     </div>
+
 </div> -->
 
 <div class="wrapper d-flex align-items-stretch">

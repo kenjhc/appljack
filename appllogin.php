@@ -52,12 +52,14 @@ if (isset($_POST['login'])) {
 
 <body>
 
+ 
     <?php include 'appltopnav.php'; ?>
     <?php echo renderHeader(
         "Login"
     ); ?>
     <section class="login_sec">
         <div class="container-fluid">
+ 
 
             <div class="px-4 px-md-5 py-4">
                 <div class="row">

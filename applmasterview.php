@@ -27,6 +27,11 @@ try {
     $stmt2->execute(['acctnum' => $_SESSION['acctnum']]);
     $jobPools = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
+    // Fetch publishers
+    $stmt3 = $conn->prepare("SELECT publisherid, publishername FROM applpubs ORDER BY publishername ASC");
+    $stmt3->execute();
+    $publishers = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
     // Data processing for the new table
     $customerData = [];
     foreach ($customers as $customer) {
@@ -145,6 +150,7 @@ try {
 <body>
     <?php include 'appltopnav.php'; ?>
 
+
     <?php echo renderHeader(
         "Account Master View"
     ); ?>
@@ -157,13 +163,13 @@ try {
         ?>
 
 
-        <div class="container-fluid"> 
+        <div class="container-fluid">
             <p class="main_view_note"><b>Account-Level XML File:</b> <a href="<?= htmlspecialchars($xmlUrl) ?>" target="_blank"><?= htmlspecialchars($xmlUrl) ?></a><br>
                 This XML file combines all the jobs from all the active campaigns across every Customer. This feed has everything that is currently running.
             </p>
 
-            <div class="row w-100 mx-auto xml_mapping_sec"> 
-                <div class="col-sm-12 col-md-12 px-0 "> 
+            <div class="row w-100 mx-auto xml_mapping_sec">
+                <div class="col-sm-12 col-md-12 px-0 ">
                     <div class="card ">
                         <div class="card-body">
                             <div class="d-flex justify-content-between ">
@@ -206,9 +212,9 @@ try {
                                         </table>
                                     </div>
                                 </div>
-                            <?php endif; ?> 
+                            <?php endif; ?>
                         </div>
-                    </div> 
+                    </div>
                 </div>
                 <div class="col-sm-12 col-md-12 px-0">
                     <div class="">
@@ -216,7 +222,7 @@ try {
                             <div class="card-body">
                                 <div class="d-flex justify-content-between ">
                                     <h5 class="card-title">Job Inventory Pools</h5>
-                                </div> 
+                                </div>
                                 <a href="applcreatepool.php" class="add-customer-button"><i class="fa fa-plus"></i> Add Job Pool</a>
                                 <?php if (empty($jobPools)): ?>
                                     <p>No job pools found.</p>
@@ -322,6 +328,47 @@ try {
                                         </table>
                                     </div>
 
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-md-12 px-0">
+                    <div class="">
+                        <div class="card ">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between ">
+                                    <h5 class="card-title">Publishers</h5>
+                                    <a href="applcreatepub.php" class="add-publisher-button">
+                                        <i class="fa fa-plus"></i> Add Publisher
+                                    </a>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <div class="custom_padding">
+                                        <table class="campaign-overview-table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Publisher Name</th>
+                                                    <th>Publisher ID</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php if (empty($publishers)): ?>
+                                                    <p>No publishers found.</p>
+                                                <?php else: ?>
+                                                    <?php foreach ($publishers as $publisher): ?>
+                                                        <tr>
+                                                            <td><?= htmlspecialchars($publisher['publishername']) ?></td>
+                                                            <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div> 
                                 </div>
 
                             </div>

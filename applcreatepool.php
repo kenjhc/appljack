@@ -43,7 +43,7 @@ $jobpoolid = mt_rand(1000000000, 9999999999);
             <form action="applputpool.php" method="post">
                 <input type="hidden" name="jobpoolid" value="<?php echo $jobpoolid; ?>">
                 <input type="hidden" name="acctnum" value="<?php echo $_SESSION['acctnum']; ?>">
-
+ 
                 <label for="jobpoolname">Job Pool Name (required)</label>
                 <input type="text" id="jobpoolname" name="jobpoolname" maxlength="50" required><br>
 

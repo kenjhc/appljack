@@ -46,6 +46,7 @@ function getEnvPath()
     } else {
         return "unknown";
     }
+
 }
 function renderHeader($pageTitle, $subtitle = '', $notificationCount = 0)
 {
@@ -94,4 +95,3 @@ function renderHeader($pageTitle, $subtitle = '', $notificationCount = 0)
     </div>
 <?php
 }
-?>

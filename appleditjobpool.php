@@ -252,6 +252,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
+ 
     <?php include 'appltopnav.php'; ?>
 
     <?php echo renderHeader(
@@ -264,6 +265,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="row">
                 <div class="col-sm-12 col-md-4">
                     <div class="job_card">
+ 
                         <form action="" method="post">
                             <p class="job_title">Edit Job Pool Name</p>
                             <input type="text" class="job_input" name="jobpoolname" placeholder="Enter Job Pool Name" value="<?= htmlspecialchars($currentJobPoolName) ?>" required>

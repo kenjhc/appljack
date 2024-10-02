@@ -55,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
     <?php include 'appltopnav.php'; ?>
+
     <?php echo renderHeader(
         "Create a New Customer"
     ); ?>

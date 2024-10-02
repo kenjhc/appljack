@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const sax = require('sax');
+const fs = require("fs");
+const path = require("path");
+const sax = require("sax");
 const js2xmlparser = require("js2xmlparser");
 
-const inputDirectory = 'feeddownloads';
-const outputDirectory = 'feedsclean';
+const inputDirectory = "/chroot/home/appljack/appljack.com/html/feeddownloads";
+const outputDirectory = "/chroot/home/appljack/appljack.com/html/feedsclean";
 
 // Read all XML files from the input directory
 fs.readdir(inputDirectory, (err, files) => {
@@ -14,10 +14,12 @@ fs.readdir(inputDirectory, (err, files) => {
   }
 
   // Filter out non-XML files
-  const xmlFiles = files.filter(file => path.extname(file).toLowerCase() === '.xml');
+  const xmlFiles = files.filter(
+    (file) => path.extname(file).toLowerCase() === ".xml"
+  );
 
   // Process each XML file
-  xmlFiles.forEach(file => {
+  xmlFiles.forEach((file) => {
     const inputFilePath = path.join(inputDirectory, file);
     const outputFilePath = path.join(outputDirectory, file);
 
@@ -30,7 +32,7 @@ fs.readdir(inputDirectory, (err, files) => {
 
     let currentElement = null;
     let currentJob = null;
-    let currentText = '';
+    let currentText = "";
     let jobs = [];
     let nestedElementStack = [];
     let hasNestedElements = false;
@@ -43,17 +45,19 @@ fs.readdir(inputDirectory, (err, files) => {
       if (stopProcessing) return;
 
       currentElement = node.name;
-      currentText = '';
+      currentText = "";
 
       elementCount++;
-      if (elementCount <= 5 && currentElement === 'job') {
+      if (elementCount <= 5 && currentElement === "job") {
         jobElementFound = true;
       }
 
       if (!jobElementFound && elementCount > 5) {
         // Skip the file if no <job> element is found within the first 5 elements
         fs.copyFileSync(inputFilePath, outputFilePath);
-        console.log(`Skipping file (no <job> element found in the first 5 elements): ${inputFilePath}`);
+        console.log(
+          `Skipping file (no <job> element found in the first 5 elements): ${inputFilePath}`
+        );
         console.log(`Original XML has been saved to ${outputFilePath}`);
         stopProcessing = true;
         inputStream.close();
@@ -61,7 +65,7 @@ fs.readdir(inputDirectory, (err, files) => {
         return;
       }
 
-      if (currentElement === 'job') {
+      if (currentElement === "job") {
         if (!firstJobChecked) {
           currentJob = {};
           nestedElementStack = [];
@@ -90,15 +94,18 @@ fs.readdir(inputDirectory, (err, files) => {
     const handleCloseTag = (node) => {
       if (stopProcessing) return;
 
-      if (node === 'job') {
+      if (node === "job") {
         if (!firstJobChecked) {
           firstJobChecked = true;
           if (hasNestedElements) {
             // Flatten the nested elements
             let flattenedJob = {};
-            Object.keys(currentJob).forEach(key => {
-              if (typeof currentJob[key] === 'object' && currentJob[key] !== null) {
-                Object.keys(currentJob[key]).forEach(subKey => {
+            Object.keys(currentJob).forEach((key) => {
+              if (
+                typeof currentJob[key] === "object" &&
+                currentJob[key] !== null
+              ) {
+                Object.keys(currentJob[key]).forEach((subKey) => {
                   flattenedJob[`${key}${subKey}`] = currentJob[key][subKey];
                 });
               } else {
@@ -120,7 +127,8 @@ fs.readdir(inputDirectory, (err, files) => {
         }
       } else if (currentJob !== null) {
         if (nestedElementStack.length > 1) {
-          const parentElement = nestedElementStack[nestedElementStack.length - 2];
+          const parentElement =
+            nestedElementStack[nestedElementStack.length - 2];
           if (!currentJob[parentElement]) {
             currentJob[parentElement] = {};
           }
@@ -146,11 +154,11 @@ fs.readdir(inputDirectory, (err, files) => {
         const structuredData = {
           source: {
             jobs: {
-              job: jobs.map(job => {
+              job: jobs.map((job) => {
                 let flattenedJob = {};
-                Object.keys(job).forEach(key => {
-                  if (typeof job[key] === 'object' && job[key] !== null) {
-                    Object.keys(job[key]).forEach(subKey => {
+                Object.keys(job).forEach((key) => {
+                  if (typeof job[key] === "object" && job[key] !== null) {
+                    Object.keys(job[key]).forEach((subKey) => {
                       flattenedJob[`${key}${subKey}`] = job[key][subKey];
                     });
                   } else {
@@ -158,14 +166,16 @@ fs.readdir(inputDirectory, (err, files) => {
                   }
                 });
                 return flattenedJob;
-              })
-            }
-          }
+              }),
+            },
+          },
         };
         const xml = js2xmlparser.parse("source", structuredData.source);
         outputStream.write(xml);
         outputStream.end();
-        console.log(`Transformed XML with nested elements flattened has been saved to ${outputFilePath}`);
+        console.log(
+          `Transformed XML with nested elements flattened has been saved to ${outputFilePath}`
+        );
       }
     };
 
@@ -173,12 +183,12 @@ fs.readdir(inputDirectory, (err, files) => {
       console.error("Parsing error:", err);
     };
 
-    parser.on('opentag', handleOpenTag);
-    parser.on('text', handleText);
-    parser.on('cdata', handleCDATA);
-    parser.on('closetag', handleCloseTag);
-    parser.on('end', handleEnd);
-    parser.on('error', handleError);
+    parser.on("opentag", handleOpenTag);
+    parser.on("text", handleText);
+    parser.on("cdata", handleCDATA);
+    parser.on("closetag", handleCloseTag);
+    parser.on("end", handleEnd);
+    parser.on("error", handleError);
 
     inputStream.pipe(parser);
   });

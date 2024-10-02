@@ -206,7 +206,7 @@ $db->close();
         label {
             display: block;
         }
-    </style>
+    </style> 
 </head>
 
 <body>

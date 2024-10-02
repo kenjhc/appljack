@@ -55,6 +55,7 @@ try {
 </head>
 
 <body>
+ 
     <?php include 'appltopnav.php'; ?> 
 
     <?php echo renderHeader(
@@ -160,8 +161,7 @@ try {
             </div>
             </div>
         </div>
-    </section>
-
+    </section> 
     <?php include 'footer.php'; ?>
 </body>
 
