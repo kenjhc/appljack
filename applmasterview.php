@@ -156,7 +156,7 @@ try {
             <a href="applcreatecustomer.php" class="add-customer-button">
                 <i class="fa fa-plus"></i> Add Customer
             </a>
-
+ 
             <?php if (empty($customers)): ?>
                 <p>No customer accounts found.</p>
             <?php else: ?>

@@ -1,4 +1,8 @@
-on: push
+on: 
+  push:
+    branches:
+      master
+      
 name: 🚀 Deploy Appljack on production server
 jobs:
   web-deploy:

@@ -13,7 +13,7 @@ function extractIncludeExclude($query)
     $allItems = explode(', ', $query ?? '');
     $includeItems = [];
     $excludeItems = [];
-
+ 
     foreach ($allItems as $item) {
         if (strpos(trim($item), 'NOT ') === 0) {
             $excludeItems[] = trim(substr($item, 4));
