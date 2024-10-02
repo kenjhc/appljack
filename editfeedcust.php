@@ -1,6 +1,6 @@
 <?php
 include 'database/db.php';
- 
+
 if (!isset($_SESSION['acctnum']) || !isset($_SESSION['custid'])) {
     header("Location: appllogin.php");
     exit();
@@ -78,7 +78,7 @@ if ($jobpoolid) {
         } else {
             setToastMessage('error', "Companies loaded successfully.");
         }
-    } catch (PDOException $e) { 
+    } catch (PDOException $e) {
         setToastMessage('error', "Database error: " . $e->getMessage());
     }
 }
@@ -101,35 +101,35 @@ if ($jobpoolid) {
             }
         }
     </script>
-
-
 </head>
 
 <body>
     <?php include 'appltopnav.php'; ?>
-    <h1>Edit Customer List</h1>
-    <?php echo htmlspecialchars($feedid); ?>
-    <form action="editfeedcust.php" method="post" id="customerForm">
-        <table>
-            <tr>
-                <th>Customer Name</th>
-                <th>Include</th>
-                <th>Exclude</th>
-            </tr>
-            <?php foreach ($companies as $company): ?>
+    <?php echo renderHeader(
+        "Edit Customer List"
+    ); ?>
+    <section class="job_section">
+        <h3>Feed: <?php echo htmlspecialchars($feedid); ?></h3>
+        <form action="editfeedcust.php" method="post" id="customerForm">
+            <table>
                 <tr>
-                    <td><?php echo htmlspecialchars($company); ?></td>
-                    <td><input type="checkbox" name="include_<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>" class="include" onclick="toggleCheckbox(this, '<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>', 'exclude');"></td>
-                    <td><input type="checkbox" name="exclude_<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>" class="exclude" onclick="toggleCheckbox(this, '<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>', 'include');"></td>
+                    <th>Customer Name</th>
+                    <th>Include</th>
+                    <th>Exclude</th>
                 </tr>
-
-            <?php endforeach; ?>
-        </table>
-        <br>
-        <input type="hidden" name="feedid" value="<?php echo htmlspecialchars($feedid); ?>">
-        <input type="submit" value="Submit"> <input type="submit" name="reset" value="Reset All">
-    </form>
-
+                <?php foreach ($companies as $company): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($company); ?></td>
+                        <td><input type="checkbox" name="include_<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>" class="include" onclick="toggleCheckbox(this, '<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>', 'exclude');"></td>
+                        <td><input type="checkbox" name="exclude_<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>" class="exclude" onclick="toggleCheckbox(this, '<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>', 'include');"></td>
+                    </tr> 
+                <?php endforeach; ?>
+            </table>
+            <br>
+            <input type="hidden" name="feedid" value="<?php echo htmlspecialchars($feedid); ?>">
+            <input type="submit" value="Submit"> <input type="submit" name="reset" value="Reset All">
+        </form>
+    </section>
     <?php include 'footer.php'; ?>
 </body>
 

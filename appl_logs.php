@@ -206,7 +206,7 @@ $db->close();
         label {
             display: block;
         }
-    </style> 
+    </style>
 </head>
 
 <body>
@@ -220,7 +220,7 @@ $db->close();
         <div class="">
 
             <form method="get" class="logs_filter mb-4 d-flex justify-between items-center">
-                <div>
+                <div class="d-flex align-items-end">
                     <div>
                         <label for="type">Log Type:</label>
                         <select name="type" id="type" class="form-control">
@@ -249,7 +249,7 @@ $db->close();
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary mb-0">Filter</button>
+                    <button class="btn_green py-1 px-4">Filter</button>
                 </div>
 
                 <nav aria-label="Page navigation">

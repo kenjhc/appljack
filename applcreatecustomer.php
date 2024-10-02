@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ); ?>
 
     <section class="create_customer_sec">
-        <div class="container-fluid">
+        <div class="container-fluid py-4">
             <form action="applcreatecustomer.php" method="post" class="pb-5">
                 <div>
                     <input type="radio" id="employer" name="custtype" value="emp" required>
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <button type="submit" class="update_btn">Create Customer</button>
+                <button class="btn_green w-100 mt-3">Create Customer</button>
             </form>
         </div>
     </section>

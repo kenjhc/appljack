@@ -1,7 +1,7 @@
 <?php
 
 include 'database/db.php';
- 
+
 
 // Define default dates to cover the current month's range
 $defaultStartDate = date('Y-m-01');
@@ -179,106 +179,119 @@ foreach ($feeds as $feed) {
 <body>
     <?php include 'appltopnav.php'; ?>
 
-    <div class="main-content">
-        <div class="top-row">
-            <div class="details-container">
-                <h3>Customer Information</h3>
-                <?php if (!empty($customerInfo)): ?>
-                    <p>Customer Name: <?= htmlspecialchars($customerInfo['custcompany']) ?></p>
-                    <p>Customer ID: <?= htmlspecialchars($custid) ?></p>
-                    <p>Customer Type: <?= htmlspecialchars($customerInfo['custtype']) ?></p>
-                    <p>Job Pool: <?= htmlspecialchars($jobPoolName) ?></p>
-                    <p>Customer-level Feed URL: <a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid); ?>.xml" target="_blank">https://appljack.com/applfeeds/<?= htmlspecialchars($custid); ?>.xml</a></p>
-                <?php else: ?>
-                    <p>No customer information available.</p>
-                <?php endif; ?>
+    <?php echo renderHeader(
+        "Appl Portal"
+    ); ?>
+    <section class="job_section">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Customer Information Section -->
+                <div class="col-md-4 details-container">
+                    <h2 class="fs-md fw-bold">Customer Information</h2>
+                    <?php if (!empty($customerInfo)): ?>
+                        <p class="mb-0">Customer Name: <?= htmlspecialchars($customerInfo['custcompany']) ?></p>
+                        <p class="mb-0">Customer ID: <?= htmlspecialchars($custid) ?></p>
+                        <p class="mb-0">Customer Type: <?= htmlspecialchars($customerInfo['custtype']) ?></p>
+                        <p class="mb-0">Job Pool: <?= htmlspecialchars($jobPoolName) ?></p>
+                        <p class="mb-0">Customer-level Feed URL:
+                            <a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid); ?>.xml" target="_blank">
+                                https://appljack.com/applfeeds/<?= htmlspecialchars($custid); ?>.xml
+                            </a>
+                        </p>
+                    <?php else: ?>
+                        <p class="mb-0">No customer information available.</p>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Date Selector Section -->
+                <div class="col-md-4 date-selector">
+                    <form action="applportal.php" method="get" class="">
+                        <input type="hidden" name="custid" value="<?= htmlspecialchars($custid) ?>">
+                        <div class="form-group mb-2">
+                            <label for="startdate">Start Date:</label>
+                            <input type="date" id="startdate" name="startdate" class="form-control" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="enddate">End Date:</label>
+                            <input type="date" id="enddate" name="enddate" class="form-control" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-2">Show Data</button>
+                    </form>
+                </div>
+
+                <!-- Customer Switch Section -->
+                <div class="col-md-4 switch-container">
+                    <form action="applportal.php" method="get" class="d-flex flex-column align-items-start">
+                        <label for="custid">Switch Customer Account:</label>
+                        <select name="custid" id="custid" class="form-control mb-2" onchange="this.form.submit()">
+                            <?php foreach ($custCompanies as $company): ?>
+                                <option value="<?= htmlspecialchars($company['custid']) ?>" <?= isset($_GET['custid']) && $_GET['custid'] == $company['custid'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($company['custcompany']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </form>
+                </div>
             </div>
 
-            <div class="date-selector">
-                <form action="applportal.php" method="get">
-                    <input type="hidden" name="custid" value="<?= htmlspecialchars($custid) ?>">
-                    <label for="startdate">Start:</label>
-                    <input type="date" id="startdate" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
-                    <label for="enddate">End:</label>
-                    <input type="date" id="enddate" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
-                    <button type="submit">Show Data</button>
-                </form>
+            <div class="dashboard-header mt-2">
+                <h1>Your Campaigns Dashboard: <?= $displayStartDate ?> to <?= $displayEndDate ?></h1>
+                <a href="applcreatefeeds.php?custid=<?= htmlspecialchars($custid) ?>" class="text-white btn_green">
+                    <i class="fa fa-plus"></i> Add Campaign
+                </a>
+                <a href="appldownloadcsv.php?custid=<?= htmlspecialchars($custid) ?>&startdate=<?= htmlspecialchars($startdate) ?>&enddate=<?= htmlspecialchars($enddate) ?>" class="downloadcsv-button">
+                    <i class="fa fa-download"></i> Download CSV
+                </a>
             </div>
 
-            <div class="switch-container">
-                <form action="applportal.php" method="get">
-                    <label for="custid">Switch Customer Account:</label>
-                    <select name="custid" id="custid" onchange="this.form.submit()">
-                        <?php foreach ($custCompanies as $company): ?>
-                            <option value="<?= htmlspecialchars($company['custid']) ?>" <?= isset($_GET['custid']) && $_GET['custid'] == $company['custid'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($company['custcompany']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </form>
+            <div class="chart-container" style="width: 100%; height: 250px;">
+                <canvas id="spendChart"></canvas>
             </div>
 
-        </div>
-
-
-        <div class="dashboard-header">
-            <h1>Your Campaigns Dashboard: <?= $displayStartDate ?> to <?= $displayEndDate ?></h1>
-            <a href="applcreatefeeds.php?custid=<?= htmlspecialchars($custid) ?>" class="add-campaign-button">
-                <i class="fa fa-plus"></i> Add Campaign
-            </a>
-            <a href="appldownloadcsv.php?custid=<?= htmlspecialchars($custid) ?>&startdate=<?= htmlspecialchars($startdate) ?>&enddate=<?= htmlspecialchars($enddate) ?>" class="downloadcsv-button">
-                <i class="fa fa-download"></i> Download CSV
-            </a>
-        </div>
-
-        <div class="chart-container" style="width: 100%; height: 250px;">
-            <canvas id="spendChart"></canvas>
-        </div>
-
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Campaign</th>
-                        <th>Campaign ID</th>
-                        <th>Status</th>
-                        <th>Mo. Budget</th>
-                        <th>Spend</th>
-                        <th>Clicks</th>
-                        <th>Applies</th>
-                        <th>Spend/Apply</th>
-                        <th>Spend/Click</th>
-                        <th>Conv. Rate</th>
-                        <th>Job Exported</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($feeds as $feed): ?>
+            <div class="table-container">
+                <table>
+                    <thead>
                         <tr>
-                            <td><?= htmlspecialchars($feed['feedname']); ?></td>
-                            <td><?= htmlspecialchars($feed['feedid']); ?></td>
-                            <td><?= htmlspecialchars($feed['status']); ?></td>
-                            <td>$<?= htmlspecialchars($feed['budget']); ?></td>
-                            <td><?= htmlspecialchars($feed['formatted_spend']); ?></td>
-                            <td><?= $feed['clicks']; ?></td>
-                            <td><?= $feed['applies']; ?></td>
-                            <td><?= $feed['spend_per_apply']; ?></td>
-                            <td><?= $feed['spend_per_click']; ?></td>
-                            <td><?= $feed['conversion_rate']; ?></td>
-                            <td><?= number_format($feed['numjobs']); ?></td>
-                            <td>
-                                <a href="viewfeed.php?feedid=<?= urlencode($feed['feedid']); ?>">View</a> |
-                                <a href="editfeed.php?feedid=<?= urlencode($feed['feedid']); ?>">Edit</a> |
-                                <a href="deletefeed.php?feedid=<?= urlencode($feed['feedid']); ?>" onclick="return confirm('Are you sure you want to delete this feed?');">Delete</a>
-                            </td>
+                            <th>Campaign</th>
+                            <th>Campaign ID</th>
+                            <th>Status</th>
+                            <th>Mo. Budget</th>
+                            <th>Spend</th>
+                            <th>Clicks</th>
+                            <th>Applies</th>
+                            <th>Spend/Apply</th>
+                            <th>Spend/Click</th>
+                            <th>Conv. Rate</th>
+                            <th>Job Exported</th>
+                            <th>Actions</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($feeds as $feed): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($feed['feedname']); ?></td>
+                                <td><?= htmlspecialchars($feed['feedid']); ?></td>
+                                <td><?= htmlspecialchars($feed['status']); ?></td>
+                                <td>$<?= htmlspecialchars($feed['budget']); ?></td>
+                                <td><?= htmlspecialchars($feed['formatted_spend']); ?></td>
+                                <td><?= $feed['clicks']; ?></td>
+                                <td><?= $feed['applies']; ?></td>
+                                <td><?= $feed['spend_per_apply']; ?></td>
+                                <td><?= $feed['spend_per_click']; ?></td>
+                                <td><?= $feed['conversion_rate']; ?></td>
+                                <td><?= number_format($feed['numjobs']); ?></td>
+                                <td>
+                                    <a href="viewfeed.php?feedid=<?= urlencode($feed['feedid']); ?>">View</a> |
+                                    <a href="editfeed.php?feedid=<?= urlencode($feed['feedid']); ?>">Edit</a> |
+                                    <a href="deletefeed.php?feedid=<?= urlencode($feed['feedid']); ?>" onclick="return confirm('Are you sure you want to delete this feed?');">Delete</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    </section>
 
     <?php include 'footer.php'; ?>
     <script>

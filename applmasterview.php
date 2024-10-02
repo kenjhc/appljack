@@ -341,10 +341,8 @@ try {
                             <div class="card-body">
                                 <div class="d-flex justify-content-between ">
                                     <h5 class="card-title">Publishers</h5>
-                                    <a href="applcreatepub.php" class="add-publisher-button">
-                                        <i class="fa fa-plus"></i> Add Publisher
-                                    </a>
                                 </div>
+                                <a href="applcreatepool.php" class="add-customer-button"><i class="fa fa-plus"></i> Add Publisher</a>
 
                                 <div class="table-responsive">
                                     <div class="custom_padding">
@@ -368,17 +366,14 @@ try {
                                                 <?php endif; ?>
                                             </tbody>
                                         </table>
-                                    </div> 
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
-
     </section>
     <?php include 'footer.php'; ?>
 </body>

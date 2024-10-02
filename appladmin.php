@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <label for="isAdmin">Is Admin:</label>
                         <input type="checkbox" id="isAdmin" name="is_admin" value="1"><br><br>
                     </div>
-                    <input type="submit" class="update_btn" value="Create Account">
+                    <button class="btn_green w-100">Create Account</button>
                 </form>
             </div>
         </div>
