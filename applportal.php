@@ -198,6 +198,18 @@ foreach ($feeds as $feed) {
                                 https://appljack.com/applfeeds/<?= htmlspecialchars($custid); ?>.xml
                             </a>
                         </p>
+                        <!-- New Section for Publisher Feed URLs -->
+                        <?php if (!empty($publishers)): ?>
+                            <p class="mb-0">Publisher Feed URLs:</p>
+                            <?php foreach ($publishers as $publisher): ?>
+                                <?= htmlspecialchars($publisher['publishername']); ?>:
+                                <a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml" target="_blank">
+                                    https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml
+                                </a>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="mb-0">No active publishers associated with this customer.</p>
+                        <?php endif; ?>
                     <?php else: ?>
                         <p class="mb-0">No customer information available.</p>
                     <?php endif; ?>
