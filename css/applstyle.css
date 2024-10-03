@@ -1122,7 +1122,7 @@ button[type="submit"]:hover {
 
 .xml_mapping_sec .custom_padding {
   padding: 20px 10px;
-  width: 98%;
+  /* width: 98%; */
   margin: 0 auto;
 }
 

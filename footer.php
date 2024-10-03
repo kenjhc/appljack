@@ -1,4 +1,3 @@
-
 <footer>
     <p>&copy; 2024 Appljack | Powered by Job Hub Central</p>
     <!-- Add more footer elements here -->
@@ -45,13 +44,16 @@
         // Check if the sidebar was collapsed in localStorage
         if (localStorage.getItem('sidebarState') === 'collapsed') {
             $('#sidebar').addClass('active'); // Ensure the state is collapsed
+            $('#content').addClass('active'); // Ensure the state is collapsed
         } else {
             $('#sidebar').removeClass('active'); // Ensure the state is collapsed
+            $('#content').removeClass('active'); // Ensure the state is collapsed
         }
 
         // Toggle sidebar collapse on button click
         $('#sidebarCollapse').on('click', function() {
             $('#sidebar').toggleClass('active');
+            $('#content').toggleClass('active');
 
             // Save the sidebar state in localStorage
             if ($('#sidebar').hasClass('active')) {

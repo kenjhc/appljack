@@ -307,7 +307,7 @@ try {
                                             <tbody>
                                                 <?php foreach ($customerData as $data): ?>
                                                     <tr>
-                                                        <td><a href="https://appljack.com/applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
+                                                        <td><a href="<?= $path; ?>applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
                                                         <td><?= htmlspecialchars($data['status']); ?></td>
                                                         <td>$<?= number_format($data['budget'], 2); ?></td>
                                                         <td>$<?= number_format($data['spend'], 2); ?></td>
