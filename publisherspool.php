@@ -15,16 +15,12 @@ $startdate = date('Y-m-d', strtotime($startdate)) . " 00:00:00";
 $enddate = date('Y-m-d', strtotime($enddate)) . " 23:59:59";
 
 try {
+    // Fetch current publishers
+    $publishers = [];
+    $stmt = $conn->prepare("SELECT publisherid, publishername FROM applpubs WHERE acctnum = ?");
+    $stmt->execute([$_SESSION['acctnum']]);
+    $publishers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Fetch customers
-    $stmt = $conn->prepare("SELECT custid, custcompany FROM applcust WHERE acctnum = :acctnum ORDER BY custcompany ASC");
-    $stmt->execute(['acctnum' => $_SESSION['acctnum']]);
-    $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Fetch job pools
-    $stmt2 = $conn->prepare("SELECT jobpoolid, jobpoolname, jobpoolurl, arbitrage FROM appljobseed WHERE acctnum = :acctnum");
-    $stmt2->execute(['acctnum' => $_SESSION['acctnum']]);
-    $jobPools = $stmt2->fetchAll(PDO::FETCH_ASSOC);
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Handle job pool deletion
         if (isset($_POST['delete_jobpoolid'])) {
@@ -61,6 +57,9 @@ try {
     setToastMessage('error', "Error: " . $e->getMessage());
     setToastMessage('error', "Error: " . $e->getMessage());
 }
+
+
+
 ?>
 
 <!DOCTYPE html>
