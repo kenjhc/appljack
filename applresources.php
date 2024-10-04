@@ -75,7 +75,7 @@ try {
                     <div class="details-container">
                         <p><code>&lt;script&gt;<br />
                                 console.log("firing the cpa event");<br />
-                                fetch("https://appljack.com/cpa-event.php")<br />
+                                fetch("<?= getUrl(1) ?>cpa-event.php")<br />
                                 .then(function(response) {<br />
                                 console.log("success");<br />
                                 })<br />
@@ -91,7 +91,7 @@ try {
                     <div class="details-container">
                         <p><code>&lt;script&gt;<br />
                                 console.log("firing the cpa event");<br />
-                                fetch("https://appljack.com/secondary-event.php")<br />
+                                fetch("<?= getUrl(1) ?>secondary-event.php")<br />
                                 .then(function(response) {<br />
                                 console.log("success");<br />
                                 })<br />

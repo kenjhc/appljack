@@ -393,11 +393,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-md-6">
                             <h4>Industry</h4>
                             <div class="form-group">
-                                <label for="industry_include">Industry Include</label>
+                                <label for="industry_include">Industry Include (<a target="_blank" href="<?= getUrl(1) ?>editfeedindustry.php?feedid=<?= htmlspecialchars($feedid); ?>">View all industries</a>)</label>
                                 <input type="text" id="industry_include" name="industry_include" class="form-control" value="<?= htmlspecialchars(implode(', ', $includeIndustry)); ?>">
                             </div>
                             <div class="form-group">
-                                <label for="industry_exclude">Industry Exclude</label>
+                                <label for="industry_exclude">Industry Exclude (<a target="_blank" href="<?= getUrl(1) ?>editfeedindustry.php?feedid=<?= htmlspecialchars($feedid); ?>">View all industries</a>)</label>
                                 <input type="text" id="industry_exclude" name="industry_exclude" class="form-control" value="<?= htmlspecialchars(implode(', ', $excludeIndustry)); ?>">
                             </div>
                         </div>
@@ -429,11 +429,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-md-6">
                             <h4>Company</h4>
                             <div class="form-group">
-                                <label for="company_include">Company Include</label>
+                                <label for="company_include">Company Include (<a target="_blank" href="<?= getUrl(1) ?>editfeedcust.php?feedid=<?= htmlspecialchars($feedid); ?>">View all companies</a>)</label>
                                 <input type="text" id="company_include" name="company_include" class="form-control" value="<?= htmlspecialchars($displayIncludeCompanies); ?>">
                             </div>
                             <div class="form-group">
-                                <label for="company_exclude">Company Exclude</label>
+                                <label for="company_exclude">Company Exclude (<a target="_blank" href="<?= getUrl(1) ?>editfeedcust.php?feedid=<?= htmlspecialchars($feedid); ?>">View all companies</a>)</label>
                                 <input type="text" id="company_exclude" name="company_exclude" class="form-control" value="<?= htmlspecialchars($displayExcludeCompanies); ?>">
                             </div>
                         </div>

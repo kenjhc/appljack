@@ -10,6 +10,13 @@ function printit($val,  $shouldDie = false)
     }
 }
 
+function getUrl($withPath = 0)
+{
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    $host = $_SERVER['HTTP_HOST'];
+    return ($protocol . $host) . ($withPath ? getEnvPath() : '');
+}
+
 function setToastMessage($type, $message)
 {
     $_SESSION['toast_type'] = $type;

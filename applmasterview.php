@@ -159,7 +159,7 @@ try {
         <?php
         // Create the XML URL using the current session's account number
         $acctnum = $_SESSION['acctnum'];
-        $xmlUrl = "https://appljack.com/applfeeds/{$acctnum}.xml";
+        $xmlUrl = getUrl() . "/applfeeds/{$acctnum}.xml";
         ?>
 
 

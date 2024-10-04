@@ -1169,3 +1169,8 @@ footer p {
 .no-wrap{
   white-space: nowrap;
 }
+
+.heading{
+  font-size: 1.5rem;
+  font-weight: bold;
+}

@@ -2,6 +2,8 @@
 * Copyright 2011-2019 The Bootstrap Authors
 * Copyright 2011-2019 Twitter, Inc.
 * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)*/
+@import url("https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap");
+
 :root {
   --blue: #007bff;
   --indigo: #6610f2;
@@ -11824,7 +11826,8 @@ a.text-dark:focus {
 }
 
 body {
-  font-family: poppins, Arial, sans-serif;
+  /* font-family: poppins, Arial, sans-serif; */
+  font-family: "Arimo", sans-serif;
   font-size: 14px;
   line-height: 1.8;
   font-weight: 400;
@@ -11873,7 +11876,8 @@ h5,
 .h5 {
   line-height: 1.5;
   font-weight: 400;
-  font-family: poppins, Arial, sans-serif;
+  /* font-family: poppins, Arial, sans-serif; */
+  font-family: "Arimo", sans-serif;
   color: #000;
 }
 
@@ -12005,7 +12009,7 @@ h5,
 }
 
 #sidebar ul li a {
-  padding: 10px 10px;
+  padding: 10px 16px;
   display: block;
   color: #fff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
