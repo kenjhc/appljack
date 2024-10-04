@@ -325,7 +325,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                                 <td><?= htmlspecialchars($nodeName) ?></td>
                                                                 <td>
                                                                     <div class="short-text">
-                                                                        <?php if (strlen($nodeValue) > 100): ?>
+                                                                        <?php if (strlen($nodeValue) > 5): ?>
                                                                             <?= htmlspecialchars(substr($nodeValue, 0, 100)) ?>
                                                                             <span class="dots">...</span>
                                                                             <span class="more-text"><?= htmlspecialchars($nodeValue) ?></span>
