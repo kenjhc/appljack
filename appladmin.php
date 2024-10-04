@@ -2,6 +2,7 @@
 
 include 'database/db.php';
 
+
 // Establish the connection
 try {
     // Ensure the connection is established
@@ -11,9 +12,9 @@ try {
 
     // Handle the form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        try {
 
-            // Check if the email already exists when creating a new account
+        try {
+            // Check if the email already exists
             $stmt = $conn->prepare("SELECT acctemail FROM applacct WHERE acctemail = :acctemail");
             $stmt->execute(['acctemail' => $_POST['email']]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -83,32 +84,39 @@ try {
 
 <body>
     <?php include 'appltopnav.php'; ?>
-    <h2>Create Account</h2>
-
-    <form method="post">
-        <label for="existingAccount">Existing Accounts:</label><br>
-        <select id="existingAccount" name="existing_account">
-            <option value="">Select an existing account</option>
-            <?php foreach ($accounts as $account): ?>
-                <option value="<?= htmlspecialchars($account['acctnum']) ?>">
-                    <?= htmlspecialchars($account['acctemail']) ?> (<?= htmlspecialchars($account['acctnum']) ?>)
-                </option>
-            <?php endforeach; ?>
-        </select><br><br>
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br><br>
-        <label for="fname">First Name:</label><br>
-        <input type="text" id="fname" name="fname" required><br><br>
-        <label for="lname">Last Name:</label><br>
-        <input type="text" id="lname" name="lname" required><br><br>
-        <div class="d-flex items-center gap-2">
-            <label for="isAdmin">Is Admin:</label>
-            <input type="checkbox" id="isAdmin" name="is_admin" value="1"><br><br>
+    <?php echo renderHeader(
+        "Create account"
+    ); ?>
+    <div class="job_section">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <form method="post">
+                    <label for="existingAccount">Existing Accounts:</label><br>
+                    <select id="existingAccount" name="existing_account">
+                        <option value="">Select an existing account</option>
+                        <?php foreach ($accounts as $account): ?>
+                            <option value="<?= htmlspecialchars($account['acctnum']) ?>">
+                                <?= htmlspecialchars($account['acctemail']) ?> (<?= htmlspecialchars($account['acctnum']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select><br><br>
+                    <label for="email">Email:</label><br>
+                    <input type="email" id="email" name="email" required><br>
+                    <label for="password">Password:</label><br>
+                    <input type="password" id="password" name="password" required><br><br>
+                    <label for="fname">First Name:</label><br>
+                    <input type="text" id="fname" name="fname" required><br><br>
+                    <label for="lname">Last Name:</label><br>
+                    <input type="text" id="lname" name="lname" required><br><br>
+                    <div class="d-flex items-center gap-2">
+                        <label for="isAdmin">Is Admin:</label>
+                        <input type="checkbox" id="isAdmin" name="is_admin" value="1"><br><br>
+                    </div>
+                    <button class="btn_green w-100">Create Account</button>
+                </form>
+            </div>
         </div>
-        <input type="submit" value="Create Account">
-    </form>
+    </div>
     <?php include 'footer.php'; ?>
 </body>
 
