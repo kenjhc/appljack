@@ -49,7 +49,7 @@ if (isset($_POST['login'])) {
 
 <body>
 
-    <?php include 'appltopnav.php'; ?>
+    <?php include 'appltopnav.php'; ?> 
     <form action="appllogin.php" method="post">
         <label for="email">Email:</label>
         <input type="email" id="email" name="acctemail" required>

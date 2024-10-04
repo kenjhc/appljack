@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div>
             <input type="radio" id="employer" name="custtype" value="emp" required>
             <label for="employer">Employer</label>
-
+ 
             <input type="radio" id="publisher" name="custtype" value="pub" required>
             <label for="publisher">Publisher</label><br>
         </div>

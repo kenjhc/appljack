@@ -1,19 +1,21 @@
-require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const sax = require("sax");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const moment = require("moment");
+const config = require("./config");
+const { logMessage, logToDatabase } = require("./utils/helpers");
 
 let jobQueue = [];
 const batchSize = 1000;
 const tempTableThreshold = 10000; // Transfer to appljobs after 100,000 records in temp table
 let tempTableRecordCount = 0; // Count records in temp table
 let recordCount = 0;
-let totalRecordsAdded = 0;  // Global counter for total records added
+let totalRecordsAdded = 0; // Global counter for total records added
 let startTime;
 let tempConnection = null;
-let isProcessingBatch = false;  // Mutex flag for processing
+let isProcessingBatch = false; // Mutex flag for processing
+const logFilePath = "applupload8.log";
 
 const cleanDecimalValue = (value) => {
   if (typeof value === "string") {
@@ -23,33 +25,68 @@ const cleanDecimalValue = (value) => {
   return value;
 };
 
+logMessage("Starting applupload8.js script...", logFilePath);
 // Create the MySQL pool
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: "localhost",
-  user: "appljack_johnny",
-  password: "app1j0hnny01$",
-  database: "appljack_core",
-  charset: "utf8mb4",
-  connectTimeout: 900000,  // 15 minutes (in milliseconds)
-  acquireTimeout: 900000,  // 15 minutes (in milliseconds)
+  host: config.host,
+  user: config.username, 
+  password: config.password,
+  database: config.database,
+  charset: config.charset,
+  connectTimeout: 900000, // 15 minutes (in milliseconds)
+  // acquireTimeout: 900000, // 15 minutes (in milliseconds)
 });
+
+const updateLastUpload = async () => {
+  return new Promise((resolve, reject) => {
+    const query = `UPDATE upload_metadata SET last_upload = CURRENT_TIMESTAMP() WHERE id = 1`; // Adjust the WHERE clause if necessary.
+    pool.query(query, (err, result) => {
+      if (err) {
+        console.error("Error updating last_upload field:", err);
+        logMessage(`Error updating last_upload field: ${err}`, logFilePath);
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error updating last_upload field: ${err}`
+        );
+        return reject(err);
+      }
+      console.log("last_upload field updated.");
+      logMessage("last_upload field updated.", logFilePath);
+      logToDatabase("success", "applupload8.js", "last_upload field updated.");
+      resolve(result);
+    });
+  });
+};
 
 // Function to create the temp table once
 const createTempTableOnce = async () => {
   return new Promise((resolve, reject) => {
     pool.getConnection((err, connection) => {
       if (err) return reject(err);
-      tempConnection = connection;  // Store the connection globally
+      tempConnection = connection; // Store the connection globally
 
       tempConnection.query(
         "CREATE TEMPORARY TABLE IF NOT EXISTS appljobs_temp LIKE appljobs",
         (err, result) => {
           if (err) {
             console.error("Failed to create temporary table", err);
+            logMessage(`Failed to create temporary table ${err}`, logFilePath);
+            logToDatabase(
+              "error",
+              "applupload8.js",
+              `Failed to create temporary table ${err}`
+            );
             return reject(err);
           }
           console.log("Temporary table created successfully");
+          logMessage("Temporary table created successfully", logFilePath);
+          logToDatabase(
+            "success",
+            "applupload8.js",
+            `Temporary table created successfully`
+          );
           resolve();
         }
       );
@@ -63,9 +100,17 @@ const truncateTempTable = async () => {
     tempConnection.query(query, (err, result) => {
       if (err) {
         console.error("Error truncating temp table:", err);
+        logMessage(`Error truncating temp table ${err}`, logFilePath);
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error truncating temp table ${err}`
+        );
         return reject(err);
       }
       console.log("Temp table truncated.");
+      logMessage(`Temp table truncated.`, logFilePath);
+      logToDatabase("success", "applupload8.js", `Temp table truncated.`);
       tempTableRecordCount = 0; // Reset temp table record count
       resolve(result);
     });
@@ -85,35 +130,18 @@ const insertIntoApplJobsFresh = async (batch) => {
     tempConnection.query(query, [values], (err, result) => {
       if (err) {
         console.error("Error during insertIntoApplJobsFresh:", err);
+        logMessage(`Error during insertIntoApplJobsFresh: ${err}`, logFilePath);
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error during insertIntoApplJobsFresh: ${err}`
+        );
         return reject(err);
       }
       resolve(result);
     });
   });
 };
-
-const storeUploadTimestamp = async () => {
-  const currentTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  return new Promise((resolve, reject) => {
-    const query = `
-      INSERT INTO upload_metadata (id, last_upload)
-      VALUES (1, ?)
-      ON DUPLICATE KEY UPDATE last_upload = VALUES(last_upload);
-    `;
-
-    pool.query(query, [currentTimestamp], (err, result) => {
-      if (err) {
-        console.error("Error storing upload timestamp:", err);
-        return reject(err);
-      }
-      console.log(`Stored/updated last upload timestamp: ${currentTimestamp}`);
-      resolve(result);
-    });
-  });
-};
-
-
-
 
 // Fetch acctnum based on jobpoolid
 const getAcctNum = async (jobpoolid) => {
@@ -122,6 +150,12 @@ const getAcctNum = async (jobpoolid) => {
     tempConnection.query(query, [jobpoolid], (err, results) => {
       if (err) {
         console.error("Error fetching acctnum:", err);
+        logMessage(`Error fetching acctnum: ${err}`, logFilePath);
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error fetching acctnum: ${err}`
+        );
         return reject(err);
       }
       resolve(results.length > 0 ? results[0].acctnum : null);
@@ -132,7 +166,8 @@ const getAcctNum = async (jobpoolid) => {
 // Load XML to DB mapping
 const loadMapping = async (jobpoolid) => {
   return new Promise((resolve, reject) => {
-    const query = "SELECT xml_tag, db_column FROM appldbmapping WHERE jobpoolid = ?";
+    const query =
+      "SELECT xml_tag, db_column FROM appldbmapping WHERE jobpoolid = ?";
     tempConnection.query(query, [jobpoolid], (err, results) => {
       if (err) return reject(err);
 
@@ -150,35 +185,7 @@ const loadMapping = async (jobpoolid) => {
   });
 };
 
-// Reuse the same pool connection, but retry in case of fatal errors
-const runQueryWithRetry = async (query, values = []) => {
-  return new Promise((resolve, reject) => {
-    const executeQuery = () => {
-      tempConnection.query(query, values, (err, result) => {
-        if (err) {
-          if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR') {
-            console.error("Fatal connection error, attempting to reconnect...");
-            // Release the failed connection and get a new one
-            pool.getConnection((error, newConnection) => {
-              if (error) return reject(error); // If we cannot get a new connection
-              tempConnection = newConnection;
-              executeQuery(); // Retry the query with the new connection
-            });
-          } else {
-            console.error("Query error:", err);
-            reject(err);
-          }
-        } else {
-          resolve(result);
-        }
-      });
-    };
-
-    executeQuery(); // Initial query execution
-  });
-};
-
-// Example usage of `runQueryWithRetry` for inserting into temp table
+// Insert batch into temp table
 const insertIntoTempTable = async (batch) => {
   const values = batch.map((item) => [
     item.feedId,
@@ -209,29 +216,45 @@ const insertIntoTempTable = async (batch) => {
     item.custom5,
   ]);
 
-  const query = `
-    INSERT INTO appljobs_temp (feedId, location, title, city, state, zip, country, job_type,
-                               posted_at, job_reference, company, mobile_friendly_apply,
-                               category, html_jobs, url, body, jobpoolid, acctnum, industry,
-                               cpc, cpa, custom1, custom2, custom3, custom4, custom5)
-    VALUES ? ON DUPLICATE KEY UPDATE job_reference=VALUES(job_reference)
-  `;
+  return new Promise((resolve, reject) => {
+    const query = `
+      INSERT INTO appljobs_temp (feedId, location, title, city, state, zip, country, job_type,
+                                 posted_at, job_reference, company, mobile_friendly_apply,
+                                 category, html_jobs, url, body, jobpoolid, acctnum, industry,
+                                 cpc, cpa, custom1, custom2, custom3, custom4, custom5)
+      VALUES ? ON DUPLICATE KEY UPDATE job_reference=VALUES(job_reference)
+    `;
 
-  try {
-    const result = await runQueryWithRetry(query, [values]);
-    recordCount += batch.length;
-    tempTableRecordCount += batch.length;  // Increment temp table record count
-    console.log(`Batch of ${batch.length} records inserted into temp table.`);
-    return result;
-  } catch (err) {
-    console.error("Error during insertIntoTempTable:", err);
-  }
+    tempConnection.query(query, [values], (err, result) => {
+      if (err) {
+        console.error("Error during insertIntoTempTable:", err);
+        logMessage(`Error during insertIntoTempTable: ${err}`, logFilePath);
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error during insertIntoTempTable: ${err}`
+        );
+        return reject(err);
+      }
+      recordCount += batch.length;
+      tempTableRecordCount += batch.length; // Increment temp table record count
+      console.log(`Batch of ${batch.length} records inserted into temp table.`);
+      logMessage(
+        `Batch of ${batch.length} records inserted into temp table.`,
+        logFilePath
+      );
+      logToDatabase(
+        "success",
+        "applupload8.js",
+        `Batch of ${batch.length} records inserted into temp table.`
+      );
+      resolve(result);
+    });
+  });
 };
 
-
-// Transfer data from temp table to appljobs
 const transferToApplJobsTable = async () => {
-  const currentTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  const currentTimestamp = moment().format("YYYY-MM-DD HH:mm:ss");
 
   return new Promise((resolve, reject) => {
     tempConnection.beginTransaction((err) => {
@@ -265,19 +288,14 @@ const transferToApplJobsTable = async () => {
             aj.custom3 = ajt.custom3,
             aj.custom4 = ajt.custom4,
             aj.custom5 = ajt.custom5,
-            aj.last_seen = ?
+            aj.last_seen = '${currentTimestamp}';  -- Update last_seen field
       `;
 
-
-      console.log("Running the update query for appljobs...");
-
-      tempConnection.query(updateExisting, [currentTimestamp], (err, result) => {
+      tempConnection.query(updateExisting, (err, result) => {
         if (err) {
           tempConnection.rollback(() => reject(err));
           return;
         }
-
-        console.log(`${result.affectedRows} records were updated in appljobs.`);
 
         const insertNew = `
           INSERT INTO appljobs (feedId, location, title, city, state, zip, country, job_type,
@@ -287,20 +305,19 @@ const transferToApplJobsTable = async () => {
           SELECT ajt.feedId, ajt.location, ajt.title, ajt.city, ajt.state, ajt.zip, ajt.country,
                  ajt.job_type, ajt.posted_at, ajt.job_reference, ajt.company, ajt.mobile_friendly_apply,
                  ajt.category, ajt.html_jobs, ajt.url, ajt.body, ajt.jobpoolid, ajt.acctnum, ajt.industry,
-                 ajt.cpc, ajt.cpa, ajt.custom1, ajt.custom2, ajt.custom3, ajt.custom4, ajt.custom5, ?
+                 ajt.cpc, ajt.cpa, ajt.custom1, ajt.custom2, ajt.custom3, ajt.custom4, ajt.custom5,
+                 '${currentTimestamp}'  -- Insert last_seen value
           FROM appljobs_temp ajt
           WHERE NOT EXISTS (
               SELECT 1 FROM appljobs aj WHERE aj.job_reference = ajt.job_reference AND aj.jobpoolid = ajt.jobpoolid
           );
         `;
 
-        tempConnection.query(insertNew, [currentTimestamp], (err, result) => {
+        tempConnection.query(insertNew, (err, result) => {
           if (err) {
             tempConnection.rollback(() => reject(err));
             return;
           }
-
-          console.log(`${result.affectedRows} new records were inserted into appljobs.`);
 
           tempConnection.commit((err) => {
             if (err) {
@@ -308,9 +325,20 @@ const transferToApplJobsTable = async () => {
               return;
             }
 
+            // Additional logic remains the same
             totalRecordsAdded += result.affectedRows;
             console.log(`Total jobs added to appljobs: ${totalRecordsAdded}`);
+            logMessage(
+              `Total jobs added to appljobs: ${totalRecordsAdded}`,
+              logFilePath
+            );
+            logToDatabase(
+              "success",
+              "applupload8.js",
+              `Total jobs added to appljobs: ${totalRecordsAdded}`
+            );
 
+            // Truncate the temp table after transferring
             truncateTempTable().then(resolve(result));
           });
         });
@@ -319,10 +347,9 @@ const transferToApplJobsTable = async () => {
   });
 };
 
-
 // Mutex-controlled processQueue function to avoid concurrency
 const processQueue = async (feedId) => {
-  if (isProcessingBatch || jobQueue.length < batchSize) return;
+  if (isProcessingBatch) return;
   isProcessingBatch = true;
   let batch = jobQueue.slice(0, batchSize);
   jobQueue = jobQueue.slice(batchSize);
@@ -331,64 +358,131 @@ const processQueue = async (feedId) => {
     await processBatch(batch, feedId); // Ensure this is awaited
 
     // If temp table reaches 100,000 records, transfer to appljobs
-    if (tempTableRecordCount >= tempTableThreshold) {
+    if (tempTableRecordCount >= 0) {
       console.log("Transferring records from temp table to appljobs...");
+      logMessage(
+        `Transferring records from temp table to appljobs...`,
+        logFilePath
+      );
+      logToDatabase(
+        "success",
+        "applupload8.js",
+        `Transferring records from temp table to appljobs...`
+      );
       await transferToApplJobsTable(); // Transfer to permanent table when threshold reached
     }
   } catch (err) {
     console.error("Error processing queue:", err);
+    logMessage(`Error processing queue: ${err}`, logFilePath);
+    logToDatabase("error", "applupload8.js", `Error processing queue: ${err}`);
   } finally {
     isProcessingBatch = false;
-    if (jobQueue.length >= batchSize) processQueue(feedId);
+    if (jobQueue.length >= 0) processQueue(feedId);
   }
 };
 
 // Process a batch of jobs
 const processBatch = async (batch, feedId) => {
   try {
-    console.log(`Processing a batch of ${batch.length} records for feedId ${feedId}`);
+    console.log(
+      `Processing a batch of ${batch.length} records for feedId ${feedId}`
+    );
+    logMessage(
+      `Processing a batch of ${batch.length} records for feedId ${feedId}`,
+      logFilePath
+    );
+    logToDatabase(
+      "warning",
+      "applupload8.js",
+      `Processing a batch of ${batch.length} records for feedId ${feedId}`
+    );
 
     // Insert batch into temp table and appljobsfresh
     await insertIntoTempTable(batch);
     await insertIntoApplJobsFresh(batch);
 
     // Check if temp table has reached 100,000 records
-    const countQuery = 'SELECT COUNT(*) as count FROM appljobs_temp';
-    tempConnection.query(countQuery, async (err, result) => {
-      if (err) {
-        console.error('Error counting records in temp table:', err);
-        return;
-      }
+    // const countQuery = "SELECT COUNT(*) as count FROM appljobs_temp";
+    try {
+      // const [rows] = await tempConnection.promise().query(countQuery);
 
-      const tempTableCount = result[0].count;
-      if (tempTableCount >= 100000) {
-        console.log('Transferring records from temp table to appljobs...');
-        await transferToApplJobsTable();  // Transfer records to appljobs
-        await truncateTempTable();        // Truncate temp table
-      }
-    });
+      // const tempTableCount = rows[0].count;
+
+      // if (tempTableCount >= 100000) {
+      console.log("Transferring records from temp table to appljobs...");
+      logMessage(
+        `Transferring records from temp table to appljobs...`,
+        logFilePath
+      );
+      logToDatabase(
+        "success",
+        "applupload8.js",
+        `Transferring records from temp table to appljobs...`
+      );
+      await transferToApplJobsTable(); // Transfer records to appljobs
+      await truncateTempTable(); // Truncate temp table
+      // }
+    } catch (err) {
+      console.error("Error counting records in temp table:", err);
+      logMessage(`Error counting records in temp table: ${err}`, logFilePath);
+      logToDatabase(
+        "error",
+        "applupload8.js",
+        `Error counting records in temp table: ${err}`
+      );
+    }
 
     // Clear the processed batch from memory
     batch = null;
 
     // Trigger garbage collection, if enabled
     if (global.gc) {
-      global.gc();  // Force garbage collection
+      global.gc(); // Force garbage collection
       console.log("Garbage collection triggered.");
+      logMessage(`Garbage collection triggered.`, logFilePath);
+      logToDatabase(
+        "warning",
+        "applupload8.js",
+        `Garbage collection triggered.`
+      );
     }
 
     // Log memory usage after processing batch
     const usedMemory = process.memoryUsage();
-    console.log(`Memory Usage: Heap Used: ${(usedMemory.heapUsed / 1024 / 1024).toFixed(2)} MB, RSS: ${(usedMemory.rss / 1024 / 1024).toFixed(2)} MB`);
-
+    console.log(
+      `Memory Usage: Heap Used: ${(usedMemory.heapUsed / 1024 / 1024).toFixed(
+        2
+      )} MB, RSS: ${(usedMemory.rss / 1024 / 1024).toFixed(2)} MB`
+    );
+    logMessage(
+      `Memory Usage: Heap Used: ${(usedMemory.heapUsed / 1024 / 1024).toFixed(
+        2
+      )} MB, RSS: ${(usedMemory.rss / 1024 / 1024).toFixed(2)} MB`,
+      logFilePath
+    );
+    logToDatabase(
+      "warning",
+      "applupload8.js",
+      `Memory Usage: Heap Used: ${(usedMemory.heapUsed / 1024 / 1024).toFixed(
+        2
+      )} MB, RSS: ${(usedMemory.rss / 1024 / 1024).toFixed(2)} MB`
+    );
   } catch (err) {
     console.error("Error processing batch:", err);
+    logMessage(`Error processing batch: ${err}`, logFilePath);
+    logToDatabase("error", "applupload8.js", `Error processing batch: ${err}`);
   }
 };
 
 // Parsing XML and adding jobs to the queue
 const parseXmlFile = async (filePath) => {
   console.log(`Starting to process file: ${filePath}`);
+  logMessage(`Starting to process file: ${filePath}`, logFilePath);
+  logToDatabase(
+    "success",
+    "applupload8.js",
+    `Starting to process file: ${filePath}`
+  );
   const feedId = path.basename(filePath, path.extname(filePath));
   const parts = feedId.split("-");
   const jobpoolid = parts[1];
@@ -415,9 +509,11 @@ const parseXmlFile = async (filePath) => {
         let trimmedText = text.trim();
         if (tagToPropertyMap[currentTag]) {
           let propertyName = tagToPropertyMap[currentTag];
-          currentItem[propertyName] = (currentItem[propertyName] || "") + trimmedText;
+          currentItem[propertyName] =
+            (currentItem[propertyName] || "") + trimmedText;
         } else {
-          currentItem[currentTag] = (currentItem[currentTag] || "") + trimmedText;
+          currentItem[currentTag] =
+            (currentItem[currentTag] || "") + trimmedText;
         }
       }
     });
@@ -427,9 +523,11 @@ const parseXmlFile = async (filePath) => {
         let trimmedCdata = cdata.trim();
         if (tagToPropertyMap[currentTag]) {
           let propertyName = tagToPropertyMap[currentTag];
-          currentItem[propertyName] = (currentItem[propertyName] || "") + trimmedCdata;
+          currentItem[propertyName] =
+            (currentItem[propertyName] || "") + trimmedCdata;
         } else {
-          currentItem[currentTag] = (currentItem[currentTag] || "") + trimmedCdata;
+          currentItem[currentTag] =
+            (currentItem[currentTag] || "") + trimmedCdata;
         }
       }
     });
@@ -456,6 +554,15 @@ const parseXmlFile = async (filePath) => {
             currentItem.posted_at = date.format("YYYY-MM-DD");
           } else {
             console.warn(`Invalid date format found: ${currentItem.posted_at}`);
+            logMessage(
+              `Invalid date format found: ${currentItem.posted_at}`,
+              logFilePath
+            );
+            logToDatabase(
+              "warning",
+              "applupload8.js",
+              `Invalid date format found: ${currentItem.posted_at}`
+            );
             currentItem.posted_at = null;
           }
         }
@@ -468,18 +575,34 @@ const parseXmlFile = async (filePath) => {
       }
     });
 
-
     parser.on("end", async () => {
       // Process any remaining jobs that are less than a full batch
       if (jobQueue.length > 0) {
-        console.log(`Transferring remaining records from temp table to appljobs...`);
-        await processQueue(feedId);  // Process remaining jobs in the queue
+        console.log(
+          `Transferring remaining records from temp table to appljobs...`
+        );
+        logMessage(
+          `Transferring remaining records from temp table to appljobs...`,
+          logFilePath
+        );
+        logToDatabase(
+          "success",
+          "applupload8.js",
+          `Transferring remaining records from temp table to appljobs...`
+        );
+        await processQueue(feedId); // Process remaining jobs in the queue
       }
       resolve();
     });
 
     parser.on("error", (err) => {
       console.error(`Error parsing XML file ${filePath}:`, err);
+      logMessage(`Error parsing XML file ${filePath}: ${err}`, logFilePath);
+      logToDatabase(
+        "error",
+        "applupload8.js",
+        `Error parsing XML file ${filePath}: ${err}`
+      );
       reject(err);
     });
 
@@ -487,14 +610,13 @@ const parseXmlFile = async (filePath) => {
   });
 };
 
-
 // Process files sequentially and create the temp table once
 const processFiles = async () => {
   const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
 
   try {
-    await storeUploadTimestamp();  // Store the timestamp at the start of the process
-    await createTempTableOnce();  // Create the temp table once before processing any batches
+    await updateLastUpload(); // Update last_upload before starting the file processing
+    await createTempTableOnce(); // Create the temp table once before processing any batches
 
     const filePaths = fs
       .readdirSync(directoryPath)
@@ -511,10 +633,21 @@ const processFiles = async () => {
         logProgress();
       } catch (err) {
         console.error(`Error processing XML file ${filePath}:`, err);
+        logMessage(
+          `Error processing XML file ${filePath}: ${err}`,
+          logFilePath
+        );
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error processing XML file ${filePath}: ${err}`
+        );
       }
     }
   } catch (err) {
     console.error("An error occurred:", err);
+    logMessage(`An error occurred: ${err}`, logFilePath);
+    logToDatabase("error", "applupload8.js", `An error occurred: ${err}`);
   } finally {
     closeConnectionPool();
   }
@@ -528,6 +661,19 @@ const logProgress = () => {
       2
     )} seconds`
   );
+  logMessage(
+    `Processed ${recordCount} records, Time elapsed ${elapsedTime.toFixed(
+      2
+    )} seconds`,
+    logFilePath
+  );
+  logToDatabase(
+    "warning",
+    "applupload8.js",
+    `Processed ${recordCount} records, Time elapsed ${elapsedTime.toFixed(
+      2
+    )} seconds`
+  );
 };
 
 // Close the connection pool
@@ -536,8 +682,25 @@ const closeConnectionPool = () => {
     tempConnection.release();
   }
   pool.end((err) => {
-    if (err) console.error("Failed to close the connection pool:", err);
-    else console.log("Connection pool closed successfully.");
+    if (err) {
+      console.error("Failed to close the connection pool:", err);
+      logMessage(`Failed to close the connection pool: ${err}`, logFilePath);
+      logToDatabase(
+        "error",
+        "applupload8.js",
+        `Failed to close the connection pool: ${err}`
+      );
+      process.exit(1);
+    } else {
+      console.log("Connection pool closed successfully.");
+      logMessage(`Connection pool closed successfully.`, logFilePath);
+      logToDatabase(
+        "success",
+        "applupload8.js",
+        `Connection pool closed successfully.`
+      );
+      process.exit(0);
+    }
   });
 };
 
@@ -545,7 +708,16 @@ const closeConnectionPool = () => {
 processFiles()
   .then(() => {
     console.log("All processing complete.");
+    logMessage(`All processing complete.`, logFilePath);
+    logToDatabase("success", "applupload8.js", `All processing complete.`);
+    process.exit(0);
   })
   .catch((error) => {
     console.error("An error occurred during processing:", error);
+    logMessage(`An error occurred during processing: ${error}`, logFilePath);
+    logToDatabase(
+      "error",
+      "applupload8.js",
+      `An error occurred during processing: ${error}`
+    );
   });

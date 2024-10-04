@@ -156,7 +156,7 @@ try {
             <a href="applcreatecustomer.php" class="add-customer-button">
                 <i class="fa fa-plus"></i> Add Customer
             </a>
-
+ 
             <?php if (empty($customers)): ?>
                 <p>No customer accounts found.</p>
             <?php else: ?>
@@ -210,7 +210,7 @@ try {
                                 <th>Delete</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody> 
                             <?php foreach ($jobPools as $jobPool): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($jobPool['jobpoolname']) ?></td>

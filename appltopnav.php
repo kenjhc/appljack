@@ -19,4 +19,4 @@ $path = getEnvPath();
         <a href="<?= $path; ?>appllogout.php">Log Out</a>
     </div>
 </div>
-<div class="main-content">
+<div class="main-content">   
