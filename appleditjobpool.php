@@ -325,8 +325,8 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                                 <td><?= htmlspecialchars($nodeName) ?></td>
                                                                 <td>
                                                                     <div class="short-text">
-                                                                        <?php if (strlen($nodeValue) > 5): ?>
-                                                                            <?= htmlspecialchars(substr($nodeValue, 0, 5)) ?>
+                                                                        <?php if (strlen($nodeValue) > 100): ?>
+                                                                            <span class="short"><?= htmlspecialchars(substr($nodeValue, 0, 100)) ?></span>
                                                                             <span class="dots">...</span>
                                                                             <span class="more-text"><?= htmlspecialchars($nodeValue) ?></span>
                                                                             <a href="#" class="read-more">Read More</a>
@@ -493,7 +493,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </form>
 
     <?php include 'footer.php'; ?>
- 
+
     <script>
         document.getElementById('custom_staticvalue').addEventListener('input', function() {
             const dropdown = document.getElementById('custom_appljobsmap');
@@ -511,14 +511,18 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
             readMoreLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
                     event.preventDefault();
-                    const shortText = this.previousElementSibling.previousElementSibling;
-                    const moreText = this.previousElementSibling;
-                    if (moreText.style.display === 'none') {
+                    const shortText = this.previousElementSibling.previousElementSibling; // short text
+                    const moreText = this.previousElementSibling; // full text
+                    const dots = this.previousElementSibling.previousElementSibling.previousElementSibling; // dots
+
+                    if (moreText.style.display === 'none' || moreText.style.display === '') {
                         moreText.style.display = 'inline';
+                        dots.style.display = 'none';
                         shortText.style.display = 'none';
                         this.textContent = 'Read Less';
                     } else {
                         moreText.style.display = 'none';
+                        dots.style.display = 'inline';
                         shortText.style.display = 'inline';
                         this.textContent = 'Read More';
                     }
