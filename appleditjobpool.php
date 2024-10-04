@@ -252,7 +252,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
- 
+
     <?php include 'appltopnav.php'; ?>
 
     <?php echo renderHeader(
@@ -265,7 +265,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="row">
                 <div class="col-sm-12 col-md-4">
                     <div class="job_card">
- 
+
                         <form action="" method="post">
                             <p class="job_title">Edit Job Pool Name</p>
                             <input type="text" class="job_input" name="jobpoolname" placeholder="Enter Job Pool Name" value="<?= htmlspecialchars($currentJobPoolName) ?>" required>
@@ -307,9 +307,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <p class="error"><?= htmlspecialchars($error); ?></p>
                                     <?php else: ?>
                                         <div class="custom_padding">
-                                            <table
-                                                id="zero_config"
-                                                class="table table-striped table-bordered">
+                                            <table id="zero_config" class="table table-striped table-bordered">
                                                 <thead>
                                                     <tr>
                                                         <th>XML Node</th>
@@ -325,7 +323,18 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     ?>
                                                             <tr>
                                                                 <td><?= htmlspecialchars($nodeName) ?></td>
-                                                                <td><?= htmlspecialchars($nodeValue) ?></td>
+                                                                <td>
+                                                                    <div class="short-text">
+                                                                        <?php if (strlen($nodeValue) > 100): ?>
+                                                                            <?= htmlspecialchars(substr($nodeValue, 0, 100)) ?>
+                                                                            <span class="dots">...</span>
+                                                                            <span class="more-text"><?= htmlspecialchars($nodeValue) ?></span>
+                                                                            <a href="#" class="read-more">Read More</a>
+                                                                        <?php else: ?>
+                                                                            <?= htmlspecialchars($nodeValue) ?>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                </td>
                                                                 <td style="color: <?= $color ?>;">
                                                                     <?php
                                                                     if ($mappedColumn && $mappedColumn !== $nodeName) {
@@ -446,7 +455,6 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
 
-
             <!-- another section  -->
             <div class="row xml_mapping_sec second">
                 <div class="col-sm-12 col-md-12">
@@ -477,13 +485,15 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
             </div>
-
-
         </div>
-
     </section>
 
+    <form id="resetMappingsForm" action="" method="post" style="display:none;">
+        <input type="hidden" name="reset_mappings" value="1">
+    </form>
 
+    <?php include 'footer.php'; ?>
+ 
     <script>
         document.getElementById('custom_staticvalue').addEventListener('input', function() {
             const dropdown = document.getElementById('custom_appljobsmap');
@@ -495,14 +505,28 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 dropdown.disabled = false;
             }
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const readMoreLinks = document.querySelectorAll('.read-more');
+            readMoreLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const shortText = this.previousElementSibling.previousElementSibling;
+                    const moreText = this.previousElementSibling;
+                    if (moreText.style.display === 'none') {
+                        moreText.style.display = 'inline';
+                        shortText.style.display = 'none';
+                        this.textContent = 'Read Less';
+                    } else {
+                        moreText.style.display = 'none';
+                        shortText.style.display = 'inline';
+                        this.textContent = 'Read More';
+                    }
+                });
+            });
+        });
     </script>
 
-
-    <form id="resetMappingsForm" action="" method="post" style="display:none;">
-        <input type="hidden" name="reset_mappings" value="1">
-    </form>
-
-    <?php include 'footer.php'; ?>
 </body>
 
 </html>

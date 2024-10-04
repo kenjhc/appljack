@@ -1166,11 +1166,21 @@ footer p {
   font-weight: bold;
 }
 
-.no-wrap{
+.no-wrap {
   white-space: nowrap;
 }
 
-.heading{
+.heading {
   font-size: 1.5rem;
   font-weight: bold;
+}
+
+.more-text {
+  display: none;
+}
+
+.read-more {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
 }
