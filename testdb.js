@@ -18,14 +18,14 @@ const dbConfig = {
 
 const logFilePath = path.join(__dirname, "applpass_dbtest.log");
 
-console.log("===================================="); 
+console.log("====================================");
 console.log(`Log File Path: ${logFilePath}`);
 console.log("====================================");
 
 // Function to process CPA events
 async function processCPAEvents() {
   let connection;
-  try { 
+  try {
     // Connect to the database
     connection = await mysql.createConnection(dbConfig);
 
@@ -34,7 +34,7 @@ async function processCPAEvents() {
     try {
       // Retrieve jobpoolid using custid from the applcust table
       const [custRows] = await connection.execute(
-        `SELECT jobpoolid FROM applcust WHERE custid = ?`,
+        `SELECT * FROM applcust WHERE custid = ?`,
         ["1234567890"]
       );
 
@@ -54,14 +54,12 @@ async function processCPAEvents() {
           "applpass_cpa_putevent.js",
           `not woring...: ${data.custid}`
         );
-        console.log({custRows});
+
         
+        console.log({ custRows });
       }
     } catch (error) {
-      logMessage(
-        `Error processing eventID: ${error.message}`,
-        logFilePath
-      );
+      logMessage(`Error processing eventID: ${error.message}`, logFilePath);
       logToDatabase(
         "error",
         "applpass_cpa_putevent.js",
