@@ -18,19 +18,14 @@ const dbConfig = {
 
 const logFilePath = path.join(__dirname, "applpass_dbtest.log");
 
-console.log("====================================");
-console.log(`Queue File Path: ${queueFilePath}`);
-console.log(`Processing File Path: ${processingFilePath}`);
-console.log(`Backup File Path: ${backupFilePath}`);
+console.log("===================================="); 
 console.log(`Log File Path: ${logFilePath}`);
 console.log("====================================");
 
 // Function to process CPA events
 async function processCPAEvents() {
   let connection;
-  try {
-    console.log(`Checking the file exists: ${queueFilePath}`);
-
+  try { 
     // Connect to the database
     connection = await mysql.createConnection(dbConfig);
 
