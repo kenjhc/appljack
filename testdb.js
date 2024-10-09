@@ -54,6 +54,8 @@ async function processCPAEvents() {
           "applpass_cpa_putevent.js",
           `not woring...: ${data.custid}`
         );
+        console.log({custRows});
+        
       }
     } catch (error) {
       logMessage(
