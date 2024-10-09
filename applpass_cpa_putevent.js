@@ -87,7 +87,7 @@ async function processCPAEvents() {
             `SELECT custid, jobid, feedid, timestamp FROM applevents
                          WHERE useragent = ? AND ipaddress = ?
                          ORDER BY timestamp DESC LIMIT 1`,
-            [eventData.userAgent, eventData.ipaddress]
+            ["Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1", "69.250.207.86"]
           );
 
           console.log(
