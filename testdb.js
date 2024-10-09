@@ -38,6 +38,8 @@ async function processCPAEvents() {
         ["1234567890"]
       );
 
+      const data = {};
+
       if (custRows.length === 0) {
         logMessage(`working....: ${data.custid}`, logFilePath);
         logToDatabase(
