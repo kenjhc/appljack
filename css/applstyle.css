@@ -916,7 +916,7 @@ button[type="submit"]:hover {
 }
 
 .xml_mapping_sec .card-body {
-  /* padding: 0px; */
+  padding: 0px;
 }
 
 .xml_mapping_sec .table-responsive {
@@ -1278,4 +1278,78 @@ footer p {
 .text-dark-green {
   color: #2a3d44;
 }
- 
+
+.feed-url {
+  border: 1px solid #2a3d44;
+  background-color: white;
+}
+
+.shadow-md {
+  box-shadow: 0 11px 3rem rgba(0, 0, 0, 0.095) !important;
+}
+
+.cust-modal {
+}
+
+.rounded-md {
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.customer-info-dates > div {
+  border: 1px solid #2a3d44;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.customer-info-dates label {
+  margin: 0;
+  height: 100%;
+  padding-inline: 12px;
+  color: #2a3d44;
+  font-weight: 600;
+}
+
+.customer-info-dates > div {
+  display: flex;
+  align-items: center;
+}
+
+.customer-info-dates :is(input, select) {
+  border-radius: 0px;
+  border-left: 1px solid #2a3d44;
+}
+
+.customer-filter-bar :is(button, a) {
+  padding-block: 6px;
+}
+
+.customer-filter-bar input[type="date"]::-webkit-calendar-picker-indicator {
+  color: rgba(0, 0, 0, 0);
+  opacity: 1;
+  display: block;
+  background: url(../images/ico/date.png) no-repeat;
+  width: 20px;
+  height: 20px;
+  border-width: thin;
+}
+
+.cust-campaign > .card-header {
+  background-color: #4e6666;
+}
+
+.cust-campaign a {
+  padding-block: 16px;
+  padding-inline: 36px;
+  border-radius: 14px 0 0 14px;
+}
+
+.cust-portal{
+  padding: 0;
+  overflow: auto;
+}
+
+th{
+  background-color: #4e6766;
+  color: #f3f6f6;
+}

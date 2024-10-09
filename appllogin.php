@@ -14,6 +14,7 @@ if (isset($_POST['login'])) {
         handleDbError("Prepare failed: " . $db->error);
     }
     $query->bind_param("s", $custemail);
+    echo "asd";
     $query->execute();
 
     $result = $query->get_result();
@@ -49,33 +50,78 @@ if (isset($_POST['login'])) {
     <title>Appljack Customer Login | ApplJack</title>
     <?php include 'header.php'; ?>
 </head>
+<style>
+    body {
+        background-color: #f7f7f7;
+    }
+
+    .main {
+        height: 86vh;
+    }
+
+    .login-container {
+        max-width: 500px;
+        margin: 100px auto;
+        padding: 40px;
+        background-color: #f7f7f7;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .logo img {
+        width: 100%;
+        /* Adjust logo size */
+    }
+
+    .btn-custom {
+        background-color: #2b6f76;
+        /* Change button color */
+        color: white;
+    }
+
+    .btn-custom:hover {
+        background-color: #2a656b;
+        /* Button hover color */
+    }
+
+    label {
+        color: #2a3d44 !important;
+        font-size: 16px !important;
+        margin: 0;
+        font-weight: 600;
+    }
+
+    input {
+        border: 2px solid #2a3d44 !important;
+        border-radius: 6px !important;
+    }
+</style>
 
 <body>
-
- 
-    <?php include 'appltopnav.php'; ?>
-    <?php echo renderHeader(
-        "Login"
-    ); ?>
-    <section class="login_sec">
-        <div class="container-fluid">
- 
-
-            <div class="px-4 px-md-5 py-4">
-                <div class="row">
-                    <div class="col-md-8 mx-auto">
-                        <form action="appllogin.php" method="post">
-                            <label for="email" class="m-0">Email:</label>
-                            <input type="email" id="email" name="acctemail" required>
-                            <label for="pw" class="m-0">Password:</label>
-                            <input type="password" id="pw" name="acctpw" required>
-                            <button type="submit" name="login">Login</button>
-                        </form>
-                    </div>
-                </div>
+    <div class="main">
+        <div class="login-container rounded-md shadow-md">
+            <div class="logo">
+                <img src="./images/dark-logo.png" alt="Appljack Logo">
             </div>
+            <form method="post" action="appllogin.php">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" class="form-control py-4" id="email" name="acctemail" placeholder="Enter your email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" class="form-control py-4" id="password" name="acctpw" placeholder="Enter your password" required>
+                </div>
+                <button class="btn_green_dark rounded-md w-100 py-3" name="login">Login</button>
+            </form>
         </div>
-    </section>
+    </div>
+
     <?php include 'footer.php'; ?>
 </body>
 

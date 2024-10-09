@@ -62,7 +62,7 @@ try {
         <div class="container-fluid">
             <div class="row w-100 mx-auto">
                 <div class="col-md-4">
-                    <div class="details-container w-100">
+                    <div class="details-container w-100 mt-0">
                         <h2 class="fs-md fw-bold">Campaign: <?php echo htmlspecialchars($feed['feedname']); ?></h2>
                         <p class="mb-0"><b>Campaign ID:</b> <?php echo htmlspecialchars($feedid); ?></p>
                         <p class="mb-0"><b>Status:</b> <?php echo htmlspecialchars($feed['status']); ?></p>
@@ -79,7 +79,7 @@ try {
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="details-container w-100">
+                    <div class="details-container w-100 mt-0">
                         <!-- Display feed details -->
                         <p class="mb-0"><span class="camp-data">Campaign Name:</span> <?php echo htmlspecialchars($feed['feedname']); ?></p>
                         <p class="mb-0"><span class="camp-data">Monthly Budget:</span> $<?php echo htmlspecialchars($feed['budget']); ?></p>
@@ -92,24 +92,24 @@ try {
                         <button class="edit-feed-button" onclick="window.location.href='editfeed.php?feedid=<?php echo $feedid; ?>'">Edit Campaign</button>
                     </div>
                 </div>
+
                 <div class="col-md-4">
-                    <form action="" method="GET" class="d-flex flex-column align-items-center gap-3">
-                        <input type="hidden" name="feedid" value="<?php echo htmlspecialchars($feedid); ?>">
-
-                        <div class="form-group w-100 mb-0">
-                            <label for="startdate">Start:</label>
-                            <input type="date" id="startdate" name="startdate" class="form-control" required>
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <form action="applportal.php" method="get">
+                                <input type="hidden" name="custid" value="<?= htmlspecialchars($custid) ?>">
+                                <div class="form-group mb-3">
+                                    <label for="startdate">Start Date:</label>
+                                    <input type="date" id="startdate" name="startdate" class="form-control" required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="enddate">End Date:</label>
+                                    <input type="date" id="enddate" name="enddate" class="form-control" required>
+                                </div>
+                                <button class="btn_green w-100">Show Data</button>
+                            </form>
                         </div>
-
-                        <div class="form-group w-100 mb-0">
-                            <label for="enddate">End:</label>
-                            <input type="date" id="enddate" name="enddate" class="form-control" required>
-                        </div>
-
-                        <div class="form-group w-100 mb-0">
-                            <button class="btn_green">Show Data</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
             <div class="row w-100 mx-auto">

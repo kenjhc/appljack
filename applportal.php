@@ -40,6 +40,8 @@ if ($custid) {
 $customerInfo = [];
 $jobPoolName = 'N/A'; // Default value if no job pool is associated or an error occurs
 
+$pdo->exec("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+
 if ($custid) {
     try {
         // Fetch the customer's details
@@ -204,102 +206,130 @@ if ($custid) {
     <section class="job_section">
         <div class="container-fluid">
             <div class="row">
-                <!-- Customer Information Card -->
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-header">
-                            <h2 class="fs-md mb-0 fw-bold">Customer Information</h2>
-                        </div>
-                        <div class="card-body">
-                            <?php if (!empty($customerInfo)): ?>
-                                <p class="mb-1"><strong>Customer Name:</strong> <?= htmlspecialchars($customerInfo['custcompany']) ?></p>
-                                <p class="mb-1"><strong>Customer ID:</strong> <?= htmlspecialchars($custid) ?></p>
-                                <p class="mb-1"><strong>Customer Type:</strong> <?= htmlspecialchars($customerInfo['custtype']) ?></p>
-                                <p class="mb-1"><strong>Job Pool:</strong> <?= htmlspecialchars($jobPoolName) ?></p>
-                                <p class="mb-1"><strong>Customer-level Feed URL:</strong>
-                                <div class="bg-light border py-1 px-2 mb-1 rounded">
-                                    <a href="<?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml" target="_blank">
-                                        <?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml
-                                    </a>
+                <div class="col-12">
+                    <div class="modal fade" id="customerInfoModal" tabindex="-1" role="dialog" aria-labelledby="customerInfoModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="customerInfoModalLabel">Customer Information</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
-                                </p>
-                                <!-- Publisher Feed URLs Section -->
-                                <?php if (!empty($publishers)): ?>
-                                    <p class="mb-1"><strong>Publisher Feed URLs:</strong></p>
-                                    <div class="bg-light border py-1 px-2 mb-1 rounded">
-                                        <?php foreach ($publishers as $publisher): ?>
-                                            <?= htmlspecialchars($publisher['publishername']); ?>:
-                                            <a href="<?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml" target="_blank">
-                                                <?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml
-                                            </a>
-                                            <br>
-                                        <?php endforeach; ?>
+                                <div class="modal-body">
+                                    <div class="col-md-12">
+
+                                        <?php if (!empty($customerInfo)): ?>
+                                            <p class="mb-1"><strong>Customer Name:</strong> <?= htmlspecialchars($customerInfo['custcompany']) ?></p>
+                                            <p class="mb-1"><strong>Customer ID:</strong> <?= htmlspecialchars($custid) ?></p>
+                                            <p class="mb-1"><strong>Customer Type:</strong> <?= htmlspecialchars($customerInfo['custtype']) ?></p>
+                                            <p class="mb-1"><strong>Job Pool:</strong> <?= htmlspecialchars($jobPoolName) ?></p>
+                                            <p class="mb-1"><strong>Customer-level Feed URL:</strong>
+                                            <div class="bg-light border py-1 px-2 mb-1 rounded">
+                                                <a href="<?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml" target="_blank">
+                                                    <?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml
+                                                </a>
+                                            </div>
+                                            </p>
+                                            <!-- Publisher Feed URLs Section -->
+                                            <?php if (!empty($publishers)): ?>
+                                                <p class="mb-1"><strong>Publisher Feed URLs:</strong></p>
+                                                <div class="bg-light border py-1 px-2 mb-1 rounded">
+                                                    <?php foreach ($publishers as $publisher): ?>
+                                                        <?= htmlspecialchars($publisher['publishername']); ?>:
+                                                        <a href="<?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml" target="_blank">
+                                                            <?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml
+                                                        </a>
+                                                        <br>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <p class="mb-0">No active publishers associated with this customer.</p>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <p class="mb-0">No customer information available.</p>
+                                        <?php endif; ?>
                                     </div>
-                                <?php else: ?>
-                                    <p class="mb-0">No active publishers associated with this customer.</p>
-                                <?php endif; ?>
-                            <?php else: ?>
-                                <p class="mb-0">No customer information available.</p>
-                            <?php endif; ?>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Date Selector Card -->
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-header">
-                            <h2 class="fs-md mb-0 fw-bold">Select Dates</h2>
+                <div class="col-12 mb-4">
+                    <div class="w-100 d-flex justify-content-between align-items-center feed-url rounded-md p-3 shadow-md">
+                        <div>
+                            <p class="healthy-text mb-0">
+                                Customer-level Feed URL: <a href="<?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml" target="_blank">
+                                    <?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml
+                                </a>
+                            </p>
                         </div>
-                        <div class="card-body">
-                            <form action="applportal.php" method="get">
-                                <input type="hidden" name="custid" value="<?= htmlspecialchars($custid) ?>">
-                                <div class="form-group mb-3">
-                                    <label for="startdate">Start Date:</label>
-                                    <input type="date" id="startdate" name="startdate" class="form-control" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="enddate">End Date:</label>
-                                    <input type="date" id="enddate" name="enddate" class="form-control" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
-                                </div>
-                                <button class="btn_green w-100">Show Data</button>
-                            </form>
-                        </div>
+                        <button class="btn_green_dark px-4 rounded-md" data-toggle="modal" data-target="#customerInfoModal">
+                            Customer information
+                        </button>
                     </div>
                 </div>
-
-                <!-- Customer Switch Card -->
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-header">
-                            <h2 class="fs-md mb-0 fw-bold">Switch Customer</h2>
-                        </div>
-                        <div class="card-body">
-                            <form action="applportal.php" method="get" class="d-flex flex-column align-items-start">
-                                <label for="custid">Switch Customer Account:</label>
-                                <select name="custid" id="custid" class="form-control mb-2" onchange="this.form.submit()">
-                                    <?php foreach ($custCompanies as $company): ?>
-                                        <option value="<?= htmlspecialchars($company['custid']) ?>" <?= isset($_GET['custid']) && $_GET['custid'] == $company['custid'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($company['custcompany']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </form>
+                <div class="col-12 mb-4">
+                    <div class="rounded-md shadow-md p-3 customer-filter-bar bg-white">
+                        <div class="row w-100 mx-auto">
+                            <div class="col-md-4">
+                                <form action="applportal.php" id="applPortalFilter" class="row w-100 mx-auto">
+                                    <div class="col-md-6 px-0 customer-info-dates">
+                                        <div class="form-group mb-0">
+                                            <label for="startdate">Start</label>
+                                            <input type="date" id="startdate" name="startdate" class="form-control" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 pr-0 customer-info-dates">
+                                        <div class="form-group mb-0">
+                                            <label for="enddate">End</label>
+                                            <input type="date" id="enddate" name="enddate" class="form-control" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-5 px-0">
+                                <form action="applportal.php" method="get" class="customer-info-dates">
+                                    <div class="form-group mb-0">
+                                        <label for="custid" class="no-wrap">Switch Customer Account:</label>
+                                        <select name="custid" id="custid" class="form-control" onchange="this.form.submit()">
+                                            <?php foreach ($custCompanies as $company): ?>
+                                                <option value="<?= htmlspecialchars($company['custid']) ?>" <?= isset($_GET['custid']) && $_GET['custid'] == $company['custid'] ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($company['custcompany']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-3 pr-0">
+                                <div class="d-flex justify-content-between gap-3">
+                                    <div class="w-50">
+                                        <button class="btn_green_dark w-100 rounded-md" onclick="applPortalFilter.submit()">
+                                            <img src="./images/ico/file.png" alt="" class="item-ico pr-1">
+                                            Show data</button>
+                                    </div>
+                                    <div class="w-50">
+                                        <a href="appldownloadcsv.php?custid=<?= htmlspecialchars($custid) ?>&startdate=<?= htmlspecialchars($startdate) ?>&enddate=<?= htmlspecialchars($enddate) ?>" class="btn_green text-white w-100 rounded-md">
+                                            <img src="./images/ico/download.png" alt="" class="item-ico pr-1">
+                                            Download CSV
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h2 class="fs-md mb-0 fw-bold">Your Campaigns Dashboard: <?= $displayStartDate ?> to <?= $displayEndDate ?></h2>
-                    <div>
-                        <a href="applcreatefeeds.php?custid=<?= htmlspecialchars($custid) ?>" class="text-white btn_green">
-                            <i class="fa fa-plus"></i> Add Campaign
-                        </a>
-                        <a href="appldownloadcsv.php?custid=<?= htmlspecialchars($custid) ?>&startdate=<?= htmlspecialchars($startdate) ?>&enddate=<?= htmlspecialchars($enddate) ?>" class="ml-2 btn_green text-white _downloadcsv-button">
-                            <i class="fa fa-download"></i> Download CSV
-                        </a>
-                    </div>
+            <div class="card mb-4 shadow-md cust-campaign rounded-md">
+                <div class="card-header d-flex justify-content-between align-items-center p-0">
+                    <h2 class="p-3 fs-md mb-0 fw-bold text-white">Your Campaigns Dashboard: <?= $displayStartDate ?> to <?= $displayEndDate ?></h2>
+                    <a href="applcreatefeeds.php?custid=<?= htmlspecialchars($custid) ?>" class="text-white btn_green">
+                        <i class="fa fa-plus"></i> Add Campaign
+                    </a>
                 </div>
                 <div class="card-body">
                     <div class="chart-container" style="width: 100%; height: 250px;">
@@ -307,9 +337,9 @@ if ($custid) {
                     </div>
                 </div>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
+            <div class="table-container shadow-md cust-portal">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="">
                         <tr>
                             <th>Campaign</th>
                             <th>Campaign ID</th>
@@ -325,7 +355,7 @@ if ($custid) {
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white">
                         <?php foreach ($feeds as $feed): ?>
                             <tr>
                                 <td><?= htmlspecialchars($feed['feedname']); ?></td>
@@ -338,11 +368,18 @@ if ($custid) {
                                 <td><?= $feed['spend_per_apply']; ?></td>
                                 <td><?= $feed['spend_per_click']; ?></td>
                                 <td><?= $feed['conversion_rate']; ?></td>
-                                <td><?= number_format($feed['numjobs']); ?></td>
+                                <td><?= number_format($feed['numjobs'] ?? 0); ?></td>
                                 <td>
-                                    <a href="viewfeed.php?feedid=<?= urlencode($feed['feedid']); ?>">View</a> |
-                                    <a href="editfeed.php?feedid=<?= urlencode($feed['feedid']); ?>">Edit</a> |
-                                    <a href="deletefeed.php?feedid=<?= urlencode($feed['feedid']); ?>" onclick="return confirm('Are you sure you want to delete this feed?');">Delete</a>
+                                    <a href="viewfeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-info btn-sm" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="editfeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-success btn-sm" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="deletefeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure you want to delete this feed?');" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
