@@ -83,38 +83,12 @@ async function processCPAEvents() {
 
         try {
           // Query and process the CPA event
-          // const [rows] = await connection.execute(
-          //   `SELECT custid, jobid, feedid, timestamp FROM applevents
-          //                WHERE useragent = ? AND ipaddress = ?
-          //                ORDER BY timestamp DESC LIMIT 1`,
-          //   [eventData.userAgent, eventData.ipaddress]
-          // );
-
-            eventData =  
-            {
-              custid: '1178016241',
-              timestamp: "2024-09-23 13:38:56",
-              feedid: "7197342724-6060255332",
-              jobid: '11866009',
-              domain: 'https://click.appcast.io/',
-              ipaddress: '72.255.62.105',
-              feedid: '7197342724-6060255332',
-              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb...',
-            }
-           
-          let rows = [
-            {
-              custid: '1178016241',
-              timestamp: "2024-09-23 13:38:56",
-              feedid: "7197342724-6060255332",
-              jobid: '11866009',
-              domain: 'https://click.appcast.io/',
-              ipaddress: '72.255.62.105',
-              feedid: '7197342724-6060255332',
-              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb...',
-            }
-           
-          ]
+          const [rows] = await connection.execute(
+            `SELECT custid, jobid, feedid, timestamp FROM applevents
+                         WHERE useragent = ? AND ipaddress = ?
+                         ORDER BY timestamp DESC LIMIT 1`,
+            [eventData.userAgent, eventData.ipaddress]
+          );
 
           console.log(
             `Length of rows from query and process the cpa event: ${rows.length}`
