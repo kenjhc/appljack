@@ -10,7 +10,7 @@ fi
 
 # Paths
 DIR="/chroot/home/appljack/appljack.com/html/admin"
-LOGFILE="$DIR/applpass_testdb.log"
+LOGFILE="$DIR/applpass_testdb_.log"
 NODE="/usr/bin/node" # Ensure this is the correct path to the node executable
 PYTHON="/usr/bin/python3" # Updated path to the Python 3 executable
 
