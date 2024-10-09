@@ -513,7 +513,8 @@ button[type="submit"]:hover {
   text-decoration: none; /* No underline */
 }
 
-.btn_green {
+.btn_green,
+.btn_green_dark {
   background-color: #7aaa4b; /* Green background */
   color: white; /* White text */
   padding: 8px 15px; /* Padding */
@@ -523,9 +524,11 @@ button[type="submit"]:hover {
   cursor: pointer; /* Hand cursor */
   display: inline-block; /* To keep it in the flow of the document */
   text-decoration: none; /* No underline */
+  white-space: nowrap;
 }
 
-.btn_green:hover {
+.btn_green:hover,
+.btn_green_dark:hover {
   opacity: 0.6;
 }
 
@@ -873,7 +876,7 @@ button[type="submit"]:hover {
   border: none;
   padding: 5px 10px;
   border-radius: 4px;
-  font-weight: 500;
+  font-weight: 600;
   border: 2px solid #2a3d44;
   transition: 0.2s ease-in-out;
 }
@@ -886,9 +889,9 @@ button[type="submit"]:hover {
 
 .job_section .job_card .job_title {
   color: #2a3d44;
-  font-size: 25px;
+  font-size: 30px;
   text-align: center;
-  font-weight: 600;
+  font-weight: 900;
 }
 
 .job_section .job_card .job_input {
@@ -913,7 +916,7 @@ button[type="submit"]:hover {
 }
 
 .xml_mapping_sec .card-body {
-  padding: 0px;
+  /* padding: 0px; */
 }
 
 .xml_mapping_sec .table-responsive {
@@ -1184,3 +1187,95 @@ footer p {
   cursor: pointer;
   text-decoration: underline;
 }
+.reset-pool-btn {
+  background: #2a3d44;
+  color: white;
+  border: none;
+  outline: none;
+  padding: 2px 12px;
+  font-size: 12px;
+  border-radius: 5px;
+}
+
+.reset-pool-btn:hover {
+  scale: 1.01;
+  translate: 0px -1px;
+}
+
+.reset-pool-btn:active {
+  scale: 0.99;
+  translate: 0px 1px;
+}
+
+.job_title {
+  position: relative;
+}
+
+.job_title:after {
+  content: "";
+  display: block;
+  width: 50px;
+  height: 4px;
+  background-color: #2f4f4f;
+  margin: 10px auto 0 auto;
+  position: relative;
+}
+
+.job_title:before {
+  content: "";
+  display: block;
+  width: 90px;
+  height: 0px;
+  margin: 0 auto;
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 2px dashed #2f4f4f;
+}
+
+.healthy-text {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.bit-healthy-text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.xml_mapping_sec .light-input,
+.light-input {
+  padding: 10px 12px;
+  background-color: #fff;
+  height: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid #2a3d44;
+  margin-right: 0px;
+}
+
+.light-input {
+  margin: 0px !important;
+}
+
+.btn_green_dark {
+  background-color: #2a3d44;
+}
+
+.card.styled {
+  border: 1px solid #2a3d44;
+  padding: 12px;
+  border-radius: 9px;
+  background-color: #f3f3f3;
+}
+
+.text-dark-green {
+  color: #2a3d44;
+}
+ 

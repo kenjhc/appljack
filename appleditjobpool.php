@@ -257,7 +257,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <?php echo renderHeader(
         "Edit Settings for Job Pool #" . htmlspecialchars($jobpoolid),
-        '<button onclick="confirmReset()" class="btn_green">Reset All Mappings</button>',
+        '<button onclick="confirmReset()" class="reset-pool-btn">Reset All Mappings</button>',
         0
     ); ?>
     <section class="job_section">
@@ -277,7 +277,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="col-sm-12 col-md-4">
                     <div class="job_card">
                         <form action="" method="post">
-                            <p class="job_title">Edit Job URL</p>
+                            <p class="job_title">Edit Job Pool URL</p>
                             <input type="text" class="job_input" name="jobpoolurl" placeholder="Enter Job Pool URL" value="<?= htmlspecialchars($currentJobPoolURL) ?>" required>
                             <button class="update_btn" type="submit">Update Job Pool URL </button>
                         </form>
@@ -297,11 +297,11 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="row xml_mapping_sec">
                 <div class="col-sm-12 col-md-12">
                     <div class="">
-                        <div class="card ">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between ">
-                                    <h5 class="card-title">XML Mappings for Job Pool #<?= htmlspecialchars($jobpoolid) ?></h5>
-                                </div>
+                        <div class="card">
+                            <div class="card-header p-0 d-flex justify-content-between">
+                                <h5 class="card-title">XML Mappings for Job Pool #<?= htmlspecialchars($jobpoolid) ?></h5>
+                            </div>
+                            <div class="card-body p-0">
                                 <div class="table-responsive">
                                     <?php if ($error): ?>
                                         <p class="error"><?= htmlspecialchars($error); ?></p>
@@ -310,10 +310,10 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <table id="zero_config" class="table table-striped table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th>XML Node</th>
-                                                        <th>Value</th>
-                                                        <th>Database Column</th>
-                                                        <th>Action</th>
+                                                        <th width="15%">XML Node</th>
+                                                        <th width="30%">Value</th>
+                                                        <th width="15%">Database Column</th>
+                                                        <th width="40%">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -322,8 +322,8 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                             $color = $mappedColumn ? 'blue' : (in_array($nodeName, $columns) ? 'green' : 'red');
                                                     ?>
                                                             <tr>
-                                                                <td><?= htmlspecialchars($nodeName) ?></td>
-                                                                <td>
+                                                                <td class="healthy-text"><?= htmlspecialchars($nodeName) ?></td>
+                                                                <td class="bit-healthy-text">
                                                                     <div class="short-text">
                                                                         <?php if (strlen($nodeValue) > 100): ?>
                                                                             <span class="short"><?= htmlspecialchars(substr($nodeValue, 0, 100)) ?></span>
@@ -335,7 +335,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                                         <?php endif; ?>
                                                                     </div>
                                                                 </td>
-                                                                <td style="color: <?= $color ?>;">
+                                                                <td class="healthy-text">
                                                                     <?php
                                                                     if ($mappedColumn && $mappedColumn !== $nodeName) {
                                                                         echo 'Mapped';
@@ -347,23 +347,25 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                                     ?>
                                                                 </td>
                                                                 <td>
-                                                                    <form action="" method="post">
-                                                                        <input type="hidden" name="xml_tag" value="<?= htmlspecialchars($nodeName) ?>">
-                                                                        <select name="db_column">
-                                                                            <option value="">Remove Mapping</option>
-                                                                            <?php
-                                                                            foreach ($columns as $column):
-                                                                                if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])):
-                                                                            ?>
-                                                                                    <option value="<?= htmlspecialchars($column) ?>" <?= $column === $mappedColumn ? 'selected' : '' ?>>
-                                                                                        <?= htmlspecialchars($column) ?>
-                                                                                    </option>
-                                                                            <?php
-                                                                                endif;
-                                                                            endforeach;
-                                                                            ?>
-                                                                        </select>
-                                                                        <button type="submit">Set Mapping</button>
+                                                                    <form method="post">
+                                                                        <div class="d-flex align-items-center justify-content-center gap-3">
+                                                                            <input type="hidden" name="xml_tag" value="<?= htmlspecialchars($nodeName) ?>">
+                                                                            <select name="db_column" class="w-75 light-input">
+                                                                                <option value="">Remove Mapping</option>
+                                                                                <?php
+                                                                                foreach ($columns as $column):
+                                                                                    if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])):
+                                                                                ?>
+                                                                                        <option value="<?= htmlspecialchars($column) ?>" <?= $column === $mappedColumn ? 'selected' : '' ?>>
+                                                                                            <?= htmlspecialchars($column) ?>
+                                                                                        </option>
+                                                                                <?php
+                                                                                    endif;
+                                                                                endforeach;
+                                                                                ?>
+                                                                            </select>
+                                                                            <button class="btn_green_dark w-50">Set Mapping</button>
+                                                                        </div>
                                                                     </form>
                                                                 </td>
                                                             </tr>
@@ -389,11 +391,11 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="row xml_mapping_sec second">
                 <div class="col-sm-12 col-md-12">
                     <div class="">
-                        <div class="card ">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between ">
-                                    <h5 class="card-title">Custom Fields and Mappings</h5>
-                                </div>
+                        <div class="card">
+                            <div class="card-header p-0 d-flex justify-content-between">
+                                <h5 class="card-title">Custom Fields and Mappings</h5>
+                            </div>
+                            <div class="card-body p-0">
                                 <div class="table-responsive">
                                     <?php if ($customFields): ?>
                                         <div class="custom_padding">
@@ -402,46 +404,60 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 class="table table-striped table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th>Field Name</th>
-                                                        <th>Static Value</th>
-                                                        <th>App Jobs Map</th>
-                                                        <th>Action</th>
+                                                        <th width="15%">Field Name</th>
+                                                        <th width="15%">Static Value</th>
+                                                        <th width="15%">App Jobs Map</th>
+                                                        <th width="55%">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <?php foreach ($customFields as $field): ?>
                                                         <tr>
-                                                            <td><?= htmlspecialchars($field['fieldname']) ?></td>
-                                                            <td><?= htmlspecialchars($field['staticvalue']) ?></td>
-                                                            <td><?= htmlspecialchars($field['appljobsmap']) ?></td>
+                                                            <td class="healthy-text"><?= htmlspecialchars($field['fieldname']) ?></td>
+                                                            <td class="bit-healthy-text"><?= htmlspecialchars($field['staticvalue']) ?></td>
+                                                            <td class="healthy-text"><?= htmlspecialchars($field['appljobsmap']) ?></td>
                                                             <td>
                                                                 <form action="" method="post">
-                                                                    <input type="hidden" name="custom_id" value="<?= htmlspecialchars($field['id']) ?>">
-                                                                    <input type="text" name="custom_fieldname" value="<?= htmlspecialchars($field['fieldname']) ?>" required>
-                                                                    <input type="text" id="custom_staticvalue_<?= htmlspecialchars($field['id']) ?>" name="custom_staticvalue" value="<?= htmlspecialchars($field['staticvalue']) ?>" oninput="toggleDropdown('custom_staticvalue_<?= htmlspecialchars($field['id']) ?>', 'custom_appljobsmap_<?= htmlspecialchars($field['id']) ?>')">
-                                                                    <select id="custom_appljobsmap_<?= htmlspecialchars($field['id']) ?>" name="custom_appljobsmap" <?= !empty($field['staticvalue']) ? 'disabled' : '' ?>>
-                                                                        <option value="">Remove Mapping</option>
-                                                                        <?php
-                                                                        foreach ($columns as $column):
-                                                                            if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])):
-                                                                        ?>
-                                                                                <option value="<?= htmlspecialchars($column) ?>" <?= $column === $field['appljobsmap'] ? 'selected' : '' ?>>
-                                                                                    <?= htmlspecialchars($column) ?>
-                                                                                </option>
-                                                                        <?php
-                                                                            endif;
-                                                                        endforeach;
-                                                                        ?>
-                                                                    </select>
-                                                                    <button type="submit">Update</button>
-                                                                </form>
-                                                                <form action="" method="post" style="display:inline;">
-                                                                    <input type="hidden" name="delete_custom_field" value="<?= htmlspecialchars($field['id']) ?>">
-                                                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this custom field?');">Delete</button>
+                                                                    <div class="row">
+                                                                        <!-- First row: 3 inputs -->
+                                                                        <div class="col-md-4">
+                                                                            <input type="hidden" name="custom_id" value="<?= htmlspecialchars($field['id']) ?>">
+                                                                            <input type="text" class="form-control light-input" name="custom_fieldname" value="<?= htmlspecialchars($field['fieldname']) ?>" required>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <input type="text" class="form-control light-input" id="custom_staticvalue_<?= htmlspecialchars($field['id']) ?>" name="custom_staticvalue" value="<?= htmlspecialchars($field['staticvalue']) ?>" oninput="toggleDropdown('custom_staticvalue_<?= htmlspecialchars($field['id']) ?>', 'custom_appljobsmap_<?= htmlspecialchars($field['id']) ?>')">
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <select class="form-control light-input" id="custom_appljobsmap_<?= htmlspecialchars($field['id']) ?>" name="custom_appljobsmap" <?= !empty($field['staticvalue']) ? 'disabled' : '' ?>>
+                                                                                <option value="">Remove Mapping</option>
+                                                                                <?php foreach ($columns as $column): ?>
+                                                                                    <?php if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])): ?>
+                                                                                        <option value="<?= htmlspecialchars($column) ?>" <?= $column === $field['appljobsmap'] ? 'selected' : '' ?>>
+                                                                                            <?= htmlspecialchars($column) ?>
+                                                                                        </option>
+                                                                                    <?php endif; ?>
+                                                                                <?php endforeach; ?>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Second row: Update and Delete buttons -->
+                                                                    <div class="row mt-2">
+                                                                        <div class="col-md-6">
+                                                                            <button class="btn_green_dark px-4 w-100">Update</button>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <form action="" method="post" style="display:inline;">
+                                                                                <input type="hidden" name="delete_custom_field" value="<?= htmlspecialchars($field['id']) ?>">
+                                                                                <button class="btn_green_dark w-100" onclick="return confirm('Are you sure you want to delete this custom field?');">Delete</button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
                                                                 </form>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>
+
                                                 </tbody>
                                             </table>
                                         </div>
@@ -459,27 +475,31 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="row xml_mapping_sec second">
                 <div class="col-sm-12 col-md-12">
                     <div class="add_field_form">
-                        <div class="card ">
+                        <div class="card">
+                            <div class="card-header p-0 d-flex justify-content-between">
+                                <h5 class="card-title">Add Custom Field</h5>
+                            </div>
                             <div class="card-body">
-                                <div class="d-flex justify-content-between ">
-                                    <h5 class="card-title">Custom Fields and Mappings</h5>
+                                <div class="card styled">
+                                    <div class="card-body p-0">
+                                        <form action="" method="post" class="p-3">
+                                            <label for="custom_fieldname" class="healthy-text text-dark-green mt-2">Field Name:</label>
+                                            <input type="text" id="custom_fieldname" class=" light-input" name="custom_fieldname" required>
+                                            <label for="custom_staticvalue" class="healthy-text text-dark-green mt-2">Static Value:</label>
+                                            <input type="text" id="custom_staticvalue" class=" light-input" name="custom_staticvalue" oninput="toggleDropdown('custom_staticvalue', 'custom_appljobsmap')">
+                                            <input type="hidden" id="hidden_custom_appljobsmap" class=" light-input" name="custom_appljobsmap" value="">
+                                            <label for="custom_appljobsmap" class="healthy-text text-dark-green mt-2">App Jobs Map:</label>
+                                            <select id="custom_appljobsmap" name="custom_appljobsmap" class="light-input">
+                                                <option value="">Select Mapping</option>
+                                                <?php foreach ($columns as $column): if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])): ?>
+                                                        <option value="<?= htmlspecialchars($column) ?>"><?= htmlspecialchars($column) ?></option>
+                                                <?php endif;
+                                                endforeach; ?>
+                                            </select>
+                                            <button class="btn_green_dark mt-3 w-100">Add Custom Field</button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <form action="" method="post" class="custom_padding">
-                                    <label for="custom_fieldname">Field Name:</label>
-                                    <input type="text" id="custom_fieldname" class="job_input" name="custom_fieldname" required>
-                                    <label for="custom_staticvalue">Static Value:</label>
-                                    <input type="text" id="custom_staticvalue" class="job_input" name="custom_staticvalue" oninput="toggleDropdown('custom_staticvalue', 'custom_appljobsmap')">
-                                    <input type="hidden" id="hidden_custom_appljobsmap" class="job_input" name="custom_appljobsmap" value="">
-                                    <label for="custom_appljobsmap">App Jobs Map:</label>
-                                    <select id="custom_appljobsmap" name="custom_appljobsmap">
-                                        <option value="">Select Mapping</option>
-                                        <?php foreach ($columns as $column): if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])): ?>
-                                                <option value="<?= htmlspecialchars($column) ?>"><?= htmlspecialchars($column) ?></option>
-                                        <?php endif;
-                                        endforeach; ?>
-                                    </select>
-                                    <button type="submit" class="update_btn">Add Custom Field</button>
-                                </form>
                             </div>
                         </div>
                     </div>
