@@ -16,7 +16,7 @@ const dbConfig = {
   charset: config.charset,
 };
 
-const logFilePath = path.join(__dirname, "applpass_cpa.log");
+const logFilePath = path.join(__dirname, "applpass_dbtest.log");
 
 console.log("====================================");
 console.log(`Queue File Path: ${queueFilePath}`);
