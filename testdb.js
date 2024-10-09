@@ -23,7 +23,7 @@ console.log(`Log File Path: ${logFilePath}`);
 console.log("====================================");
 
 // Function to process CPA events
-async function processCPAEvents() {
+async function testDbConnection() {
   let connection;
   try {
     // Connect to the database
@@ -41,21 +41,12 @@ async function processCPAEvents() {
       const data = {};
 
       if (custRows.length === 0) {
-        logMessage(`working....: ${data.custid}`, logFilePath);
-        logToDatabase(
-          "warning",
-          "applpass_cpa_putevent.js",
-          `working....: ${data.custid}`
-        );
+        logMessage(`not woring...`, logFilePath);
+        logToDatabase("warning", "applpass_cpa_putevent.js", `not woring...`);
       } else {
-        logMessage(`not woring...: ${data.custid}`, logFilePath);
-        logToDatabase(
-          "warning",
-          "applpass_cpa_putevent.js",
-          `not woring...: ${data.custid}`
-        );
+        logMessage(`working....`, logFilePath);
+        logToDatabase("warning", "applpass_cpa_putevent.js", `working....`);
 
-        
         console.log({ custRows });
       }
     } catch (error) {
@@ -85,4 +76,4 @@ async function processCPAEvents() {
 }
 
 // Run the CPA event processing function
-processCPAEvents();
+testDbConnection();
