@@ -55,13 +55,13 @@ async function processCPAEvents() {
       }
     } catch (error) {
       logMessage(
-        `Error processing eventID: ${eventData.eventid} - ${error.message}`,
+        `Error processing eventID: ${error.message}`,
         logFilePath
       );
       logToDatabase(
         "error",
         "applpass_cpa_putevent.js",
-        `Error processing eventID: ${eventData.eventid} - ${error.message}`
+        `Error processing eventID: ${error.message}`
       );
     }
 
