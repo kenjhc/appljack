@@ -9,12 +9,8 @@ error_reporting(E_ALL);
 function logMessage($message)
 {
     $timestamp = date('Y-m-d H:i:s');
-    $logEntry = "[$timestamp] $message\n";
-<<<<<<< HEAD
-    $logFilePath = "/chroot/home/appljack/appljack.com/html/applpass_cpa.log";
-=======
-    $logFilePath = "/chroot/home/appljack/appljack.com/html/admin/applpass_cpa.log";
->>>>>>> ad23b45f9609556e1ce060ea5bf654a69758f6fb
+    $logEntry = "[$timestamp] $message\n"; 
+    $logFilePath = "/chroot/home/appljack/appljack.com/html/admin/applpass_cpa.log"; 
     error_log($logEntry, 3, $logFilePath);
 }
 
@@ -36,12 +32,8 @@ $eventData = [
 
 logMessage("Generated event data: " . json_encode($eventData));
 
-// Append the event data to the JSON file
-<<<<<<< HEAD
-$jsonFilePath = "/chroot/home/appljack/appljack.com/html/applpass_cpa_queue.json";
-=======
-$jsonFilePath = "/chroot/home/appljack/appljack.com/html/admin/applpass_cpa_queue.json";
->>>>>>> ad23b45f9609556e1ce060ea5bf654a69758f6fb
+// Append the event data to the JSON file 
+$jsonFilePath = "/chroot/home/appljack/appljack.com/html/admin/applpass_cpa_queue.json"; 
 file_put_contents($jsonFilePath, json_encode($eventData) . "\n", FILE_APPEND | LOCK_EX);
 
 logMessage("Event data written to JSON file");

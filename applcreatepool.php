@@ -34,13 +34,16 @@ $jobpoolid = mt_rand(1000000000, 9999999999);
         ?>
     <?php endif; ?>
 
-    <h1 class="main-heading">Create a New Job Pool</h1>
-    <div class="content-container">
-        <div class="form-container">
+    <?php echo renderHeader(
+        "Create a New Job Pool",
+    ); ?>
+
+    <section class="job_section">
+        <div class="">
             <form action="applputpool.php" method="post">
                 <input type="hidden" name="jobpoolid" value="<?php echo $jobpoolid; ?>">
                 <input type="hidden" name="acctnum" value="<?php echo $_SESSION['acctnum']; ?>">
-
+ 
                 <label for="jobpoolname">Job Pool Name (required)</label>
                 <input type="text" id="jobpoolname" name="jobpoolname" maxlength="50" required><br>
 
@@ -59,8 +62,7 @@ $jobpoolid = mt_rand(1000000000, 9999999999);
                 <input type="submit" value="Create Job Pool">
             </form>
         </div>
-        <!-- Additional hints or information can be added here if necessary -->
-    </div>
+    </section>
 
     <?php include 'footer.php'; ?>
 </body>

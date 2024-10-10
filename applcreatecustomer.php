@@ -55,29 +55,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
     <?php include 'appltopnav.php'; ?>
-    <h1>Create a New Customer</h1>
-    <form action="applcreatecustomer.php" method="post">
-        <div>
-            <input type="radio" id="employer" name="custtype" value="emp" required>
-            <label for="employer">Employer</label>
 
-            <input type="radio" id="publisher" name="custtype" value="pub" required>
-            <label for="publisher">Publisher</label><br>
+    <?php echo renderHeader(
+        "Create a New Customer"
+    ); ?>
+
+    <section class="create_customer_sec">
+        <div class="container-fluid py-4">
+            <form action="applcreatecustomer.php" method="post" class="pb-5">
+                <div>
+                    <input type="radio" id="employer" name="custtype" value="emp" required>
+                    <label for="employer">Employer</label>
+
+                    <input type="radio" id="publisher" name="custtype" value="pub" required>
+                    <label for="publisher">Publisher</label><br>
+                </div>
+                <div>
+                    <label for="custname">Customer Name:</label>
+                    <input type="text" id="custname" name="custname" required>
+                </div>
+                <div>
+                    <label for="jobpoolid">Select Job Pool:</label>
+                    <select id="jobpoolid" name="jobpoolid" required>
+                        <?php foreach ($jobPools as $pool): ?>
+                            <option value="<?= htmlspecialchars($pool['jobpoolid']) ?>"><?= htmlspecialchars($pool['jobpoolname']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <button class="btn_green w-100 mt-3">Create Customer</button>
+            </form>
         </div>
-        <div>
-            <label for="custname">Customer Name:</label>
-            <input type="text" id="custname" name="custname" required>
-        </div>
-        <div>
-            <label for="jobpoolid">Select Job Pool:</label>
-            <select id="jobpoolid" name="jobpoolid" required>
-                <?php foreach ($jobPools as $pool): ?>
-                    <option value="<?= htmlspecialchars($pool['jobpoolid']) ?>"><?= htmlspecialchars($pool['jobpoolname']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <button type="submit">Create Customer</button>
-    </form>
+    </section>
 
     <?php include 'footer.php'; ?>
 </body>
