@@ -37,23 +37,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($acctfname) || empty($acctlname)) {
         $errorMessage = "All fields are required.";
     } else {
-        // Update user details in the database
+        // Prepare to update user details in the database
         $updateQuery = $db->prepare("UPDATE applacct SET acctfname = ?, acctlname = ? WHERE acctnum = ?");
         if (!$updateQuery) {
             handleDbError("Prepare failed: " . $db->error);
         }
 
+        // Bind parameters for the name update
         $updateQuery->bind_param("ssi", $acctfname, $acctlname, $acctnum);
+
+        // Execute the name update
         if ($updateQuery->execute()) {
             $successMessage = "Account details updated successfully.";
             // Optionally, update session variables
             $_SESSION['acctfname'] = $acctfname;
             $_SESSION['acctlname'] = $acctlname;
             $_SESSION['acctname'] = $acctfname . " " . $acctlname; // Store acctnum in session
+
+            // Check if the password needs to be updated
+            if (!empty($acctpw)) {
+                // Hash the new password
+                $hashedPassword = password_hash($acctpw, PASSWORD_DEFAULT);
+
+                // Prepare to update the password in the database
+                $passwordUpdateQuery = $db->prepare("UPDATE applacct SET acctpw = ? WHERE acctnum = ?");
+                if (!$passwordUpdateQuery) {
+                    handleDbError("Prepare failed: " . $db->error);
+                }
+
+                // Bind parameters for the password update
+                $passwordUpdateQuery->bind_param("si", $hashedPassword, $acctnum);
+
+                // Execute the password update
+                if ($passwordUpdateQuery->execute()) {
+                    $successMessage .= " Password updated successfully.";
+                } else {
+                    $errorMessage = "Error updating password.";
+                }
+
+                // Close the password update query
+                $passwordUpdateQuery->close();
+            }
         } else {
             $errorMessage = "Error updating account details.";
         }
 
+        // Close the name update query
         $updateQuery->close();
     }
 }
