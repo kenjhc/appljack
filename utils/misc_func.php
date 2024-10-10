@@ -53,7 +53,6 @@ function getEnvPath()
     } else {
         return "unknown";
     }
-
 }
 function renderHeader($pageTitle, $subtitle = '', $notificationCount = 0)
 {
@@ -73,8 +72,10 @@ function renderHeader($pageTitle, $subtitle = '', $notificationCount = 0)
                 <!-- Notification Button -->
                 <div class="notification_wrapper">
                     <button class="notify_btn">
-                        <i class="fa-regular fa-bell"></i>
-                        <span><?php echo $notificationCount; ?></span>
+                        <i class="fa-regular fa-bell <?= !$notificationCount ? 'pr-0 p-1' : '' ?>"></i>
+                        <?php if ($notificationCount) { ?>
+                            <span><?php echo $notificationCount; ?></span>
+                        <?php } ?>
                     </button>
                 </div>
 

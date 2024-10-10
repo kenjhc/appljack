@@ -200,9 +200,29 @@ if ($custid) {
 <body>
     <?php include 'appltopnav.php'; ?>
 
-    <?php echo renderHeader(
-        "Campaign Portal"
-    ); ?>
+    <?php
+    ob_start();
+    ?>
+
+    <form action="applportal.php" method="get" class="customer-info-dates ml-5" style="min-width: 28rem;">
+        <div class="form-group mb-0 border-white">
+            <label for="custid" class="no-wrap text-white">Switch Customer Account:</label>
+            <select name="custid" id="custid" class="form-control" onchange="this.form.submit()">
+                <?php foreach ($custCompanies as $company): ?>
+                    <option value="<?= htmlspecialchars($company['custid']) ?>" <?= isset($_GET['custid']) && $_GET['custid'] == $company['custid'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($company['custcompany']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </form>
+
+    <?php
+    $formContent = ob_get_clean();
+
+    echo renderHeader("Campaign Portal", $formContent);
+    ?>
+
     <section class="job_section">
         <div class="container-fluid">
             <div class="row">
@@ -258,12 +278,12 @@ if ($custid) {
                         </div>
                     </div>
                 </div>
-                <div class="col-12 mb-4">
+                <div class="col-md-6 mb-4">
                     <div class="w-100 d-flex justify-content-between align-items-center feed-url rounded-md p-3 shadow-md">
                         <div>
                             <p class="healthy-text mb-0">
-                                Customer-level Feed URL: <a href="<?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml" target="_blank">
-                                    <?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml
+                                Customer name: <a href="#">
+                                    <?= htmlspecialchars(ucwords($customerInfo['custcompany'])); ?>
                                 </a>
                             </p>
                         </div>
@@ -272,10 +292,10 @@ if ($custid) {
                         </button>
                     </div>
                 </div>
-                <div class="col-12 mb-4">
-                    <div class="rounded-md shadow-md p-3 customer-filter-bar bg-white">
+                <div class="col-md-6 mb-4">
+                    <div class="rounded-md shadow-md p-3 customer-filter-bar bg-white feed-url h-100">
                         <div class="row w-100 mx-auto">
-                            <div class="col-md-4">
+                            <div class="col-md-9">
                                 <form action="applportal.php" id="applPortalFilter" class="row w-100 mx-auto">
                                     <div class="col-md-6 px-0 customer-info-dates">
                                         <div class="form-group mb-0">
@@ -291,32 +311,13 @@ if ($custid) {
                                     </div>
                                 </form>
                             </div>
-                            <div class="col-md-5 px-0">
-                                <form action="applportal.php" method="get" class="customer-info-dates">
-                                    <div class="form-group mb-0">
-                                        <label for="custid" class="no-wrap">Switch Customer Account:</label>
-                                        <select name="custid" id="custid" class="form-control" onchange="this.form.submit()">
-                                            <?php foreach ($custCompanies as $company): ?>
-                                                <option value="<?= htmlspecialchars($company['custid']) ?>" <?= isset($_GET['custid']) && $_GET['custid'] == $company['custid'] ? 'selected' : '' ?>>
-                                                    <?= htmlspecialchars($company['custcompany']) ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="col-md-3 pr-0">
+
+                            <div class="col-md-3 px-0">
                                 <div class="d-flex justify-content-between gap-3">
-                                    <div class="w-50">
+                                    <div class="w-100">
                                         <button class="btn_green_dark w-100 rounded-md" onclick="applPortalFilter.submit()">
                                             <img src="./images/ico/file.png" alt="" class="item-ico pr-1">
                                             Show data</button>
-                                    </div>
-                                    <div class="w-50">
-                                        <a href="appldownloadcsv.php?custid=<?= htmlspecialchars($custid) ?>&startdate=<?= htmlspecialchars($startdate) ?>&enddate=<?= htmlspecialchars($enddate) ?>" class="btn_green text-white w-100 rounded-md">
-                                            <img src="./images/ico/download.png" alt="" class="item-ico pr-1">
-                                            Download CSV
-                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -327,9 +328,15 @@ if ($custid) {
             <div class="card mb-4 shadow-md cust-campaign rounded-md">
                 <div class="card-header d-flex justify-content-between align-items-center p-0">
                     <h2 class="p-3 fs-md mb-0 fw-bold text-white">Your Campaigns Dashboard: <?= $displayStartDate ?> to <?= $displayEndDate ?></h2>
-                    <a href="applcreatefeeds.php?custid=<?= htmlspecialchars($custid) ?>" class="text-white btn_green">
-                        <i class="fa fa-plus"></i> Add Campaign
-                    </a>
+                    <div class="d-flex">
+                        <a href="appldownloadcsv.php?custid=<?= htmlspecialchars($custid) ?>&startdate=<?= htmlspecialchars($startdate) ?>&enddate=<?= htmlspecialchars($enddate) ?>" class="btn_green_dark text-white w-100 rounded-md">
+                            <img src="./images/ico/download.png" alt="" class="item-ico pr-1">
+                            Download CSV
+                        </a>
+                        <a href="applcreatefeeds.php?custid=<?= htmlspecialchars($custid) ?>" class="text-white btn_green">
+                            <i class="fa fa-plus"></i> Add Campaign
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="chart-container" style="width: 100%; height: 250px;">

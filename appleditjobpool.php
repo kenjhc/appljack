@@ -306,8 +306,8 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <?php if ($error): ?>
                                         <p class="error"><?= htmlspecialchars($error); ?></p>
                                     <?php else: ?>
-                                        <div class="custom_padding">
-                                            <table id="zero_config" class="table table-striped table-bordered">
+                                        <div class="custom_padding p-4">
+                                            <table id="zero_config" class="table table-striped table-bordered mb-0">
                                                 <thead>
                                                     <tr>
                                                         <th width="15%">XML Node</th>
@@ -398,10 +398,10 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="card-body p-0">
                                 <div class="table-responsive">
                                     <?php if ($customFields): ?>
-                                        <div class="custom_padding">
+                                        <div class="custom_padding p-4">
                                             <table
                                                 id="zero_config"
-                                                class="table table-striped table-bordered">
+                                                class="table table-striped table-bordered mb-0">
                                                 <thead>
                                                     <tr>
                                                         <th width="15%">Field Name</th>
@@ -480,7 +480,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <h5 class="card-title">Add Custom Field</h5>
                             </div>
                             <div class="card-body">
-                                <div class="card styled">
+                                <div class="card styled m-4">
                                     <div class="card-body p-0">
                                         <form action="" method="post" class="p-3">
                                             <label for="custom_fieldname" class="healthy-text text-dark-green mt-2">Field Name:</label>

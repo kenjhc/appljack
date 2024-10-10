@@ -860,14 +860,19 @@ button[type="submit"]:hover {
   /* position: relative; */
   margin-top: 100px;
 }
-.job_section .job_card {
+.job_section .job_card,
+.rescources_sec .job_card {
   padding: 20px 12px;
   background-color: #fff;
   box-shadow: 2px 2px 10px #00000018;
   border-radius: 8px;
 }
-
+.rescources_sec .job_card {
+  padding: 20px 20px;
+  height: 100%;
+}
 .job_section .job_card .update_btn,
+.rescources_sec .job_card .update_btn,
 .update_btn {
   width: 100%;
   background-color: #2a3d44 !important;
@@ -882,19 +887,22 @@ button[type="submit"]:hover {
 }
 
 .job_section .job_card .update_btn:hover,
+.rescources_sec .job_card .update_btn:hover,
 .update_btn:hover {
   background-color: #fff !important;
   color: #2a3d44;
 }
 
-.job_section .job_card .job_title {
+.job_section .job_card .job_title,
+.rescources_sec .job_card .job_title {
   color: #2a3d44;
   font-size: 30px;
   text-align: center;
   font-weight: 900;
 }
 
-.job_section .job_card .job_input {
+.job_section .job_card .job_input,
+.rescources_sec .job_card .job_input {
   padding: 5px 10px;
   background-color: #ecebe7;
 }
@@ -1308,6 +1316,7 @@ footer p {
   padding-inline: 12px;
   color: #2a3d44;
   font-weight: 600;
+  font-size: 15px;
 }
 
 .customer-info-dates > div {
@@ -1341,15 +1350,35 @@ footer p {
 .cust-campaign a {
   padding-block: 16px;
   padding-inline: 36px;
-  border-radius: 14px 0 0 14px;
+  border-radius: 14px 0 0 14px !important;
 }
 
-.cust-portal{
+.cust-campaign a:nth-child(1) {
+  padding-block: 16px;
+  padding-left: 36px;
+  padding-right: 46px;
+  margin-right: -14px;
+}
+
+.cust-portal {
   padding: 0;
   overflow: auto;
 }
 
-th{
+th {
   background-color: #4e6766;
   color: #f3f6f6;
+}
+.code-box {
+  background: #f9f5f6;
+  padding: 1rem;
+  border: 1px solid #c7c5c1;
+  border-radius: 8px;
+}
+
+.code-box code {
+  color: #888278;
+}
+.code-box pre {
+  margin: 0;
 }
