@@ -834,7 +834,7 @@ button[type="submit"]:hover {
   align-items: center;
   position: fixed;
   width: -webkit-fill-available;
-  z-index: 2;
+  z-index: 10;
 }
 
 .page-heading h1 {
@@ -1394,4 +1394,59 @@ th {
   height: 100%;
   padding: 8px 16px;
   cursor: pointer;
+}
+
+.cust-check {
+  display: flex;
+  gap: 4px;
+}
+
+.cust-check > div {
+  border: 1px solid #2a3d44;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+}
+
+.cust-check label {
+  margin: 0;
+}
+
+.custom-radio {
+  position: relative;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.custom-radio input[type="radio"] {
+  display: none; /* Hide default radio */
+}
+
+.custom-radio label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.custom-radio label i {
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.custom-radio .fa-check-circle {
+  display: none; /* Hide check icon by default */
+  color: #4e6766;
+}
+
+.custom-radio input[type="radio"]:checked + label .fa-circle {
+  display: none; /* Hide empty circle when checked */
+}
+
+.custom-radio input[type="radio"]:checked + label .fa-check-circle {
+  display: inline-block; /* Show check icon when checked */
 }
