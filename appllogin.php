@@ -13,8 +13,7 @@ if (isset($_POST['login'])) {
     if (!$query) {
         handleDbError("Prepare failed: " . $db->error);
     }
-    $query->bind_param("s", $custemail);
-    echo "asd";
+    $query->bind_param("s", $custemail); 
     $query->execute();
 
     $result = $query->get_result();

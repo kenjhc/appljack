@@ -1,7 +1,7 @@
 <?php
 $path = getEnvPath();
 ?>
- 
+
 <div class="wrapper d-flex align-items-stretch">
     <nav id="sidebar" class="aactive">
         <div class="d-flex flex-column justify-content-between sidebar_wrapper">
@@ -60,7 +60,7 @@ $path = getEnvPath();
                             </li>
                         <?php } ?>
                         <li>
-                            <a href="<?= $path; ?>applaccount.php"><span class="fa fa-sign-out-alt"></span> <span class="text"> My Account </span></a>
+                            <a href="<?= $path; ?>myaccount.php"><span class="fa fa-sign-out-alt"></span> <span class="text"> My Account </span></a>
                         </li>
                         <li>
                             <a href="<?= $path; ?>appllogout.php"><span class="fa fa-sign-out-alt"></span> <span class="text"> Logout </span></a>
@@ -73,7 +73,5 @@ $path = getEnvPath();
             <i class="fa fa-bars"></i>
             <span class="sr-only">Toggle Menu</span>
         </button>
-    </nav>
-
-
+    </nav> 
     <div id="content" class="">
