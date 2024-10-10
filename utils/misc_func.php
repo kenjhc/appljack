@@ -83,7 +83,7 @@ function renderHeader($pageTitle, $subtitle = '', $notificationCount = 0)
                 <div class="account dropdown">
                     <button class="btn d-flex align-items-center text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="profile_img">
-                            <img src="./../images/user.jpg" alt="profile_img">
+                            <img src="images/user.jpg" alt="profile_img">
                         </span>
                         <div class="d-flex flex-column justify-content-start align-items-start">
                             <span class="title"><?php echo $userName; ?></span>

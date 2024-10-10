@@ -7,8 +7,8 @@ $path = getEnvPath();
         <div class="d-flex flex-column justify-content-between sidebar_wrapper">
             <div>
                 <h1><a href="<?= $path; ?>applmasterview.php" class="logo">
-                        <img src="/images/logo-icon.png" class="logo-sm" alt="Logo">
-                        <img src="/images/white-logo.png" class="logo-lg" alt="Logo">
+                        <img src="images/logo-icon.png" class="logo-sm" alt="Logo">
+                        <img src="images/white-logo.png" class="logo-lg" alt="Logo">
                     </a></h1>
                 <ul class="list-unstyled components mb-5">
                     <?php if (!isset($_SESSION['acctnum'])) { ?>
