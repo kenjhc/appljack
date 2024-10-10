@@ -1354,6 +1354,10 @@ footer p {
   z-index: 2;
 }
 
+.cust-campaign a:nth-child(2):hover {
+  opacity: 1 !important;
+}
+
 .cust-campaign a:nth-child(1) {
   padding-block: 16px;
   padding-left: 36px;
