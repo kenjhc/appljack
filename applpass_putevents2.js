@@ -57,7 +57,7 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
 
   try {
     // First Query: Check applcustfeeds for active feedid
-    const [feedRows] = await connection.execute(
+    const result = await connection.execute(
       "SELECT cpc FROM applcustfeeds WHERE feedid = ? AND status = 'active'",
       [feedid]
     );
@@ -68,7 +68,6 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
     if (feedRows.length > 0 && feedRows[0].cpc !== 0.0) {
       return feedRows[0].cpc;
     }
-
     // Fallback Query: Check appljobs for job_reference and jobpoolid
     const [jobRows] = await connection.execute(
       "SELECT cpc FROM appljobs WHERE job_reference = ? AND jobpoolid = ?",
@@ -81,7 +80,6 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
     if (jobRows.length > 0) {
       return jobRows[0].cpc;
     }
-
     // If both queries fail, return 0.0
     return 0.0;
   } catch (err) {

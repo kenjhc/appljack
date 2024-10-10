@@ -28,7 +28,9 @@ try {
 
     // Data processing for the new table
     $customerData = [];
+
     foreach ($customers as $customer) { 
+
         $custid = $customer['custid'];
 
         // Status
