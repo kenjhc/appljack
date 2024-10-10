@@ -1,0 +1,168 @@
+Running XML file updates Mon Sep 23 19:17:22 EDT 2024
+Running applonoffxmls.js Mon Sep 23 19:17:22 EDT 2024
+Created empty XML file: 1378769205-58c76b2734.xml
+Created empty XML file: 1510300172-08c9a03e40.xml
+Created empty XML file: 1617463255-43e57c82ad.xml
+Created empty XML file: 4493813871-99ce55719a.xml
+Created empty XML file: 5165807746-5795a73732.xml
+Created empty XML file: 6655666458-2edf866dd6.xml
+Created empty XML file: 6655666458-69b6723dad.xml
+Created empty XML file: 6655666458-7112e9e412.xml
+Created empty XML file: 7914340915-b1a0971369.xml
+Created empty XML file: 9706023615-aaa7c0e9ef.xml
+Created empty XML file: 9966318936-2f2097196f.xml
+Database connection closed.
+Running applcountjobs2.js Mon Sep 23 19:17:22 EDT 2024
+Processing file: 1109095425-559c46798d.xml (custid: 1109095425, feedid: 559c46798d)
+Updated numjobs for feedid: 559c46798d with count: 2
+Skipping file: 1109095425.xml (does not match custid-feedid format)
+Processing file: 1234567890-63029d43b0.xml (custid: 1234567890, feedid: 63029d43b0)
+Updated numjobs for feedid: 63029d43b0 with count: 0
+Processing file: 1378769205-58c76b2734.xml (custid: 1378769205, feedid: 58c76b2734)
+Updated numjobs for feedid: 58c76b2734 with count: 0
+Skipping file: 1378769205.xml (does not match custid-feedid format)
+Processing file: 1510300172-08c9a03e40.xml (custid: 1510300172, feedid: 08c9a03e40)
+Updated numjobs for feedid: 08c9a03e40 with count: 0
+Skipping file: 1510300172.xml (does not match custid-feedid format)
+Processing file: 1617463255-43e57c82ad.xml (custid: 1617463255, feedid: 43e57c82ad)
+Updated numjobs for feedid: 43e57c82ad with count: 0
+Skipping file: 1617463255.xml (does not match custid-feedid format)
+Processing file: 3350405552-686053849f.xml (custid: 3350405552, feedid: 686053849f)
+Updated numjobs for feedid: 686053849f with count: 38
+Skipping file: 3350405552.xml (does not match custid-feedid format)
+Processing file: 3516488530-0e23aba7c5.xml (custid: 3516488530, feedid: 0e23aba7c5)
+Updated numjobs for feedid: 0e23aba7c5 with count: 217
+Processing file: 3516488530-18c9c6cfa8.xml (custid: 3516488530, feedid: 18c9c6cfa8)
+Updated numjobs for feedid: 18c9c6cfa8 with count: 217
+Skipping file: 3516488530.xml (does not match custid-feedid format)
+Processing file: 3560276234-bf094c7f54.xml (custid: 3560276234, feedid: bf094c7f54)
+Updated numjobs for feedid: bf094c7f54 with count: 16
+Skipping file: 3560276234.xml (does not match custid-feedid format)
+Processing file: 3583840866-a9be7e1afb.xml (custid: 3583840866, feedid: a9be7e1afb)
+Updated numjobs for feedid: a9be7e1afb with count: 218814
+Skipping file: 3583840866.xml (does not match custid-feedid format)
+Processing file: 3728945893-290088265a.xml (custid: 3728945893, feedid: 290088265a)
+Updated numjobs for feedid: 290088265a with count: 0
+Processing file: 3872157160-036576a906.xml (custid: 3872157160, feedid: 036576a906)
+Updated numjobs for feedid: 036576a906 with count: 0
+Processing file: 3872157160-5e0306d3ff.xml (custid: 3872157160, feedid: 5e0306d3ff)
+Updated numjobs for feedid: 5e0306d3ff with count: 6994
+Processing file: 3872157160-8974bdda15.xml (custid: 3872157160, feedid: 8974bdda15)
+Updated numjobs for feedid: 8974bdda15 with count: 0
+Skipping file: 3872157160.xml (does not match custid-feedid format)
+Processing file: 3935539278-2055f8d72f.xml (custid: 3935539278, feedid: 2055f8d72f)
+Updated numjobs for feedid: 2055f8d72f with count: 0
+Processing file: 3935539278-39d553d693.xml (custid: 3935539278, feedid: 39d553d693)
+Updated numjobs for feedid: 39d553d693 with count: 24
+Processing file: 3935539278-9df4b5be33.xml (custid: 3935539278, feedid: 9df4b5be33)
+Updated numjobs for feedid: 9df4b5be33 with count: 68
+Processing file: 3935539278-ba6a51d120.xml (custid: 3935539278, feedid: ba6a51d120)
+Updated numjobs for feedid: ba6a51d120 with count: 31
+Processing file: 3935539278-c7d265c2c3.xml (custid: 3935539278, feedid: c7d265c2c3)
+Updated numjobs for feedid: c7d265c2c3 with count: 4
+Skipping file: 3935539278.xml (does not match custid-feedid format)
+Processing file: 4259030410-619eccd29c.xml (custid: 4259030410, feedid: 619eccd29c)
+Updated numjobs for feedid: 619eccd29c with count: 97
+Skipping file: 4259030410.xml (does not match custid-feedid format)
+Processing file: 4493813871-99ce55719a.xml (custid: 4493813871, feedid: 99ce55719a)
+Updated numjobs for feedid: 99ce55719a with count: 0
+Skipping file: 4493813871.xml (does not match custid-feedid format)
+Processing file: 4934574114-15ac11f8a3.xml (custid: 4934574114, feedid: 15ac11f8a3)
+Updated numjobs for feedid: 15ac11f8a3 with count: 6804
+Skipping file: 4934574114.xml (does not match custid-feedid format)
+Processing file: 5165807746-5795a73732.xml (custid: 5165807746, feedid: 5795a73732)
+Updated numjobs for feedid: 5795a73732 with count: 0
+Skipping file: 5165807746.xml (does not match custid-feedid format)
+Processing file: 5292101347-27e9c951d9.xml (custid: 5292101347, feedid: 27e9c951d9)
+Updated numjobs for feedid: 27e9c951d9 with count: 133
+Skipping file: 5292101347.xml (does not match custid-feedid format)
+Processing file: 5407812980-c2ffd6632e.xml (custid: 5407812980, feedid: c2ffd6632e)
+Updated numjobs for feedid: c2ffd6632e with count: 0
+Skipping file: 5407812980.xml (does not match custid-feedid format)
+Processing file: 5801095171-0c9698b24f.xml (custid: 5801095171, feedid: 0c9698b24f)
+Updated numjobs for feedid: 0c9698b24f with count: 0
+Skipping file: 5801095171.xml (does not match custid-feedid format)
+Processing file: 5945779317-06b9e52c19.xml (custid: 5945779317, feedid: 06b9e52c19)
+Updated numjobs for feedid: 06b9e52c19 with count: 2
+Processing file: 6340517575-2cb22bfc4f.xml (custid: 6340517575, feedid: 2cb22bfc4f)
+Updated numjobs for feedid: 2cb22bfc4f with count: 0
+Processing file: 6340517575-38028f77f5.xml (custid: 6340517575, feedid: 38028f77f5)
+Updated numjobs for feedid: 38028f77f5 with count: 0
+Processing file: 6340517575-794bd76cb4.xml (custid: 6340517575, feedid: 794bd76cb4)
+Updated numjobs for feedid: 794bd76cb4 with count: 0
+Processing file: 6541933886-fba594918b.xml (custid: 6541933886, feedid: fba594918b)
+Updated numjobs for feedid: fba594918b with count: 7588
+Skipping file: 6541933886.xml (does not match custid-feedid format)
+Processing file: 6655666458-2edf866dd6.xml (custid: 6655666458, feedid: 2edf866dd6)
+Updated numjobs for feedid: 2edf866dd6 with count: 0
+Processing file: 6655666458-344119ed87.xml (custid: 6655666458, feedid: 344119ed87)
+Updated numjobs for feedid: 344119ed87 with count: 0
+Processing file: 6655666458-69b6723dad.xml (custid: 6655666458, feedid: 69b6723dad)
+Updated numjobs for feedid: 69b6723dad with count: 0
+Processing file: 6655666458-7112e9e412.xml (custid: 6655666458, feedid: 7112e9e412)
+Updated numjobs for feedid: 7112e9e412 with count: 0
+Skipping file: 6655666458.xml (does not match custid-feedid format)
+Processing file: 6743473678-17c3180bfa.xml (custid: 6743473678, feedid: 17c3180bfa)
+Updated numjobs for feedid: 17c3180bfa with count: 4419
+Skipping file: 6743473678.xml (does not match custid-feedid format)
+Processing file: 6767363231-c70db6cc14.xml (custid: 6767363231, feedid: c70db6cc14)
+Updated numjobs for feedid: c70db6cc14 with count: 1
+Skipping file: 6767363231.xml (does not match custid-feedid format)
+Processing file: 7117841500-25d1c3d821.xml (custid: 7117841500, feedid: 25d1c3d821)
+Updated numjobs for feedid: 25d1c3d821 with count: 6994
+Processing file: 7117841500-a06801dba9.xml (custid: 7117841500, feedid: a06801dba9)
+Updated numjobs for feedid: a06801dba9 with count: 0
+Processing file: 7117841500-e01f6f3611.xml (custid: 7117841500, feedid: e01f6f3611)
+Updated numjobs for feedid: e01f6f3611 with count: 6994
+Skipping file: 7117841500.xml (does not match custid-feedid format)
+Skipping file: 7197342724.xml (does not match custid-feedid format)
+Processing file: 7447875387-f6f13ffef1.xml (custid: 7447875387, feedid: f6f13ffef1)
+Updated numjobs for feedid: f6f13ffef1 with count: 2648
+Skipping file: 7447875387.xml (does not match custid-feedid format)
+Processing file: 7459511655-ca6a1d7997.xml (custid: 7459511655, feedid: ca6a1d7997)
+Updated numjobs for feedid: ca6a1d7997 with count: 4622
+Skipping file: 7459511655.xml (does not match custid-feedid format)
+Skipping file: 7764908722.xml (does not match custid-feedid format)
+Processing file: 7914340915-b1a0971369.xml (custid: 7914340915, feedid: b1a0971369)
+Updated numjobs for feedid: b1a0971369 with count: 0
+Skipping file: 7914340915.xml (does not match custid-feedid format)
+Skipping file: 8215880437.xml (does not match custid-feedid format)
+Processing file: 8434569050-bc672aa15e.xml (custid: 8434569050, feedid: bc672aa15e)
+Updated numjobs for feedid: bc672aa15e with count: 218814
+Skipping file: 8434569050.xml (does not match custid-feedid format)
+Processing file: 8623102760-1b5cbb4d15.xml (custid: 8623102760, feedid: 1b5cbb4d15)
+Updated numjobs for feedid: 1b5cbb4d15 with count: 16879
+Skipping file: 8623102760.xml (does not match custid-feedid format)
+Processing file: 8751657167-d545e80459.xml (custid: 8751657167, feedid: d545e80459)
+Updated numjobs for feedid: d545e80459 with count: 133
+Skipping file: 8751657167.xml (does not match custid-feedid format)
+Processing file: 8947105984-ae946b9a29.xml (custid: 8947105984, feedid: ae946b9a29)
+Updated numjobs for feedid: ae946b9a29 with count: 36
+Skipping file: 8947105984.xml (does not match custid-feedid format)
+Processing file: 9111781045-276cad90de.xml (custid: 9111781045, feedid: 276cad90de)
+Updated numjobs for feedid: 276cad90de with count: 0
+Processing file: 9151479369-19597c6a20.xml (custid: 9151479369, feedid: 19597c6a20)
+Updated numjobs for feedid: 19597c6a20 with count: 0
+Processing file: 9151479369-66b89700ff.xml (custid: 9151479369, feedid: 66b89700ff)
+Updated numjobs for feedid: 66b89700ff with count: 0
+Skipping file: 9151479369.xml (does not match custid-feedid format)
+Processing file: 9406187784-b2601076a2.xml (custid: 9406187784, feedid: b2601076a2)
+Updated numjobs for feedid: b2601076a2 with count: 218814
+Skipping file: 9406187784.xml (does not match custid-feedid format)
+Processing file: 9664281138-7e3725668d.xml (custid: 9664281138, feedid: 7e3725668d)
+Updated numjobs for feedid: 7e3725668d with count: 3511
+Skipping file: 9664281138.xml (does not match custid-feedid format)
+Processing file: 9706023615-898ae4f20d.xml (custid: 9706023615, feedid: 898ae4f20d)
+Updated numjobs for feedid: 898ae4f20d with count: 133
+Processing file: 9706023615-aaa7c0e9ef.xml (custid: 9706023615, feedid: aaa7c0e9ef)
+Updated numjobs for feedid: aaa7c0e9ef with count: 0
+Processing file: 9706023615-f621fb966f.xml (custid: 9706023615, feedid: f621fb966f)
+Updated numjobs for feedid: f621fb966f with count: 133
+Skipping file: 9706023615.xml (does not match custid-feedid format)
+Processing file: 9966318936-2f2097196f.xml (custid: 9966318936, feedid: 2f2097196f)
+Updated numjobs for feedid: 2f2097196f with count: 0
+Skipping file: 9966318936.xml (does not match custid-feedid format)
+Skipping file: dbtoxml_combo.js (does not match custid-feedid format)
+Skipping file: dbtoxml_combo1.js (does not match custid-feedid format)
+All XML files processed.
+.sh completed.... Mon Sep 23 19:20:26 EDT 2024

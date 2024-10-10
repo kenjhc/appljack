@@ -1,0 +1,113 @@
+Running event updates Thu Sep 19 16:53:01 EDT 2024
+Running applpass_putevents2.js Thu Sep 19 16:53:01 EDT 2024
+2024-09-19T20:53:01.410Z - Total records to be processed: 14
+2024-09-19T20:53:01.422Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.425Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.427Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.428Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.429Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.431Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.432Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.433Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.435Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.436Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.437Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.437Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.437Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.438Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:53:01.440Z - Total successful inserts: 14
+2024-09-19T20:53:01.440Z - All records processed successfully.
+Running applpass_cpa_putevent.js Thu Sep 19 16:55:01 EDT 2024
+Running applpass_cpa_putevent.js Thu Sep 19 16:55:01 EDT 2024
+{ a: 'appljack_johnny' }
+node:internal/process/promises:279
+            triggerUncaughtException(err, true /* fromPromise */);
+            ^
+
+Error: connect ECONNREFUSED 127.0.0.1:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1278:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 3306,
+  fatal: true
+}
+{ a: 'appljack_johnny' }
+node:internal/process/promises:279
+            triggerUncaughtException(err, true /* fromPromise */);
+            ^
+
+Error: connect ECONNREFUSED 127.0.0.1:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1278:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 3306,
+  fatal: true
+}
+2024-09-19T20:56:02.193Z - Total records to be processed: 28
+2024-09-19T20:56:02.258Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.261Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.263Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.264Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.265Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.268Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.269Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.269Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.270Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.271Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.272Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.272Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.272Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.273Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.273Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.273Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.273Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.273Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.273Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.273Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.274Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.274Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.274Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.274Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.274Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.274Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.275Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.275Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T20:56:02.278Z - Total successful inserts: 28
+2024-09-19T20:56:02.278Z - All records processed successfully.
+2024-09-19T21:01:01.592Z - Total records to be processed: 30
+2024-09-19T21:01:01.604Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.606Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.608Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.609Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.611Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.612Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.613Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.614Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.615Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.616Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.617Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.617Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.617Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.617Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.618Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.618Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.618Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.618Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.619Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.619Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.619Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.619Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.620Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.620Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.620Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.620Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.620Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.621Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.621Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.621Z - Error fetching CPC value: (intermediate value) is not iterable
+2024-09-19T21:01:01.624Z - Total successful inserts: 30
+2024-09-19T21:01:01.624Z - All records processed successfully.

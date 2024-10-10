@@ -26,6 +26,11 @@ try {
     $stmt2->execute(['acctnum' => $_SESSION['acctnum']]);
     $jobPools = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
+    // Fetch publishers
+    $stmt3 = $conn->prepare("SELECT publisherid, publishername FROM applpubs ORDER BY publishername ASC");
+    $stmt3->execute();
+    $publishers = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
     // Data processing for the new table
     $customerData = [];
     foreach ($customers as $customer) {
@@ -150,6 +155,54 @@ try {
     ?>
     <p><b>Account-Level XML File:</b> <a href="<?= htmlspecialchars($xmlUrl) ?>" target="_blank"><?= htmlspecialchars($xmlUrl) ?></a><br>
         This XML file combines all the jobs from all the active campaigns across every Customer. This feed has everything that is currently running.</p>
+
+    <!-- Customer Campaign Overview -->
+    <div class="section">
+        <h2>Customer Campaign Overview</h2>
+        <form action="applmasterview.php" method="get">
+            <label for="startdate">Start:</label>
+            <input type="date" id="startdate" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
+            <label for="enddate">End:</label>
+            <input type="date" id="enddate" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
+            <button type="submit">Show Data</button>
+        </form>
+        <div class="table-container">
+            <table class="campaign-overview-table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Status</th>
+                        <th>Budget</th>
+                        <th>Spend</th>
+                        <th>Clicks</th>
+                        <th>Applies</th>
+                        <th>CPA</th>
+                        <th>CPC</th>
+                        <th>Conv. Rate</th>
+                        <th>Num Jobs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($customerData as $data): ?>
+                        <tr>
+                            <td><a href="<?= getEnvPath(); ?>applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
+                            <td><?= htmlspecialchars($data['status']); ?></td>
+                            <td>$<?= number_format($data['budget'], 2); ?></td>
+                            <td>$<?= number_format($data['spend'], 2); ?></td>
+                            <td><?= htmlspecialchars($data['clicks']); ?></td>
+                            <td><?= htmlspecialchars($data['applies']); ?></td>
+                            <td>$<?= number_format($data['cpa'], 2); ?></td>
+                            <td>$<?= number_format($data['cpc'], 2); ?></td>
+                            <td><?= number_format($data['conversion_rate'], 2); ?>%</td>
+                            <td><?= number_format($data['numjobs']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Customer Accounts -->
     <div class="container" style="display: flex; justify-content: space-between;">
         <div class="section">
             <h2>Customer Accounts</h2>
@@ -191,6 +244,8 @@ try {
                 </div>
             <?php endif; ?>
         </div>
+
+        <!-- Job Pools -->
         <div class="section">
             <h2>Job Inventory Pools</h2>
             <a href="applcreatepool.php" class="add-jobpool-button">
@@ -233,50 +288,38 @@ try {
             <?php endif; ?>
         </div>
     </div>
+
+    <!-- Publishers Section -->
     <div class="section">
-        <h2>Customer Campaign Overview</h2>
-        <form action="applmasterview.php" method="get">
-            <label for="startdate">Start:</label>
-            <input type="date" id="startdate" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
-            <label for="enddate">End:</label>
-            <input type="date" id="enddate" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
-            <button type="submit">Show Data</button>
-        </form>
-        <div class="table-container">
-            <table class="campaign-overview-table">
-                <thead>
-                    <tr>
-                        <th>Customer Name</th>
-                        <th>Status</th>
-                        <th>Budget</th>
-                        <th>Spend</th>
-                        <th>Clicks</th>
-                        <th>Applies</th>
-                        <th>CPA</th>
-                        <th>CPC</th>
-                        <th>Conv. Rate</th>
-                        <th>Num Jobs</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($customerData as $data): ?>
+        <h2>Publishers</h2>
+        <a href="applcreatepub.php" class="add-publisher-button">
+            <i class="fa fa-plus"></i> Add Publisher
+        </a>
+
+        <?php if (empty($publishers)): ?>
+            <p>No publishers found.</p>
+        <?php else: ?>
+            <div class="table-container">
+                <table class="publishers-table">
+                    <thead>
                         <tr>
-                            <td><a href="https://appljack.com<?= getEnvPath(); ?>applportal.php?custid=<?= htmlspecialchars($data['custid']); ?>"><?= htmlspecialchars($data['custcompany']); ?></a></td>
-                            <td><?= htmlspecialchars($data['status']); ?></td>
-                            <td>$<?= number_format($data['budget'], 2); ?></td>
-                            <td>$<?= number_format($data['spend'], 2); ?></td>
-                            <td><?= htmlspecialchars($data['clicks']); ?></td>
-                            <td><?= htmlspecialchars($data['applies']); ?></td>
-                            <td>$<?= number_format($data['cpa'], 2); ?></td>
-                            <td>$<?= number_format($data['cpc'], 2); ?></td>
-                            <td><?= number_format($data['conversion_rate'], 2); ?>%</td>
-                            <td><?= number_format($data['numjobs']); ?></td>
+                            <th>Publisher Name</th>
+                            <th>Publisher ID</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($publishers as $publisher): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($publisher['publishername']) ?></td>
+                                <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
+
     <?php include 'footer.php'; ?>
 </body>
 
