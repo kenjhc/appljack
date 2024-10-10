@@ -105,7 +105,12 @@ $db->close();
                                             <input type="text" id="acctlname" class="light-input" name="acctlname" value="<?= htmlspecialchars($_SESSION['acctlname']) ?>" required>
 
                                             <label for="acctpw" class="healthy-text text-dark-green mt-2">Password:</label>
-                                            <input type="password" id="acctpw" class="light-input" name="acctpw" placeholder="Leave blank to keep current password">
+                                            <div class="input-group acc-password position-relative">
+                                                <input type="password" id="acctpw" class="light-input" name="acctpw" placeholder="Leave blank to keep current password">
+                                                <span class="input-group-addon position-absolute" onclick="togglePasswordVisibility()">
+                                                    <i id="toggleIcon" class="fa fa-eye"></i>
+                                                </span>
+                                            </div>
 
                                             <button class="btn_green_dark mt-3 w-100 rounded-md">Update Details</button>
                                         </form>
@@ -118,8 +123,22 @@ $db->close();
             </div>
         </div>
     </section>
-
     <?php include 'footer.php'; ?>
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('acctpw');
+            const toggleIcon = document.getElementById('toggleIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 
 </html>

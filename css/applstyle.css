@@ -1388,3 +1388,10 @@ th {
 .code-box pre {
   margin: 0;
 }
+
+.acc-password span {
+  right: 0;
+  height: 100%;
+  padding: 8px 16px;
+  cursor: pointer;
+}
