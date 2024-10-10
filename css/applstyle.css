@@ -1351,6 +1351,7 @@ footer p {
   padding-block: 16px;
   padding-inline: 36px;
   border-radius: 14px 0 0 14px !important;
+  z-index: 2;
 }
 
 .cust-campaign a:nth-child(1) {
@@ -1358,6 +1359,7 @@ footer p {
   padding-left: 36px;
   padding-right: 46px;
   margin-right: -14px;
+  z-index: 1;
 }
 
 .cust-portal {
