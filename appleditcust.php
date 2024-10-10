@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
     <?php include 'header.php'; ?>
 </head>
 
-<body> 
+<body>
     <?php include 'appltopnav.php'; ?>
     <?php echo renderHeader(
         "Edit Customer",
@@ -64,29 +64,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
         </a>"
     ); ?>
 
+
     <section class="job_section">
-        <form action="appleditcust.php" method="post">
-            <input type="hidden" name="custid" value="<?= htmlspecialchars($customer['custid']) ?>">
-            <div>
-                <input type="radio" id="employer" name="custtype" value="emp" <?= $customer['custtype'] == 'emp' ? 'checked' : '' ?> required>
-                <label for="employer">Employer</label>
-                <input type="radio" id="publisher" name="custtype" value="pub" <?= $customer['custtype'] == 'pub' ? 'checked' : '' ?> required>
-                <label for="publisher">Publisher</label><br>
+        <div class="container-fluid">
+            <div class="row xml_mapping_sec second">
+                <div class="col-sm-12 col-md-12">
+                    <div class="add_field_form">
+                        <div class="card rounded-md shadow-md">
+                            <div class="card-header p-0 d-flex justify-content-between">
+                                <h5 class="card-title">Edit Customer </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="card styled m-4 p-4">
+                                    <div class="card-body p-0">
+                                        <form action="appleditcust.php" method="post">
+                                            <input type="hidden" name="custid" value="<?= htmlspecialchars($customer['custid']) ?>">
+                                            <div class="cust-check mb-3">
+                                                <div class="custom-radio">
+                                                    <input type="radio" id="employer" name="custtype" value="emp" <?= $customer['custtype'] == 'emp' ? 'checked' : '' ?> required>
+                                                    <label for="employer">
+                                                        <i class="far fa-circle"></i>
+                                                        <i class="fas fa-check-circle"></i> Employer
+                                                    </label>
+                                                </div>
+                                                <div class="custom-radio">
+                                                    <input type="radio" id="publisher" name="custtype" value="pub" <?= $customer['custtype'] == 'pub' ? 'checked' : '' ?> required>
+                                                    <label for="publisher">
+                                                        <i class="far fa-circle"></i>
+                                                        <i class="fas fa-check-circle"></i> Publisher
+                                                    </label><br>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="custname">Customer Name:</label>
+                                                <input type="text" id="custname" name="custname" class="light-input" value="<?= htmlspecialchars($customer['custcompany']) ?>" required>
+                                            </div>
+                                            <div class="mt-3">
+                                                <label for="jobpoolid">Select Job Pool:</label>
+                                                <select id="jobpoolid" name="jobpoolid" class="light-input" required>
+                                                    <?php foreach ($jobPools as $pool): ?>
+                                                        <option value="<?= htmlspecialchars($pool['jobpoolid']) ?>" <?= $pool['jobpoolid'] == $customer['jobpoolid'] ? 'selected' : '' ?>><?= htmlspecialchars($pool['jobpoolname']) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <button class="btn_green_dark w-100 mt-3">Create Customer</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <label for="custname">Customer Name:</label>
-                <input type="text" id="custname" name="custname" value="<?= htmlspecialchars($customer['custcompany']) ?>" required>
-            </div>
-            <div>
-                <label for="jobpoolid">Select Job Pool:</label>
-                <select id="jobpoolid" name="jobpoolid" required>
-                    <?php foreach ($jobPools as $pool): ?>
-                        <option value="<?= htmlspecialchars($pool['jobpoolid']) ?>" <?= $pool['jobpoolid'] == $customer['jobpoolid'] ? 'selected' : '' ?>><?= htmlspecialchars($pool['jobpoolname']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <button type="submit" class="update_btn">Update Customer</button>
-        </form>
+        </div>
     </section>
 
     <?php include 'footer.php'; ?>
