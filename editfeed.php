@@ -38,7 +38,7 @@ function extractIncludeExclude($query)
     $allItems = explode(', ', $query ?? '');
     $includeItems = [];
     $excludeItems = [];
- 
+
     foreach ($allItems as $item) {
         if (strpos(trim($item), 'NOT ') === 0) {
             $excludeItems[] = trim(substr($item, 4));
@@ -300,6 +300,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Edit Campaign | Appljack</title>
     <?php include 'header.php'; ?>
+    <style>
+        h4 {
+            text-align: center;
+            margin-top: 2rem;
+            font-weight: 900;
+            font-size: 30px;
+        }
+    </style>
 </head>
 
 <body>
@@ -327,177 +335,159 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Clear session variables to ensure they don't override database defaults on subsequent visits
         unset($_SESSION['includedCompanies'], $_SESSION['excludedCompanies']);
         ?>
+        <div class="container-fluid">
+            <div class="row xml_mapping_sec second">
+                <div class="col-sm-12 col-md-12">
+                    <div class="add_field_form">
+                        <div class="card rounded-md shadow-md">
+                            <div class="card-header card-title p-0 d-flex justify-content-between">
+                                <h5 class="card-title">Edit Campaign </h5>
+                                <form action="changecampaignstatus.php" method="post" class="text-center">
+                                    <input type="hidden" name="feedid" value="<?= htmlspecialchars($feedid); ?>">
+                                    <?php if (isset($feed['status']) && $feed['status'] === 'active'): ?>
+                                        <button name="action" value="stop" class="btn btn-danger mx-4 my-2 no-wrap">Stop Campaign</button>
+                                    <?php else: ?>
+                                        <button name="action" value="start" class="btn btn-success mx-4 my-2 no-wrap">Start Campaign</button>
+                                    <?php endif; ?>
+                                </form>
+                            </div>
+                            <div class="card-body">
+                                <div class="card styled m-4 p-4">
+                                    <div class="card-body p-0">
+                                        <form action="editfeed.php?feedid=<?= htmlspecialchars($feedid); ?>" method="post">
+                                            <input type="hidden" name="feedid" value="<?= htmlspecialchars($feedid); ?>">
+                                            <h4 class="mt-2">Title & Budget</h4>
 
-        <div class="container">
-            <!-- Stop/Start Campaign Section -->
-            <div class="row mb-4">
-                <div class="col-12 d-flex justify-content-center">
-                    <form action="changecampaignstatus.php" method="post" class="text-center">
-                        <input type="hidden" name="feedid" value="<?= htmlspecialchars($feedid); ?>">
-                        <?php if (isset($feed['status']) && $feed['status'] === 'active'): ?>
-                            <button type="submit" name="action" value="stop" class="btn btn-danger">Stop Campaign</button>
-                        <?php else: ?>
-                            <button type="submit" name="action" value="start" class="btn btn-success">Start Campaign</button>
-                        <?php endif; ?>
-                    </form>
+                                            <div>
+                                                <label for="feedname">Feed Name (required)</label>
+                                                <input type="text" id="feedname" name="feedname" class="light-input" required value="<?= htmlspecialchars($feed['feedname'] ?? ''); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="feedbudget">Monthly Budget (required)</label>
+                                                <input type="text" id="feedbudget" name="feedbudget" class="light-input" value="<?= htmlspecialchars($feed['budget'] ?? ''); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="budgetdaily">Daily Budget</label>
+                                                <input type="text" id="budgetdaily" name="budgetdaily" class="light-input" value="<?= htmlspecialchars($feed['budgetdaily'] ?? ''); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="feedcpc">CPC Amount</label>
+                                                <input type="text" id="feedcpc" name="feedcpc" class="light-input" value="<?= htmlspecialchars($feed['cpc'] ?? ''); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="cpa_amount">CPA Amount</label>
+                                                <input type="text" id="cpa_amount" name="cpa_amount" class="light-input" value="<?= htmlspecialchars($feed['cpa'] ?? ''); ?>">
+                                            </div>
+
+                                            <h4>Keywords</h4>
+                                            <div>
+                                                <label for="keywords_include">Keywords Include</label>
+                                                <input type="text" id="keywords_include" name="keywords_include" class="light-input" value="<?= htmlspecialchars(implode(', ', $includeKeywords)); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="keywords_exclude">Keywords Exclude</label>
+                                                <input type="text" id="keywords_exclude" name="keywords_exclude" class="light-input" value="<?= htmlspecialchars(implode(', ', $excludeKeywords)); ?>">
+                                            </div>
+
+
+                                            <h4>Industry</h4>
+                                            <div>
+                                                <label for="industry_include">Industry Include (<a target="_blank" href="<?= getUrl(1) ?>editfeedindustry.php?feedid=<?= htmlspecialchars($feedid); ?>">View all industries</a>)</label>
+                                                <input type="text" id="industry_include" name="industry_include" class="light-input" value="<?= htmlspecialchars(implode(', ', $includeIndustry)); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="industry_exclude">Industry Exclude (<a target="_blank" href="<?= getUrl(1) ?>editfeedindustry.php?feedid=<?= htmlspecialchars($feedid); ?>">View all industries</a>)</label>
+                                                <input type="text" id="industry_exclude" name="industry_exclude" class="light-input" value="<?= htmlspecialchars(implode(', ', $excludeIndustry)); ?>">
+                                            </div>
+                                            <h4>Geography</h4>
+                                            <div>
+                                                <label for="city_include">City Include</label>
+                                                <input type="text" id="city_include" name="city_include" class="light-input" value="<?= htmlspecialchars(implode(', ', $includeCity)); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="city_exclude">City Exclude</label>
+                                                <input type="text" id="city_exclude" name="city_exclude" class="light-input" value="<?= htmlspecialchars(implode(', ', $excludeCity)); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="state_include">State Include</label>
+                                                <input type="text" id="state_include" name="state_include" class="light-input" value="<?= htmlspecialchars(implode(', ', $includeState)); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="state_exclude">State Exclude</label>
+                                                <input type="text" id="state_exclude" name="state_exclude" class="light-input" value="<?= htmlspecialchars(implode(', ', $excludeState)); ?>">
+                                            </div>
+                                            <h4>Company</h4>
+                                            <div>
+                                                <label for="company_include">Company Include (<a target="_blank" href="<?= getUrl(1) ?>editfeedcust.php?feedid=<?= htmlspecialchars($feedid); ?>">View all companies</a>)</label>
+                                                <input type="text" id="company_include" name="company_include" class="light-input" value="<?= htmlspecialchars($displayIncludeCompanies); ?>">
+                                            </div>
+                                            <div>
+                                                <label for="company_exclude">Company Exclude (<a target="_blank" href="<?= getUrl(1) ?>editfeedcust.php?feedid=<?= htmlspecialchars($feedid); ?>">View all companies</a>)</label>
+                                                <input type="text" id="company_exclude" name="company_exclude" class="light-input" value="<?= htmlspecialchars($displayExcludeCompanies); ?>">
+                                            </div>
+                                            <h4>Custom Fields</h4>
+                                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                <div>
+                                                    <label for="custom_field_<?= $i ?>_include">Custom Field <?= $i ?> Include</label>
+                                                    <input type="text" id="custom_field_<?= $i ?>_include" name="custom_field_<?= $i ?>_include" class="light-input">
+                                                </div>
+                                                <div>
+                                                    <label for="custom_field_<?= $i ?>_exclude">Custom Field <?= $i ?> Exclude</label>
+                                                    <input type="text" id="custom_field_<?= $i ?>_exclude" name="custom_field_<?= $i ?>_exclude" class="light-input">
+                                                </div>
+                                            <?php endfor; ?>
+                                            <h4 class="mb-4">Assign to Publishers</h4>
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Publisher Name</th>
+                                                        <th>Publisher ID</th>
+                                                        <th>Add</th>
+                                                        <th>Remove</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($publishers as $publisher): ?>
+                                                        <?php $publisherId = $publisher['publisherid']; ?>
+                                                        <tr>
+                                                            <td><?= htmlspecialchars($publisher['publishername']); ?></td>
+                                                            <td><?= htmlspecialchars($publisherId); ?></td>
+                                                            <td>
+                                                                <div class="cust-check mb-3">
+                                                                    <div class="custom-radio">
+                                                                        <input type="radio" id="add_<?= $publisherId; ?>" name="publisher_action[<?= $publisherId; ?>]" value="add" <?= in_array($publisherId, $activePubs) ? 'checked' : ''; ?> required>
+                                                                        <label for="add_<?= $publisherId; ?>">
+                                                                            <i class="far fa-circle"></i>
+                                                                            <i class="fas fa-check-circle"></i> Add
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="cust-check mb-3">
+                                                                    <div class="custom-radio">
+                                                                        <input type="radio" id="remove_<?= $publisherId; ?>" name="publisher_action[<?= $publisherId; ?>]" value="remove" <?= !in_array($publisherId, $activePubs) ? 'checked' : ''; ?> required>
+                                                                        <label for="remove_<?= $publisherId; ?>">
+                                                                            <i class="far fa-circle"></i>
+                                                                            <i class="fas fa-check-circle"></i> Remove
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                            <button class="btn_green_dark w-100 mt-3">Update Campaign</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Campaign Form -->
-            <div class="card p-4">
-                <form action="editfeed.php?feedid=<?= htmlspecialchars($feedid); ?>" method="post">
-                    <input type="hidden" name="feedid" value="<?= htmlspecialchars($feedid); ?>">
-
-                    <!-- Title & Budget Section -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <h4>Title & Budget</h4>
-                            <div class="form-group">
-                                <label for="feedname">Feed Name (required)</label>
-                                <input type="text" id="feedname" name="feedname" class="form-control" required value="<?= htmlspecialchars($feed['feedname'] ?? ''); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="feedbudget">Monthly Budget (required)</label>
-                                <input type="text" id="feedbudget" name="feedbudget" class="form-control" value="<?= htmlspecialchars($feed['budget'] ?? ''); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="budgetdaily">Daily Budget</label>
-                                <input type="text" id="budgetdaily" name="budgetdaily" class="form-control" value="<?= htmlspecialchars($feed['budgetdaily'] ?? ''); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="feedcpc">CPC Amount</label>
-                                <input type="text" id="feedcpc" name="feedcpc" class="form-control" value="<?= htmlspecialchars($feed['cpc'] ?? ''); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="cpa_amount">CPA Amount</label>
-                                <input type="text" id="cpa_amount" name="cpa_amount" class="form-control" value="<?= htmlspecialchars($feed['cpa'] ?? ''); ?>">
-                            </div>
-                        </div>
-
-                        <!-- Keywords Section -->
-                        <div class="col-md-6">
-                            <h4>Keywords</h4>
-                            <div class="form-group">
-                                <label for="keywords_include">Keywords Include</label>
-                                <input type="text" id="keywords_include" name="keywords_include" class="form-control" value="<?= htmlspecialchars(implode(', ', $includeKeywords)); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="keywords_exclude">Keywords Exclude</label>
-                                <input type="text" id="keywords_exclude" name="keywords_exclude" class="form-control" value="<?= htmlspecialchars(implode(', ', $excludeKeywords)); ?>">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Industry Section -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <h4>Industry</h4>
-                            <div class="form-group">
-                                <label for="industry_include">Industry Include (<a target="_blank" href="<?= getUrl(1) ?>editfeedindustry.php?feedid=<?= htmlspecialchars($feedid); ?>">View all industries</a>)</label>
-                                <input type="text" id="industry_include" name="industry_include" class="form-control" value="<?= htmlspecialchars(implode(', ', $includeIndustry)); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="industry_exclude">Industry Exclude (<a target="_blank" href="<?= getUrl(1) ?>editfeedindustry.php?feedid=<?= htmlspecialchars($feedid); ?>">View all industries</a>)</label>
-                                <input type="text" id="industry_exclude" name="industry_exclude" class="form-control" value="<?= htmlspecialchars(implode(', ', $excludeIndustry)); ?>">
-                            </div>
-                        </div>
-
-                        <!-- Geography Section -->
-                        <div class="col-md-6">
-                            <h4>Geography</h4>
-                            <div class="form-group">
-                                <label for="city_include">City Include</label>
-                                <input type="text" id="city_include" name="city_include" class="form-control" value="<?= htmlspecialchars(implode(', ', $includeCity)); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="city_exclude">City Exclude</label>
-                                <input type="text" id="city_exclude" name="city_exclude" class="form-control" value="<?= htmlspecialchars(implode(', ', $excludeCity)); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="state_include">State Include</label>
-                                <input type="text" id="state_include" name="state_include" class="form-control" value="<?= htmlspecialchars(implode(', ', $includeState)); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="state_exclude">State Exclude</label>
-                                <input type="text" id="state_exclude" name="state_exclude" class="form-control" value="<?= htmlspecialchars(implode(', ', $excludeState)); ?>">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Company Section -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <h4>Company</h4>
-                            <div class="form-group">
-                                <label for="company_include">Company Include (<a target="_blank" href="<?= getUrl(1) ?>editfeedcust.php?feedid=<?= htmlspecialchars($feedid); ?>">View all companies</a>)</label>
-                                <input type="text" id="company_include" name="company_include" class="form-control" value="<?= htmlspecialchars($displayIncludeCompanies); ?>">
-                            </div>
-                            <div class="form-group">
-                                <label for="company_exclude">Company Exclude (<a target="_blank" href="<?= getUrl(1) ?>editfeedcust.php?feedid=<?= htmlspecialchars($feedid); ?>">View all companies</a>)</label>
-                                <input type="text" id="company_exclude" name="company_exclude" class="form-control" value="<?= htmlspecialchars($displayExcludeCompanies); ?>">
-                            </div>
-                        </div>
-
-                        <!-- Custom Fields Section -->
-                        <div class="col-md-6">
-                            <h4>Custom Fields</h4>
-                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <div class="form-group">
-                                    <label for="custom_field_<?= $i ?>_include">Custom Field <?= $i ?> Include</label>
-                                    <input type="text" id="custom_field_<?= $i ?>_include" name="custom_field_<?= $i ?>_include" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label for="custom_field_<?= $i ?>_exclude">Custom Field <?= $i ?> Exclude</label>
-                                    <input type="text" id="custom_field_<?= $i ?>_exclude" name="custom_field_<?= $i ?>_exclude" class="form-control">
-                                </div>
-                            <?php endfor; ?>
-                        </div>
-                    </div>
-
-                    <!-- Publishers Section -->
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <h4>Assign to Publishers</h4>
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Publisher Name</th>
-                                        <th>Publisher ID</th>
-                                        <th>Add</th>
-                                        <th>Remove</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($publishers as $publisher): ?>
-                                        <?php $publisherId = $publisher['publisherid']; ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($publisher['publishername']); ?></td>
-                                            <td><?= htmlspecialchars($publisherId); ?></td>
-                                            <td>
-                                                <label>
-                                                    <input type="radio" name="publisher_action[<?= $publisherId; ?>]" value="add" <?= in_array($publisherId, $activePubs) ? 'checked' : ''; ?>> Add
-                                                </label>
-                                            </td>
-                                            <td>
-                                                <label>
-                                                    <input type="radio" name="publisher_action[<?= $publisherId; ?>]" value="remove" <?= !in_array($publisherId, $activePubs) ? 'checked' : ''; ?>> Remove
-                                                </label>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary">Update Campaign</button>
-                    </div>
-                </form>
-            </div>
         </div>
-
     </section>
     <?php include 'footer.php'; ?>
 </body>

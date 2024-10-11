@@ -44,34 +44,66 @@ if (isset($_GET['custid']) && is_numeric($_GET['custid'])) {
         "Create a New Campaign"
     ); ?>
 
+
     <section class="job_section">
-        <div class="content-container"> <!-- New container to wrap the form and hints section -->
-            <div class="form-container"> <!-- Container for the form to help with styling -->
-                <form action="applputfeed.php" method="post">
-                    <label for="feedname">Campaign Name (required)</label>
-                    <input type="text" id="feedname" name="feedname" maxlength="50" required><br>
-
-                    <label for="feedbudget">Monthly Budget (required)</label> <br><span class="notes">NOTE: Do not include the dollar sign (Example: 35.75)</span><br>
-                    <div class="input-wrapper" id="budget-wrapper">
-                        <input type="text" id="feedbudget" name="feedbudget" maxlength="50" required>
-                    </div><br>
-
-                    <label for="feedcpc">CPC Amount (optional) - NOTE: Setting this will overwrite any CPC values in the inbound feed file.</label> <br><span class="notes">NOTE: Do not include the dollar sign (Example: 35.75)</span><br>
-                    <div class="input-wrapper" id="cpc-wrapper">
-                        <input type="text" id="feedcpc" name="feedcpc" maxlength="50">
-                    </div><br>
-
-                    <button class="btn_green w-100">Create Campaign</button>
-                </form>
-            </div>
-            <div class="hints-container"> <!-- New "Helpful Hints" section -->
-                <h2>HELPFUL HINTS</h2>
-                <ul>
-                    <li><b>Required fields</b> - You must include a Feed Title and Budget. The CPC value is optional if you're using the CPC values from the Job Pool itself.</li>
-                    <li><b>Where do I do my filtering?</b> - This will be accomplished via the EDIT link on your campaign. You'll see this link in your campaign list.</li>
-                    <li><b>4 hours</b> - It will take up to 4 hours for your feed to be ready after you create this campaign.</li>
-                    <li><b>What about CPA?</b> - Setting a CPA is coming in a future version of Appljack!</li>
-                </ul>
+        <div class="container-fluid">
+            <div class="row xml_mapping_sec second">
+                <div class="col-sm-12 col-md-6">
+                    <div class="add_field_form">
+                        <div class="card rounded-md shadow-md">
+                            <div class="card-body">
+                                <div class="card styled m-4 p-4">
+                                    <div class="card-body p-0">
+                                        <form action="applputfeed.php" method="post">
+                                            <div>
+                                                <label class="healthy-text text-dark-green mt-3" for="feedname">Campaign Name (required)</label>
+                                                <input type="text" id="feedname" name="feedname" maxlength="50" class="light-input" required>
+                                            </div>
+                                            <div>
+                                                <div class="d-flex justify-content-center gap-2 my-3 flex-column">
+                                                    <label class="healthy-text text-dark-green mb-0" for="feedbudget">Monthly Budget (required)</label> <span class="notes">NOTE: Do not include the dollar sign (Example: 35.75)</span>
+                                                </div>
+                                                <div class="input-wrapper feed" id="budget-wrapper">
+                                                    <input type="text" id="feedbudget" name="feedbudget" class="light-input" maxlength="50" required>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="d-flex justify-content-center gap-2 my-3 flex-column">
+                                                    <label class="healthy-text text-dark-green mb-0" for="feedcpc">CPC Amount (optional) - NOTE: Setting this will overwrite any CPC values in the inbound feed file.</label> <span class="notes">NOTE: Do not include the dollar sign (Example: 35.75)</span>
+                                                </div>
+                                                <div class="input-wrapper feed" id="cpc-wrapper">
+                                                    <input type="text" id="feedcpc" name="feedcpc" class="light-input" maxlength="50">
+                                                </div>
+                                            </div>
+                                            <button class="btn_green_dark w-100 mt-4">Create Campaign</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-6">
+                    <div class="add_field_form">
+                        <div class="card rounded-md shadow-md">
+                            <div class="card-body">
+                                <div class="card styled m-4 p-4">
+                                    <div class="card-body p-0">
+                                        <div class="hints-container">
+                                            <h4 class="job_title text-center fw-bold">HELPFUL HINTS</h4>
+                                            <ul>
+                                                <li><b class="text-dark-green fw-bold">Required fields</b><br> You must include a Feed Title and Budget. The CPC value is optional if you're using the CPC values from the Job Pool itself.</li>
+                                                <li><b class="text-dark-green fw-bold">Where do I do my filtering?</b> <br>This will be accomplished via the EDIT link on your campaign. You'll see this link in your campaign list.</li>
+                                                <li><b class="text-dark-green fw-bold">4 hours</b> <br>It will take up to 4 hours for your feed to be ready after you create this campaign.</li>
+                                                <li><b class="text-dark-green fw-bold">What about CPA?</b><br> Setting a CPA is coming in a future version of Appljack!</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
