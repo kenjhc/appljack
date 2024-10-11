@@ -73,13 +73,27 @@ try {
 header('Content-Type: text/csv');
 header('Content-Disposition: attachment; filename="feeds_data.csv"');
 
-$fp = fopen('php://output', 'w');
+// Check if $data is defined and is an array
+if (isset($data) && is_array($data) && count($data) > 0) {
+    $fp = fopen('php://output', 'w');
 
-fputcsv($fp, array_keys($data[0]));
+    // Output the headers (column names) only if $data[0] is valid
+    if (isset($data[0]) && is_array($data[0])) {
+        fputcsv($fp, array_keys($data[0]));
 
-foreach ($data as $row) {
-    fputcsv($fp, $row);
+        // Loop through and output each row of data
+        foreach ($data as $row) {
+            fputcsv($fp, $row);
+        }
+    } else {
+        // Output a message or log an error if data structure is invalid
+        echo "Invalid data structure or no data available.";
+    }
+
+    fclose($fp);
+} else {
+    // Output a message or log an error if no data is available
+    echo "No data available for export.";
 }
 
-fclose($fp);
 exit();
