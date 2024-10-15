@@ -376,8 +376,7 @@ button[type="submit"]:hover {
   padding: 20px; /* Padding around the overall container */
 }
 
-.form-container,
-.hints-container {
+.form-container {
   flex: 2; /* Allows both children to grow and share the available space */
   max-width: 700px; /* Setting a max-width for the form */
 }
@@ -422,18 +421,26 @@ button[type="submit"]:hover {
 
 .hints-container li {
   position: relative;
-  padding-left: 25px; /* Make space for the icon */
-  margin-bottom: 10px; /* Adds 10px spacing below each list item */
+  padding-left: 64px;
+  margin-bottom: 16px;
 }
 
 .hints-container li::before {
-  content: "\f0eb"; /* FontAwesome lightbulb icon Unicode */
-  font-family: "Font Awesome 5 Free"; /* Adjust based on the Font Awesome version you use */
-  font-weight: 900; /* Ensure it's bold if using FA5 */
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
-  color: #ffc107; /* Goldish accent color */
+  width: 52px;
+  height: 52px;
+  background-size: cover;
+}
+
+.hints-container li:nth-child(odd)::before {
+  background-image: url("../images/ico/idea_1.png");
+}
+
+.hints-container li:nth-child(even)::before {
+  background-image: url("../images/ico/idea_2.png");
 }
 
 /* Optional: if you want to remove the margin from the last item for consistency */
@@ -595,6 +602,24 @@ button[type="submit"]:hover {
 .input-wrapper::before {
   content: "$";
   margin-right: 4px;
+  padding: 5px 16px;
+  color: black;
+  background: #97c6c4;
+  height: 100%;
+}
+
+.input-wrapper.feed {
+  background-color: #fff;
+  height: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 1px solid #2a3d44;
+  overflow: hidden;
+}
+
+.input-wrapper.feed input {
+  border: unset;
 }
 
 #budget-wrapper,
@@ -1449,4 +1474,41 @@ th {
 
 .custom-radio input[type="radio"]:checked + label .fa-check-circle {
   display: inline-block; /* Show check icon when checked */
+}
+
+.cust-campaign button {
+  padding-block: 16px;
+  padding-inline: 36px;
+  border-radius: 14px 0 0 14px !important;
+  z-index: 2;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.cust-campaign button:nth-child(1) {
+  padding-block: 16px;
+  padding-left: 36px;
+  padding-right: 46px;
+  margin-right: -14px;
+  z-index: 1;
+  background-color: #557b2f;
+}
+
+.cust-campaign button:nth-child(2) {
+  padding-block: 16px;
+  padding-left: 36px;
+  padding-right: 46px;
+  margin-right: -14px;
+  z-index: 1;
+  background-color: #68943d;
+}
+
+.cust-campaign .tablinks.active {
+  background-color: #2a3d44;
+}
+
+.cust-campaign button:hover {
+  opacity: 1;
+  scale: 0.98;
+  translate: 4px 0px;
 }

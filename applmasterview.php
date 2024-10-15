@@ -128,6 +128,34 @@ try {
     setToastMessage('error', "Error: " . $e->getMessage());
     setToastMessage('error', "Error: " . $e->getMessage());
 }
+
+// Function to calculate the next CRON job time
+function getNextCronTime()
+{
+    $now = new DateTime('now', new DateTimeZone('UTC')); // Get current UTC time
+    $currentMinutes = (int)$now->format('i');
+    $currentHours = (int)$now->format('H');
+
+    // Find the next 4-hour interval
+    $nextHours = $currentHours - ($currentHours % 4) + 4;
+    if ($nextHours >= 24) {
+        $nextHours = 0; // Reset to midnight if past 24 hours
+    }
+
+    // Set the next CRON job time
+    $nextCron = new DateTime($now->format('Y-m-d') . " $nextHours:12:00", new DateTimeZone('UTC'));
+
+    // If the next CRON time is earlier than now, move to the next day
+    if ($now >= $nextCron) {
+        $nextCron->modify('+1 day');
+    }
+
+    return $nextCron->getTimestamp(); // Return as a Unix timestamp
+}
+
+// Get the next CRON job time
+$nextCronTime = getNextCronTime();
+
 ?>
 
 <!DOCTYPE html>
@@ -148,12 +176,14 @@ try {
 </head>
 
 <body>
-    <?php include 'appltopnav.php'; ?>
 
+    <?php include 'appltopnav.php'; ?>
 
     <?php echo renderHeader(
         "Account Master View"
     ); ?>
+
+
 
     <section class="account_master_view_sec">
         <?php
@@ -164,7 +194,8 @@ try {
 
 
         <div class="container-fluid">
-            <p class="main_view_note"><b>Account-Level XML File:</b> <a href="<?= htmlspecialchars($xmlUrl) ?>" target="_blank"><?= htmlspecialchars($xmlUrl) ?></a><br>
+
+            <p class="main_view_note"><b> Account-Level XML File:</b> <a href="<?= htmlspecialchars($xmlUrl) ?>" target="_blank"><?= htmlspecialchars($xmlUrl) ?></a><br>
                 This XML file combines all the jobs from all the active campaigns across every Customer. This feed has everything that is currently running.
             </p>
 
@@ -271,7 +302,7 @@ try {
                         <div class="card ">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between card-title">
-                                    <h5 class="card-title p-0">Customer Campaign Overview</h5>
+                                    <h5 class="card-title p-0">Customer Campaign Overview <span>(Next feed update starts in: <span id="countdown">Loading...</span>)</h5>
                                     <form action="applmasterview.php" method="get" class="d-flex align-items-end gap-3">
                                         <div>
                                             <label class="mb-0" for="startdate">Start:</label>
@@ -370,6 +401,35 @@ try {
         </div>
     </section>
     <?php include 'footer.php'; ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the next CRON job time passed from PHP (Unix timestamp)
+            const nextCronTime = <?php echo $nextCronTime * 1000; ?>; // Multiply by 1000 to convert to milliseconds
+
+            function updateTimer() {
+                const now = new Date().getTime();
+                const timeDiff = nextCronTime - now;
+
+                // Calculate hours, minutes, and seconds
+                const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                // Display the result
+                document.getElementById('countdown').innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+
+                // If time is up, reload the page to recalculate the next CRON time
+                if (timeDiff < 0) {
+                    clearInterval(interval);
+                    document.getElementById('countdown').innerHTML = "Updating...";
+                    setTimeout(() => location.reload(), 1000); // Reload after 1 second
+                }
+            }
+
+            // Update the timer every second
+            const interval = setInterval(updateTimer, 1000);
+        });
+    </script>
 </body>
 
 </html>
