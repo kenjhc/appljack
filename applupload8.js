@@ -492,6 +492,7 @@ const parseXmlFile = async (filePath) => {
     let currentTag = "";
     let currentJobElement = "";
     let jobs = [];
+    const CHUNK_SIZE = 1000; // Process in chunks of 1000 jobs
 
     parser.on("opentag", (node) => {
       currentTag = node.name;
@@ -525,7 +526,7 @@ const parseXmlFile = async (filePath) => {
       }
     });
 
-    parser.on("closetag", (nodeName) => {
+    parser.on("closetag", async (nodeName) => {
       if (nodeName === currentJobElement) {
         currentItem.jobpoolid = jobpoolid;
         currentItem.acctnum = acctnum;
@@ -554,13 +555,25 @@ const parseXmlFile = async (filePath) => {
         }
 
         jobs.push(currentItem);
+
+        if (jobs.length >= CHUNK_SIZE) {
+          parser.pause();
+          try {
+            await insertIntoTempTable(jobs);
+            jobs = []; // Clear the jobs array after inserting
+            parser.resume();
+          } catch (err) {
+            parser.emit('error', err);
+          }
+        }
       }
     });
 
     parser.on("end", async () => {
       try {
-        await insertIntoTempTable(jobs);
-        await insertIntoApplJobsFresh(jobs);
+        if (jobs.length > 0) {
+          await insertIntoTempTable(jobs);
+        }
         await transferToApplJobsTable();
         resolve();
       } catch (err) {
@@ -581,12 +594,12 @@ const parseXmlFile = async (filePath) => {
 
 // Process files sequentially and create the temp table once
 const processFiles = async () => {
-  // const directoryPath = "feedsclean/";
-  const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
+  const directoryPath = "feedsclean/";
+  // const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
 
   try {
-    await updateLastUpload(); // Update last_upload before starting the file processing
-    await createTempTableOnce(); // Create the temp table once before processing any batches
+    await updateLastUpload();
+    await createTempTableOnce();
 
     const filePaths = fs
       .readdirSync(directoryPath)
@@ -603,15 +616,8 @@ const processFiles = async () => {
         logProgress();
       } catch (err) {
         console.error(`Error processing XML file ${filePath}:`, err);
-        logMessage(
-          `Error processing XML file ${filePath}: ${err}`,
-          logFilePath
-        );
-        logToDatabase(
-          "error",
-          "applupload8.js",
-          `Error processing XML file ${filePath}: ${err}`
-        );
+        logMessage(`Error processing XML file ${filePath}: ${err}`, logFilePath);
+        logToDatabase("error", "applupload8.js", `Error processing XML file ${filePath}: ${err}`);
       }
     }
   } catch (err) {
