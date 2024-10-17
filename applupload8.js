@@ -30,7 +30,7 @@ logMessage("Starting applupload8.js script...", logFilePath);
 const pool = mysql.createPool({
   connectionLimit: 10,
   host: config.host,
-  user: config.username, 
+  user: config.username,
   password: config.password,
   database: config.database,
   charset: config.charset,
@@ -241,13 +241,24 @@ const insertIntoTempTable = async (jobs) => {
       if (err) {
         console.error("Error during insertIntoTempTable:", err);
         logMessage(`Error during insertIntoTempTable: ${err}`, logFilePath);
-        logToDatabase("error", "applupload8.js", `Error during insertIntoTempTable: ${err}`);
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error during insertIntoTempTable: ${err}`
+        );
         return reject(err);
       }
       recordCount += jobs.length;
       console.log(`${jobs.length} records inserted into temp table.`);
-      logMessage(`${jobs.length} records inserted into temp table.`, logFilePath);
-      logToDatabase("success", "applupload8.js", `${jobs.length} records inserted into temp table.`);
+      logMessage(
+        `${jobs.length} records inserted into temp table.`,
+        logFilePath
+      );
+      logToDatabase(
+        "success",
+        "applupload8.js",
+        `${jobs.length} records inserted into temp table.`
+      );
       resolve(result);
     });
   });
@@ -478,7 +489,11 @@ const processBatch = async (batch, feedId) => {
 const parseXmlFile = async (filePath) => {
   console.log(`Starting to process file: ${filePath}`);
   logMessage(`Starting to process file: ${filePath}`, logFilePath);
-  logToDatabase("success", "applupload8.js", `Starting to process file: ${filePath}`);
+  logToDatabase(
+    "success",
+    "applupload8.js",
+    `Starting to process file: ${filePath}`
+  );
   const feedId = path.basename(filePath, path.extname(filePath));
   const parts = feedId.split("-");
   const jobpoolid = parts[1];
@@ -492,7 +507,7 @@ const parseXmlFile = async (filePath) => {
     let currentTag = "";
     let currentJobElement = "";
     let jobs = [];
-    const CHUNK_SIZE = 1000; // Process in chunks of 1000 jobs
+    const CHUNK_SIZE = 100; // Process in chunks of 100 jobs
 
     parser.on("opentag", (node) => {
       currentTag = node.name;
@@ -507,9 +522,11 @@ const parseXmlFile = async (filePath) => {
         let trimmedText = text.trim();
         if (tagToPropertyMap[currentTag]) {
           let propertyName = tagToPropertyMap[currentTag];
-          currentItem[propertyName] = (currentItem[propertyName] || "") + trimmedText;
+          currentItem[propertyName] =
+            (currentItem[propertyName] || "") + trimmedText;
         } else {
-          currentItem[currentTag] = (currentItem[currentTag] || "") + trimmedText;
+          currentItem[currentTag] =
+            (currentItem[currentTag] || "") + trimmedText;
         }
       }
     });
@@ -519,9 +536,11 @@ const parseXmlFile = async (filePath) => {
         let trimmedCdata = cdata.trim();
         if (tagToPropertyMap[currentTag]) {
           let propertyName = tagToPropertyMap[currentTag];
-          currentItem[propertyName] = (currentItem[propertyName] || "") + trimmedCdata;
+          currentItem[propertyName] =
+            (currentItem[propertyName] || "") + trimmedCdata;
         } else {
-          currentItem[currentTag] = (currentItem[currentTag] || "") + trimmedCdata;
+          currentItem[currentTag] =
+            (currentItem[currentTag] || "") + trimmedCdata;
         }
       }
     });
@@ -548,24 +567,30 @@ const parseXmlFile = async (filePath) => {
             currentItem.posted_at = date.format("YYYY-MM-DD");
           } else {
             console.warn(`Invalid date format found: ${currentItem.posted_at}`);
-            logMessage(`Invalid date format found: ${currentItem.posted_at}`, logFilePath);
-            logToDatabase("warning", "applupload8.js", `Invalid date format found: ${currentItem.posted_at}`);
+            logMessage(
+              `Invalid date format found: ${currentItem.posted_at}`,
+              logFilePath
+            );
+            logToDatabase(
+              "warning",
+              "applupload8.js",
+              `Invalid date format found: ${currentItem.posted_at}`
+            );
             currentItem.posted_at = null;
           }
         }
 
         jobs.push(currentItem);
 
-        if (jobs.length >= CHUNK_SIZE) {
-          parser.pause();
-          try {
-            await insertIntoTempTable(jobs);
-            jobs = []; // Clear the jobs array after inserting
-            parser.resume();
-          } catch (err) {
-            parser.emit('error', err);
-          }
-        }
+        // if (jobs.length >= CHUNK_SIZE) {
+        //   // Insert jobs into the temp table in chunks
+        //   try {
+        //     await insertIntoTempTable(jobs);
+        //     jobs = []; // Clear the jobs array after inserting
+        //   } catch (err) {
+        //     parser.emit("error", err);
+        //   }
+        // }
       }
     });
 
@@ -584,7 +609,11 @@ const parseXmlFile = async (filePath) => {
     parser.on("error", (err) => {
       console.error(`Error parsing XML file ${filePath}:`, err);
       logMessage(`Error parsing XML file ${filePath}: ${err}`, logFilePath);
-      logToDatabase("error", "applupload8.js", `Error parsing XML file ${filePath}: ${err}`);
+      logToDatabase(
+        "error",
+        "applupload8.js",
+        `Error parsing XML file ${filePath}: ${err}`
+      );
       reject(err);
     });
 
@@ -616,8 +645,15 @@ const processFiles = async () => {
         logProgress();
       } catch (err) {
         console.error(`Error processing XML file ${filePath}:`, err);
-        logMessage(`Error processing XML file ${filePath}: ${err}`, logFilePath);
-        logToDatabase("error", "applupload8.js", `Error processing XML file ${filePath}: ${err}`);
+        logMessage(
+          `Error processing XML file ${filePath}: ${err}`,
+          logFilePath
+        );
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error processing XML file ${filePath}: ${err}`
+        );
       }
     }
   } catch (err) {
