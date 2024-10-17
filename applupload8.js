@@ -40,21 +40,33 @@ const pool = mysql.createPool({
 
 const updateLastUpload = async () => {
   return new Promise((resolve, reject) => {
-    const query = `UPDATE upload_metadata SET last_upload = CURRENT_TIMESTAMP() WHERE id = 1`; // Adjust the WHERE clause if necessary.
+    const query = `
+      INSERT INTO upload_metadata (id, last_upload)
+      VALUES (1, CURRENT_TIMESTAMP())
+      ON DUPLICATE KEY UPDATE last_upload = CURRENT_TIMESTAMP();
+    `;
+
     pool.query(query, (err, result) => {
       if (err) {
-        console.error("Error updating last_upload field:", err);
-        logMessage(`Error updating last_upload field: ${err}`, logFilePath);
+        console.error("Error updating or inserting last_upload field:", err);
+        logMessage(
+          `Error updating or inserting last_upload field: ${err}`,
+          logFilePath
+        );
         logToDatabase(
           "error",
           "applupload8.js",
-          `Error updating last_upload field: ${err}`
+          `Error updating or inserting last_upload field: ${err}`
         );
         return reject(err);
       }
-      console.log("last_upload field updated.");
-      logMessage("last_upload field updated.", logFilePath);
-      logToDatabase("success", "applupload8.js", "last_upload field updated.");
+      console.log("last_upload field updated or entry created.");
+      logMessage("last_upload field updated or entry created.", logFilePath);
+      logToDatabase(
+        "success",
+        "applupload8.js",
+        "last_upload field updated or entry created."
+      );
       resolve(result);
     });
   });
@@ -186,8 +198,8 @@ const loadMapping = async (jobpoolid) => {
 };
 
 // Insert batch into temp table
-const insertIntoTempTable = async (batch) => {
-  const values = batch.map((item) => [
+const insertIntoTempTable = async (jobs) => {
+  const values = jobs.map((item) => [
     item.feedId,
     item.location,
     item.title,
@@ -229,25 +241,13 @@ const insertIntoTempTable = async (batch) => {
       if (err) {
         console.error("Error during insertIntoTempTable:", err);
         logMessage(`Error during insertIntoTempTable: ${err}`, logFilePath);
-        logToDatabase(
-          "error",
-          "applupload8.js",
-          `Error during insertIntoTempTable: ${err}`
-        );
+        logToDatabase("error", "applupload8.js", `Error during insertIntoTempTable: ${err}`);
         return reject(err);
       }
-      recordCount += batch.length;
-      tempTableRecordCount += batch.length; // Increment temp table record count
-      console.log(`Batch of ${batch.length} records inserted into temp table.`);
-      logMessage(
-        `Batch of ${batch.length} records inserted into temp table.`,
-        logFilePath
-      );
-      logToDatabase(
-        "success",
-        "applupload8.js",
-        `Batch of ${batch.length} records inserted into temp table.`
-      );
+      recordCount += jobs.length;
+      console.log(`${jobs.length} records inserted into temp table.`);
+      logMessage(`${jobs.length} records inserted into temp table.`, logFilePath);
+      logToDatabase("success", "applupload8.js", `${jobs.length} records inserted into temp table.`);
       resolve(result);
     });
   });
@@ -478,11 +478,7 @@ const processBatch = async (batch, feedId) => {
 const parseXmlFile = async (filePath) => {
   console.log(`Starting to process file: ${filePath}`);
   logMessage(`Starting to process file: ${filePath}`, logFilePath);
-  logToDatabase(
-    "success",
-    "applupload8.js",
-    `Starting to process file: ${filePath}`
-  );
+  logToDatabase("success", "applupload8.js", `Starting to process file: ${filePath}`);
   const feedId = path.basename(filePath, path.extname(filePath));
   const parts = feedId.split("-");
   const jobpoolid = parts[1];
@@ -495,6 +491,7 @@ const parseXmlFile = async (filePath) => {
     let currentItem = {};
     let currentTag = "";
     let currentJobElement = "";
+    let jobs = [];
 
     parser.on("opentag", (node) => {
       currentTag = node.name;
@@ -509,11 +506,9 @@ const parseXmlFile = async (filePath) => {
         let trimmedText = text.trim();
         if (tagToPropertyMap[currentTag]) {
           let propertyName = tagToPropertyMap[currentTag];
-          currentItem[propertyName] =
-            (currentItem[propertyName] || "") + trimmedText;
+          currentItem[propertyName] = (currentItem[propertyName] || "") + trimmedText;
         } else {
-          currentItem[currentTag] =
-            (currentItem[currentTag] || "") + trimmedText;
+          currentItem[currentTag] = (currentItem[currentTag] || "") + trimmedText;
         }
       }
     });
@@ -523,11 +518,9 @@ const parseXmlFile = async (filePath) => {
         let trimmedCdata = cdata.trim();
         if (tagToPropertyMap[currentTag]) {
           let propertyName = tagToPropertyMap[currentTag];
-          currentItem[propertyName] =
-            (currentItem[propertyName] || "") + trimmedCdata;
+          currentItem[propertyName] = (currentItem[propertyName] || "") + trimmedCdata;
         } else {
-          currentItem[currentTag] =
-            (currentItem[currentTag] || "") + trimmedCdata;
+          currentItem[currentTag] = (currentItem[currentTag] || "") + trimmedCdata;
         }
       }
     });
@@ -554,55 +547,31 @@ const parseXmlFile = async (filePath) => {
             currentItem.posted_at = date.format("YYYY-MM-DD");
           } else {
             console.warn(`Invalid date format found: ${currentItem.posted_at}`);
-            logMessage(
-              `Invalid date format found: ${currentItem.posted_at}`,
-              logFilePath
-            );
-            logToDatabase(
-              "warning",
-              "applupload8.js",
-              `Invalid date format found: ${currentItem.posted_at}`
-            );
+            logMessage(`Invalid date format found: ${currentItem.posted_at}`, logFilePath);
+            logToDatabase("warning", "applupload8.js", `Invalid date format found: ${currentItem.posted_at}`);
             currentItem.posted_at = null;
           }
         }
 
-        jobQueue.push(currentItem);
-
-        if (jobQueue.length >= batchSize) {
-          processQueue(feedId); // Process queue when batch size is reached
-        }
+        jobs.push(currentItem);
       }
     });
 
     parser.on("end", async () => {
-      // Process any remaining jobs that are less than a full batch
-      if (jobQueue.length > 0) {
-        console.log(
-          `Transferring remaining records from temp table to appljobs...`
-        );
-        logMessage(
-          `Transferring remaining records from temp table to appljobs...`,
-          logFilePath
-        );
-        logToDatabase(
-          "success",
-          "applupload8.js",
-          `Transferring remaining records from temp table to appljobs...`
-        );
-        await processQueue(feedId); // Process remaining jobs in the queue
+      try {
+        await insertIntoTempTable(jobs);
+        await insertIntoApplJobsFresh(jobs);
+        await transferToApplJobsTable();
+        resolve();
+      } catch (err) {
+        reject(err);
       }
-      resolve();
     });
 
     parser.on("error", (err) => {
       console.error(`Error parsing XML file ${filePath}:`, err);
       logMessage(`Error parsing XML file ${filePath}: ${err}`, logFilePath);
-      logToDatabase(
-        "error",
-        "applupload8.js",
-        `Error parsing XML file ${filePath}: ${err}`
-      );
+      logToDatabase("error", "applupload8.js", `Error parsing XML file ${filePath}: ${err}`);
       reject(err);
     });
 
@@ -612,6 +581,7 @@ const parseXmlFile = async (filePath) => {
 
 // Process files sequentially and create the temp table once
 const processFiles = async () => {
+  // const directoryPath = "feedsclean/";
   const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
 
   try {
