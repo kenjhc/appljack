@@ -197,8 +197,9 @@ const loadMapping = async (jobpoolid) => {
   });
 };
 
-// Insert batch into temp table
-const insertIntoTempTable = async (jobs) => {
+const insertIntoTempTable = async (allHobs) => {
+  const jobs = [...allHobs];
+
   const values = jobs.map((item) => [
     item.feedId,
     item.location,
@@ -228,40 +229,44 @@ const insertIntoTempTable = async (jobs) => {
     item.custom5,
   ]);
 
-  return new Promise((resolve, reject) => {
-    const query = `
-      INSERT INTO appljobs_temp (feedId, location, title, city, state, zip, country, job_type,
-                                 posted_at, job_reference, company, mobile_friendly_apply,
-                                 category, html_jobs, url, body, jobpoolid, acctnum, industry,
-                                 cpc, cpa, custom1, custom2, custom3, custom4, custom5)
-      VALUES ? ON DUPLICATE KEY UPDATE job_reference=VALUES(job_reference)
-    `;
+  const query = `
+    INSERT INTO appljobs_temp (feedId, location, title, city, state, zip, country, job_type,
+                               posted_at, job_reference, company, mobile_friendly_apply,
+                               category, html_jobs, url, body, jobpoolid, acctnum, industry,
+                               cpc, cpa, custom1, custom2, custom3, custom4, custom5)
+    VALUES ? ON DUPLICATE KEY UPDATE job_reference=VALUES(job_reference)
+  `;
 
-    tempConnection.query(query, [values], (err, result) => {
-      if (err) {
-        console.error("Error during insertIntoTempTable:", err);
-        logMessage(`Error during insertIntoTempTable: ${err}`, logFilePath);
-        logToDatabase(
-          "error",
-          "applupload8.js",
-          `Error during insertIntoTempTable: ${err}`
-        );
-        return reject(err);
-      }
-      recordCount += jobs.length;
-      console.log(`${jobs.length} records inserted into temp table.`);
-      logMessage(
-        `${jobs.length} records inserted into temp table.`,
-        logFilePath
-      );
-      logToDatabase(
-        "success",
-        "applupload8.js",
-        `${jobs.length} records inserted into temp table.`
-      );
-      resolve(result);
+  try {
+    const result = await new Promise((resolve, reject) => {
+      tempConnection.query(query, [values], (err, result) => {
+        if (err) {
+          return reject(err); // Rejecting the promise if there's an error
+        }
+        resolve(result); // Resolving the promise with the result
+      });
     });
-  });
+
+    recordCount += jobs.length;
+    console.log(`${jobs.length} records inserted into temp table.`);
+    logMessage(`${jobs.length} records inserted into temp table.`, logFilePath);
+    logToDatabase(
+      "success",
+      "applupload8.js",
+      `${jobs.length} records inserted into temp table.`
+    );
+
+    return result; // Returning the result if the insert is successful
+  } catch (err) {
+    console.error("Error during insertIntoTempTable:", err);
+    logMessage(`Error during insertIntoTempTable: ${err}`, logFilePath);
+    logToDatabase(
+      "error",
+      "applupload8.js",
+      `Error during insertIntoTempTable: ${err}`
+    );
+    throw err; // Rethrowing the error for further handling if needed
+  }
 };
 
 const transferToApplJobsTable = async () => {
@@ -485,6 +490,31 @@ const processBatch = async (batch, feedId) => {
   }
 };
 
+// Function to count tags in the XML file
+const countTags = (filePath) => {
+  return new Promise((resolve, reject) => {
+    const stream = fs.createReadStream(filePath);
+    const parser = sax.createStream(true);
+    let tagCount = 0;
+
+    parser.on("opentag", (node) => {
+      if (node.name === "job" || node.name === "doc") {
+        tagCount++;
+      }
+    });
+
+    parser.on("end", () => {
+      resolve(tagCount);
+    });
+
+    parser.on("error", (err) => {
+      reject(err);
+    });
+
+    stream.pipe(parser);
+  });
+};
+
 // Parsing XML and adding jobs to the queue
 const parseXmlFile = async (filePath) => {
   console.log(`Starting to process file: ${filePath}`);
@@ -499,6 +529,9 @@ const parseXmlFile = async (filePath) => {
   const jobpoolid = parts[1];
   const acctnum = await getAcctNum(jobpoolid);
   const tagToPropertyMap = await loadMapping(jobpoolid);
+  const totalTags = await countTags(filePath);
+  let processedTags = 0;
+  let totalProcessedJobs = 0;
 
   return new Promise((resolve, reject) => {
     const stream = fs.createReadStream(filePath);
@@ -507,10 +540,11 @@ const parseXmlFile = async (filePath) => {
     let currentTag = "";
     let currentJobElement = "";
     let jobs = [];
-    const CHUNK_SIZE = 1000; // Process in chunks of 100 jobs
+    const CHUNK_SIZE = 1000;
 
     parser.on("opentag", (node) => {
       currentTag = node.name;
+
       if (node.name === "job" || node.name === "doc") {
         currentJobElement = node.name;
         currentItem = { feedId: feedId };
@@ -547,10 +581,11 @@ const parseXmlFile = async (filePath) => {
 
     parser.on("closetag", async (nodeName) => {
       if (nodeName === currentJobElement) {
+        processedTags++;
+
         currentItem.jobpoolid = jobpoolid;
         currentItem.acctnum = acctnum;
 
-        // Format date
         if (currentItem.posted_at) {
           const dateFormats = [
             "YYYY-MM-DD HH:mm:ss.SSS [UTC]",
@@ -581,11 +616,11 @@ const parseXmlFile = async (filePath) => {
         }
 
         jobs.push(currentItem);
-
-        if (jobs.length >= CHUNK_SIZE) {
-          // Insert jobs into the temp table in chunks
+        if (jobs.length === CHUNK_SIZE || processedTags === totalTags) {
           try {
-            await insertIntoTempTable(jobs);
+            let resp = insertIntoTempTable(jobs);
+
+            totalProcessedJobs += jobs.length;
             jobs = []; // Clear the jobs array after inserting
           } catch (err) {
             parser.emit("error", err);
@@ -598,7 +633,9 @@ const parseXmlFile = async (filePath) => {
       try {
         if (jobs.length > 0) {
           await insertIntoTempTable(jobs);
+          totalProcessedJobs += jobs.length;
         }
+        console.log(`Total jobs processed: ${totalProcessedJobs}`);
         await transferToApplJobsTable();
         resolve();
       } catch (err) {
