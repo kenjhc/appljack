@@ -594,8 +594,8 @@ const parseXmlFile = async (filePath) => {
 
 // Process files sequentially and create the temp table once
 const processFiles = async () => {
-  const directoryPath = "feedsclean/";
-  // const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
+  // const directoryPath = "feedsclean/";
+  const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
 
   try {
     await updateLastUpload();
