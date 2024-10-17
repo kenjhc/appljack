@@ -507,7 +507,7 @@ const parseXmlFile = async (filePath) => {
     let currentTag = "";
     let currentJobElement = "";
     let jobs = [];
-    const CHUNK_SIZE = 100; // Process in chunks of 100 jobs
+    const CHUNK_SIZE = 1000; // Process in chunks of 100 jobs
 
     parser.on("opentag", (node) => {
       currentTag = node.name;
@@ -582,15 +582,15 @@ const parseXmlFile = async (filePath) => {
 
         jobs.push(currentItem);
 
-        // if (jobs.length >= CHUNK_SIZE) {
-        //   // Insert jobs into the temp table in chunks
-        //   try {
-        //     await insertIntoTempTable(jobs);
-        //     jobs = []; // Clear the jobs array after inserting
-        //   } catch (err) {
-        //     parser.emit("error", err);
-        //   }
-        // }
+        if (jobs.length >= CHUNK_SIZE) {
+          // Insert jobs into the temp table in chunks
+          try {
+            await insertIntoTempTable(jobs);
+            jobs = []; // Clear the jobs array after inserting
+          } catch (err) {
+            parser.emit("error", err);
+          }
+        }
       }
     });
 
