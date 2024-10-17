@@ -346,28 +346,95 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                                     }
                                                                     ?>
                                                                 </td>
-                                                                <td>
-                                                                    <form method="post">
-                                                                        <div class="d-flex align-items-center justify-content-center gap-3">
-                                                                            <input type="hidden" name="xml_tag" value="<?= htmlspecialchars($nodeName) ?>">
-                                                                            <select name="db_column" class="w-75 light-input">
-                                                                                <option value="">Remove Mapping</option>
-                                                                                <?php
-                                                                                foreach ($columns as $column):
-                                                                                    if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum'])):
-                                                                                ?>
-                                                                                        <option value="<?= htmlspecialchars($column) ?>" <?= $column === $mappedColumn ? 'selected' : '' ?>>
-                                                                                            <?= htmlspecialchars($column) ?>
+                                                                <?php
+                                                                // Assuming $conn is your database connection
+
+                                                                // Fetch column names from appljobs table
+                                                                try {
+                                                                    $columnsQuery = $conn->query("SHOW COLUMNS FROM appljobs");
+                                                                    $columns = $columnsQuery->fetchAll(PDO::FETCH_COLUMN);
+                                                                } catch (PDOException $e) {
+                                                                    $error = "Failed to fetch columns from appljobs: " . $e->getMessage();
+                                                                }
+
+                                                                // Predefined $columnLabels array
+                                                                $columnLabels = [
+                                                                    'job_reference' => 'Unique Job Id - REQUIRED',
+                                                                    'posted_at' => 'Date Posted',
+                                                                    'title' => 'Job Title',
+                                                                    'city' => 'Job Location - City',
+                                                                    'state' => 'Job Location - State',
+                                                                    'country' => 'Job Location - Country',
+                                                                    'zip' => 'Job Location - Zip Code',
+                                                                    'title' => 'Job Title',
+                                                                    'company' => 'Company Name',
+                                                                    'category' => 'Category (ex: Industry)',
+                                                                    'url' => 'Apply Button URL',
+                                                                    'body' => 'Job Description',
+                                                                    'custom1' => 'Custom Field 1',
+                                                                    'custom2' => 'Custom Field 2',
+                                                                    'custom3' => 'Custom Field 3',
+                                                                    'custom4' => 'Custom Field 4',
+                                                                    'custom5' => 'Custom Field 5',
+                                                                    'cpc' => 'CPC',
+                                                                    'cpa' => 'CPA',
+                                                                    'job_type' => 'Employment Type (ex: Full Time)',
+                                                                    'logo' => 'Company Logo URL',
+                                                                    'location'=> 'Job Location - Full Address',
+                                                                    'industry' => 'Job Industry'
+
+                                                                    // Add more mappings as needed
+                                                                ];
+
+                                                                // Check if $columns is populated
+                                                                if (!empty($columns)) {
+                                                                    // Special options to display first
+                                                                    $specialOptions = [
+                                                                        '' => 'Remove Mapping',
+                                                                        'job_reference' => $columnLabels['job_reference'] // Use the label from your array
+                                                                    ];
+
+                                                                    // Sort the rest alphabetically by their label
+                                                                    $otherOptions = [];
+                                                                    foreach ($columns as $column) {
+                                                                        if (!in_array($column, ['id', 'feedId', 'jobpoolid', 'acctnum', 'html_jobs', 'mobile_friendly_apply', 'custid', ])) {
+                                                                            $label = isset($columnLabels[$column]) ? $columnLabels[$column] : $column;
+                                                                            $otherOptions[$column] = $label;
+                                                                        }
+                                                                    }
+                                                                    asort($otherOptions); // Sort by label (value)
+
+                                                                    // Display dropdown
+                                                                    ?>
+                                                                    <td>
+                                                                        <form method="post">
+                                                                            <div class="d-flex align-items-center justify-content-center gap-3">
+                                                                                <input type="hidden" name="xml_tag" value="<?= htmlspecialchars($nodeName) ?>">
+                                                                                <select name="db_column" class="w-75 light-input">
+                                                                                    <!-- Special options: "Remove Mapping" and "Unique Job Id - REQUIRED" -->
+                                                                                    <?php foreach ($specialOptions as $value => $label): ?>
+                                                                                        <option value="<?= htmlspecialchars($value) ?>" <?= $value === $mappedColumn ? 'selected' : '' ?>>
+                                                                                            <?= htmlspecialchars($label) ?>
                                                                                         </option>
-                                                                                <?php
-                                                                                    endif;
-                                                                                endforeach;
-                                                                                ?>
-                                                                            </select>
-                                                                            <button class="btn_green_dark w-50">Set Mapping</button>
-                                                                        </div>
-                                                                    </form>
-                                                                </td>
+                                                                                    <?php endforeach; ?>
+
+                                                                                    <!-- Other options (sorted alphabetically by label) -->
+                                                                                    <?php foreach ($otherOptions as $value => $label): ?>
+                                                                                        <option value="<?= htmlspecialchars($value) ?>" <?= $value === $mappedColumn ? 'selected' : '' ?>>
+                                                                                            <?= htmlspecialchars($label) ?>
+                                                                                        </option>
+                                                                                    <?php endforeach; ?>
+                                                                                </select>
+                                                                                <button class="btn_green_dark w-50">Set Mapping</button>
+                                                                            </div>
+                                                                        </form>
+                                                                    </td>
+                                                                    <?php
+                                                                } else {
+                                                                    // Handle the case where $columns is empty or an error occurred
+                                                                    echo "<p>Error: Unable to load column data.</p>";
+                                                                }
+                                                                     ?>
                                                             </tr>
                                                         <?php endforeach;
                                                     else: ?>
