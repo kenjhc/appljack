@@ -436,9 +436,7 @@ const parseXmlFile = async (filePath) => {
 
     parser.on("opentag", (node) => {
       currentTag = node.name;
-      if (node.name === "job" || node.name === "doc") {
-        console.log({node: node.name});
-        
+      if (node.name === "job" || node.name === "doc") {  
         currentJobElement = node.name;
         currentItem = { feedId: feedId };
       }
