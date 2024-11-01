@@ -14,6 +14,7 @@ $startdate = isset($_GET['startdate']) ? $_GET['startdate'] : $defaultStartDate;
 $enddate = isset($_GET['enddate']) ? $_GET['enddate'] : $defaultEndDate;
 $startdate = date('Y-m-d', strtotime($startdate)) . " 00:00:00";
 $enddate = date('Y-m-d', strtotime($enddate)) . " 23:59:59";
+$customerData = [];
 
 try {
 
@@ -33,7 +34,6 @@ try {
     $publishers = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
     // Data processing for the new table
-    $customerData = [];
     foreach ($customers as $customer) {
         $custid = $customer['custid'];
 

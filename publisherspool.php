@@ -15,9 +15,9 @@ $startdate = date('Y-m-d', strtotime($startdate)) . " 00:00:00";
 $enddate = date('Y-m-d', strtotime($enddate)) . " 23:59:59";
 
 try {
-    // Fetch current publishers
+    // Fetch current publishers 
     $publishers = [];
-    $stmt = $conn->prepare("SELECT publisherid, publishername FROM applpubs WHERE acctnum = ?");
+    $stmt = $conn->prepare("SELECT publisherid, publishername, publisher_contact_name, publisher_contact_email FROM applpubs WHERE acctnum = ?");
     $stmt->execute([$_SESSION['acctnum']]);
     $publishers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -103,16 +103,22 @@ try {
                                                 <tr>
                                                     <th>Publisher Name</th>
                                                     <th>Publisher ID</th>
+                                                    <th>Publisher Contact Name</th>
+                                                    <th>Publisher Contact Email</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php if (empty($publishers)): ?>
-                                                    <p>No publishers found.</p>
+                                                    <tr>
+                                                        <td colspan="4">No publishers found.</td>
+                                                    </tr>
                                                 <?php else: ?>
                                                     <?php foreach ($publishers as $publisher): ?>
                                                         <tr>
                                                             <td><?= htmlspecialchars($publisher['publishername']) ?></td>
                                                             <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
+                                                            <td><?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></td>
+                                                            <td><?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>

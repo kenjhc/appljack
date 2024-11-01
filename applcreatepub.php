@@ -20,11 +20,13 @@ $acctnum = $_SESSION['acctnum'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST['publishername'])) {
         $publishername = $_POST['publishername'];
+        $publisher_contact_name = !empty($_POST['publisher_contact_name']) ? $_POST['publisher_contact_name'] : null;
+        $publisher_contact_email = !empty($_POST['publisher_contact_email']) ? $_POST['publisher_contact_email'] : null;
         $publisherid = bin2hex(random_bytes(5)); // Generate a random 10-character alphanumeric string
 
-        $stmt = $conn->prepare("INSERT INTO applpubs (publisherid, publishername, acctnum) VALUES (?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO applpubs (publisherid, publishername, acctnum, publisher_contact_name, publisher_contact_email) VALUES (?, ?, ?, ?, ?)");
 
-        if ($stmt->execute([$publisherid, $publishername, $acctnum])) {
+        if ($stmt->execute([$publisherid, $publishername, $acctnum, $publisher_contact_name, $publisher_contact_email])) {
             setToastMessage('success', "$publishername Created Successfully.");
         } else {
             setToastMessage('error', 'Error creating publisher.');
@@ -88,8 +90,16 @@ $publishers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <h2>Create New Publisher</h2>
                         <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
                             <div class="form-group">
-                                <label for="publishername">Publisher Name (required)</label>
+                                <label for="publishername">Publisher Name <span class="text-danger fw-bold">*</span></label>
                                 <input type="text" id="publishername" name="publishername" maxlength="255" required class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="publisher_contact_name">Publisher Contact Name</label>
+                                <input type="text" id="publisher_contact_name" name="publisher_contact_name" maxlength="255" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="publisher_contact_email">Publisher Contact Email</label>
+                                <input type="email" id="publisher_contact_email" name="publisher_contact_email" maxlength="255" class="form-control">
                             </div>
                             <button type="submit" class="btn btn-primary">Create New Publisher</button>
                         </form>

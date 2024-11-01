@@ -39,18 +39,19 @@ const updateFeedStatus = async () => {
         WHERE feedid = ?
           AND timestamp >= ?
           AND timestamp < LAST_DAY(?) + INTERVAL 1 DAY
-      `,
+        `,
         [feed.feedid, `${yearMonth}-01`, `${yearMonth}-01`]
       );
       const monthlyTotal = parseFloat(monthlySumResult[0].total) || 0;
 
-      if (monthlyTotal >= parseFloat(feed.budget)) {
+      // Set status to 'capped' at 95% of the budget
+      if (monthlyTotal >= parseFloat(feed.budget) * 0.95) {
         await connection.query(
           "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
           ["capped", feed.feedid]
         );
         console.log(
-          `Monthly status changed to 'capped' for feed ID ${feed.feedid}`
+          `Monthly status changed to 'capped' for feed ID ${feed.feedid} at 95% budget`
         );
       } else {
         await connection.query(
@@ -62,7 +63,11 @@ const updateFeedStatus = async () => {
         );
       }
       console.log(
-        `Feed ID ${feed.feedid}: Monthly total is ${monthlyTotal}, budget is ${feed.budget}`
+        `Feed ID ${
+          feed.feedid
+        }: Monthly total is ${monthlyTotal}, 95% budget cap is ${
+          parseFloat(feed.budget) * 0.95
+        }`
       );
 
       // Daily budget check (regardless of monthly budget status)

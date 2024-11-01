@@ -38,7 +38,6 @@ const moveRecords = (criteria) => {
       console.error("Error executing insert query:", error);
       connection.end(); // Close the connection in case of an error
       process.exit(1); // Exit with error code 1
-      return;
     }
 
     logMessage(
