@@ -97,6 +97,7 @@ async function downloadAndProcessXml(
       "text/xml",
       "application/x-gzip",
       "application/gzip",
+      "binary/octet-stream"
     ];
     const isXmlContent = validContentTypes.some((type) =>
       response.headers["content-type"].includes(type)

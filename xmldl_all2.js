@@ -70,7 +70,7 @@ async function downloadAndProcessXml(url, jobpoolid, acctnum, outputPath, fileUr
       }
     });
 
-    const validContentTypes = ['application/xml', 'text/xml', 'application/x-gzip', 'application/gzip'];
+    const validContentTypes = ['application/xml', 'text/xml', 'application/x-gzip', 'application/gzip', "binary/octet-stream"];
     const isXmlContent = validContentTypes.some(type => response.headers['content-type'].includes(type));
 
     if (response.status === 200 && isXmlContent) {
