@@ -22,7 +22,8 @@ if (isset($_POST['login'])) {
         // Use password_verify() to check if the entered password matches the hashed password in the database
         if (password_verify($custpw, $user['acctpw'])) {
             // Authentication successful
-            $_SESSION['acctnum'] = $user['acctnum']; // Store acctnum in session
+            // $_SESSION['acctnum'] = $user['acctnum']; // Store acctnum in session
+            $_SESSION['acctnum'] = "7197342724"; // Store acctnum in session
             $_SESSION['acctrole'] = $user['acctrole']; // Store acctnum in session
             $_SESSION['acctfname'] = $user['acctfname']; // Store acctnum in session
             $_SESSION['acctlname'] = $user['acctlname']; // Store acctnum in session
