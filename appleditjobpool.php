@@ -324,7 +324,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php if ($flattenedJob): foreach ($flattenedJob as $nodeName => $nodeValue):
+                                                    <?php if ($firstJobData): foreach ($firstJobData as $nodeName => $nodeValue):
                                                             $mappedColumn = $mappings[$nodeName] ?? ($nodeName);
                                                             $color = $mappedColumn ? 'blue' : (in_array($nodeName, $columns) ? 'green' : 'red');
                                                     ?>
