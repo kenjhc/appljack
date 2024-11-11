@@ -1,4 +1,5 @@
 <?php
+ini_set('memory_limit', '512M'); 
 
 include 'database/db.php';
 
@@ -163,22 +164,26 @@ if (!file_exists($filepath)) {
 } elseif (!is_readable($filepath)) {
     $error = "XML file is not readable.";
 } else {
-    libxml_use_internal_errors(true);
-    $xml = simplexml_load_file($filepath);
-    if ($xml === false) {
+    $reader = new XMLReader();
+    if (!$reader->open($filepath)) {
         $error = "Failed to load XML file.";
-        foreach (libxml_get_errors() as $libxmlError) {
-            $error .= "<br>" . htmlspecialchars($libxmlError->message);
-        }
-        libxml_clear_errors();
     } else {
-        // Check for <job> or <doc> nodes
-        $jobs = $xml->xpath('//job | //doc');
-        if (empty($jobs)) {
+        $firstJob = null;
+
+        // Read through the XML using XMLReader for memory efficiency
+        while ($reader->read()) {
+            if ($reader->nodeType === XMLReader::ELEMENT && ($reader->localName === 'job' || $reader->localName === 'doc')) {
+                $dom = new DOMDocument;
+                $node = simplexml_import_dom($dom->importNode($reader->expand(), true));
+                $firstJob = $node;
+                break; // Get the first <job> or <doc> node and stop
+            }
+        }
+        $reader->close();
+
+        if (!$firstJob) {
             $error = "No job data found in XML file.";
-            error_log("No job data found in XML file: " . file_get_contents($filepath));
         } else {
-            $firstJob = $jobs[0];
             // Flatten the XML structure
             function flattenXml($xml, $prefix = '')
             {
