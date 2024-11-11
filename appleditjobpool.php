@@ -163,49 +163,51 @@ if (!file_exists($filepath)) {
     $error = "XML file not found at $filepath.";
 } elseif (!is_readable($filepath)) {
     $error = "XML file is not readable.";
-} else {
+}  else {
     $reader = new XMLReader();
     if (!$reader->open($filepath)) {
         $error = "Failed to load XML file.";
     } else {
-        $firstJob = null;
-
-        // Read through the XML using XMLReader for memory efficiency
+        $firstJobData = [];
+ 
         while ($reader->read()) {
             if ($reader->nodeType === XMLReader::ELEMENT && ($reader->localName === 'job' || $reader->localName === 'doc')) {
                 $dom = new DOMDocument;
                 $node = simplexml_import_dom($dom->importNode($reader->expand(), true));
-                $firstJob = $node;
-                break; // Get the first <job> or <doc> node and stop
+ 
+                function flattenXml($xml, $prefix = '')
+                {
+                    $result = [];
+                    foreach ($xml as $key => $value) {
+                        $fullKey = $prefix ? $prefix . '.' . $key : $key;
+                        if ($value->count()) {
+                            $result = array_merge($result, flattenXml($value, $fullKey));
+                        } else {
+                            $result[$fullKey] = (string) $value;
+                        }
+                    }
+                    return $result;
+                }
+                 
+                $firstJobData = flattenXml($node);
+                break;  
             }
         }
         $reader->close();
 
-        if (!$firstJob) {
+        if (empty($firstJobData)) {
             $error = "No job data found in XML file.";
-        } else {
-            // Flatten the XML structure
-            function flattenXml($xml, $prefix = '')
-            {
-                $result = [];
-                foreach ($xml as $key => $value) {
-                    $fullKey = $prefix ? $prefix . '.' . $key : $key;
-                    if ($value->count()) {
-                        $result = array_merge($result, flattenXml($value, $fullKey));
-                    } else {
-                        $result[$fullKey] = (string) $value;
-                    }
-                }
-                return $result;
-            }
-            $flattenedJob = flattenXml($firstJob);
-
-            // Fetch existing mappings from the database
+        } else { 
             $stmt = $conn->prepare("SELECT xml_tag, db_column FROM appldbmapping WHERE jobpoolid = ?");
             $stmt->execute([$jobpoolid]);
-            $mappings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR); // Fetch as associative array
-            // Fetch column names from appljobs table
+            $mappings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);  
+ 
             $columns = $conn->query("SHOW COLUMNS FROM appljobs")->fetchAll(PDO::FETCH_COLUMN);
+ 
+            foreach ($mappings as $xmlTag => $dbColumn) {
+                if (isset($firstJobData[$xmlTag]) && in_array($dbColumn, $columns)) { 
+                }
+            }
         }
     }
 }
