@@ -6,6 +6,18 @@ if (!isset($_SESSION['acctnum'])) {
     exit();
 }
 
+if (isset($_GET["_t"]) && $_GET["_t"] == "m") {
+    if (!isset($_GET["_c"]) || empty($_GET["_c"])) {
+        unset($_SESSION['custid']);
+    } else {
+        $_SESSION['custid'] = $_SESSION['custid'] ?? $_GET["_c"];
+    }
+} elseif (isset($_GET["_t"]) && $_GET["_t"] == "m" && isset($_GET["_c"])) {
+    $_SESSION['custid'] = $_SESSION['custid'] ?? $_GET["_c"];
+} elseif (isset($_GET["_t"]) && $_GET["_t"] !== "m" && isset($_GET["_c"])) {
+    unset($_SESSION['custid']);
+}
+
 $feedid = $_GET['feedid'] ?? $_POST['feedid'] ?? '';
 
 // Fetch the activepubs field value from the database for the current feed
@@ -60,6 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $feedcpc = filter_input(INPUT_POST, 'feedcpc', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $cpa_amount = filter_input(INPUT_POST, 'cpa_amount', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $dailybudget = filter_input(INPUT_POST, 'dailybudget', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $arbcampcpc = filter_input(INPUT_POST, 'arbcampcpc', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $arbcampcpa = filter_input(INPUT_POST, 'arbcampcpa', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     if (empty($feedbudget)) {
         setToastMessage('error', "Please provide a valid budget.");
@@ -185,7 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    custquerykws = ?, custqueryco = ?, custqueryindustry = ?,
                                    custquerycity = ?, custquerystate = ?, custquerycustom1 = ?,
                                    custquerycustom2 = ?, custquerycustom3 = ?, custquerycustom4 = ?,
-                                   custquerycustom5 = ?, activepubs = ?
+                                   custquerycustom5 = ?, activepubs = ?,
+                                   arbcampcpc = ?, arbcampcpa = ?
                                WHERE feedid = ? AND custid = ?");
         $stmt->execute([
             $feedname,
@@ -204,6 +219,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $customFields[4],
             $customFields[5],
             $updatedActivePubsStr,
+            $arbcampcpc,
+            $arbcampcpa,
             $feedid,
             $_SESSION['custid']
         ]);
@@ -378,7 +395,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <label for="cpa_amount">CPA Amount</label>
                                                 <input type="text" id="cpa_amount" name="cpa_amount" class="light-input" value="<?= htmlspecialchars($feed['cpa'] ?? ''); ?>">
                                             </div>
-
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="w-100 my-3">
+                                                    <label class="" for="cpc_adjust">CPC Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" value="<?= htmlspecialchars($feed['arbcampcpc'] ?? ''); ?>" name="arbcampcpc">
+                                                </div>
+                                                <div class="w-100 my-3">
+                                                    <label class="" for="cpa_adjust">CPA Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" value="<?= htmlspecialchars($feed['arbcampcpa'] ?? ''); ?>" name="arbcampcpa">
+                                                </div>
+                                            </div>
                                             <h4>Keywords</h4>
                                             <div>
                                                 <label for="keywords_include">Keywords Include</label>

@@ -29,12 +29,14 @@ if (isset($_GET['custid'])) {
 // Update customer on form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
     try {
-        $updateStmt = $pdo->prepare("UPDATE applcust SET custtype = :custtype, custcompany = :custcompany, jobpoolid = :jobpoolid WHERE custid = :custid");
+        $updateStmt = $pdo->prepare("UPDATE applcust SET custtype = :custtype, custcompany = :custcompany, jobpoolid = :jobpoolid, arbcustcpc = :arbcustcpc, arbcustcpa = :arbcustcpa WHERE custid = :custid");
         if ($updateStmt->execute([
             ':custtype' => $_POST['custtype'],
             ':custcompany' => $_POST['custname'],
             ':jobpoolid' => $_POST['jobpoolid'],
-            ':custid' => $_POST['custid']
+            ':custid' => $_POST['custid'],
+            ':arbcustcpc' => $_POST['arbcustcpc'],
+            ':arbcustcpa' => $_POST['arbcustcpa']
         ])) {
             setToastMessage('success', "Customer updated successfully.");
             header("Location: applmasterview.php"); // Redirect
@@ -93,6 +95,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
                                                         <i class="far fa-circle"></i>
                                                         <i class="fas fa-check-circle"></i> Publisher
                                                     </label><br>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="w-100">
+                                                    <label for="cpc_adjust">CPC Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" name="arbcustcpc" value="<?php echo $customer['arbcustcpc']; ?>">
+                                                </div>
+                                                <div class="w-100">
+                                                    <label for="cpa_adjust">CPA Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" name="arbcustcpa" value="<?php echo $customer['arbcustcpa']; ?>">
                                                 </div>
                                             </div>
                                             <div>

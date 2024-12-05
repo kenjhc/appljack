@@ -23,13 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $custid = mt_rand(1000000000, 9999999999);
 
         // Prepare SQL and bind parameters
-        $stmt = $pdo->prepare("INSERT INTO applcust (custid, acctnum, custtype, custcompany, jobpoolid) VALUES (:custid, :acctnum, :custtype, :custcompany, :jobpoolid)");
+        $stmt = $pdo->prepare("INSERT INTO applcust (custid, acctnum, custtype, custcompany, jobpoolid, arbcustcpc, arbcustcpa) VALUES (:custid, :acctnum, :custtype, :custcompany, :jobpoolid, :arbcustcpc, :arbcustcpa)");
         $stmt->execute([
             ':custid' => $custid,
             ':acctnum' => $_SESSION['acctnum'],
             ':custtype' => $_POST['custtype'],
             ':custcompany' => $_POST['custname'],
-            ':jobpoolid' => $_POST['jobpoolid'] // Using the jobpoolid from the dropdown
+            ':jobpoolid' => $_POST['jobpoolid'], // Using the jobpoolid from the dropdown
+            ':arbcustcpc' => $_POST['arbcustcpc'],
+            ':arbcustcpa' => $_POST['arbcustcpa']
         ]);
 
         setToastMessage('success', "New customer created successfully. Customer ID: $custid");
@@ -87,6 +89,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         <i class="far fa-circle"></i>
                                                         <i class="fas fa-check-circle"></i> Publisher
                                                     </label><br>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="w-100">
+                                                    <label for="cpc_adjust">CPC Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" name="arbcustcpc">
+                                                </div>
+                                                <div class="w-100">
+                                                    <label for="cpa_adjust">CPA Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" name="arbcustcpa">
                                                 </div>
                                             </div>
                                             <div>

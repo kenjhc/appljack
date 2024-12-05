@@ -23,12 +23,13 @@ const logToDatabase = async (
   const stackLine = error.stack.split("\n")[2];
   const lineNumber = stackLine.match(/:(\d+):\d+\)$/)?.[1];
 
-  const connection = await pool.getConnection();
-  const scriptTxt = `${lineNumber + ":" ?? "-"} ${scriptName}`;
-  try {
+  const scriptTxt = `${scriptName}`;
+  try { 
+
+    const connection = await pool.getConnection();
     await connection.execute(
-      "INSERT INTO appl_logs (log_type, log_level, script_name, message) VALUES (?, ?, ?, ?)",
-      [logType, logLevel, scriptTxt, message]
+      "INSERT INTO appl_logs (log_type, log_level, script_name, message, line_number) VALUES (?, ?, ?, ?, ?)",
+      [logType, logLevel, scriptTxt, message, lineNumber]
     );
   } catch (err) {
     const logFilePath = path.resolve(__dirname, "..", "appl_logs_errors.log");

@@ -77,6 +77,29 @@ h1 {
     height: 80px;
     width: 80px;
   }
+  #content {
+    width: 98% !important;
+  }
+  #sidebar {
+    min-width: 0% !important;
+    max-width: 12% !important;
+  }
+  #sidebar ul li a span.text {
+    display: none !important;
+  }
+  #sidebar ul li a span {
+    margin-right: 0 !important;
+  }
+  .page-heading {
+    width: 88% !important;
+    right: 0 !important;
+  }
+  #sidebar .logo img {
+    display: none;
+  }
+  .account_master_view_sec {
+    margin-left: 14% !important;
+  }
 }
 
 footer {
