@@ -36,9 +36,7 @@ const updateFeedStatus = async () => {
 
     connection = await pool.getConnection();
 
-    const [feeds] = await connection.query(
-      "SELECT * FROM applcustfeeds WHERE acctnum = 8215880437 AND custid = 4259030410"
-    );
+    const [feeds] = await connection.query("SELECT * FROM applcustfeeds");
 
     // const [feeds] = await connection.query(
     //   "SELECT * FROM applcustfeeds"
@@ -66,9 +64,7 @@ const updateFeedStatus = async () => {
       feed.customerEmail = customerData[0]?.acctemail;
       feed.customerName = customerData[0]?.customerFullName;
       feed.customerID = feed.acctnum;
-
-      feed.customerID = 9706023615;
-
+ 
       const [publisherData] = await connection.query(
         `SELECT p.publisher_contact_email, p.publishername FROM applpubs p WHERE p.publisherid = ?`,
         [feed.activepubs]
@@ -204,10 +200,10 @@ const sendEmail = async (feed, percentage) => {
   const emailOptions = {
     from: "budgets@appljack.com",
     to: [
-      // feed.customerEmail,
-      // feed.publisherEmail || null,
-      "mannananxari@gmail.com",
-      "odit33959@gmail.com",
+      feed.customerEmail,
+      feed.publisherEmail || null,
+      // "mannananxari@gmail.com",
+      // "odit33959@gmail.com",
       "budgets@appljack.com",
     ]
       .filter(Boolean)
