@@ -4,7 +4,7 @@
 export PATH=/usr/local/bin:/usr/bin:/bin
 export NODE_ENV=production
 
-LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/cron_jobs.lock"
+LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/appl_update_2_log.lock"
 
 # Function to clean up lockfile
 cleanup() {

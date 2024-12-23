@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/cron_jobs.lock"
+LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/update_feed_status_log.lock"
 
 # Acquire lock
 if ! mkdir "$LOCKFILE" 2>/dev/null; then
