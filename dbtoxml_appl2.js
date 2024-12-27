@@ -1,11 +1,10 @@
-// require("dotenv").config();
-
 const fs = require("fs");
 const mysql = require("mysql");
 const path = require("path");
 const config = require("./config");
 
 const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+// const outputXmlFolderPath = "applfeeds";
 
 const poolXmlFeeds = mysql.createPool({
   connectionLimit: 10,
@@ -19,7 +18,7 @@ const poolXmlFeeds = mysql.createPool({
 async function fetchAllFeedsWithCriteria() {
   return new Promise((resolve, reject) => {
     poolXmlFeeds.query(
-      'SELECT acf.*, ac.jobpoolid, acf.cpc as feed_cpc, acf.cpa as feed_cpa FROM applcustfeeds acf FORCE INDEX (idx_status) JOIN applcust ac ON ac.custid = acf.custid WHERE acf.status = "active";',
+      'SELECT acf.*, ac.jobpoolid, ac.arbcustcpc, ac.arbcustcpa, acf.cpc as feed_cpc, acf.cpa as feed_cpa, acf.arbcampcpc, acf.arbcampcpa FROM applcustfeeds acf FORCE INDEX (idx_status) JOIN applcust ac ON ac.custid = acf.custid WHERE acf.status = "active";',
       (error, results) => {
         if (error) {
           console.error("Error fetching feed criteria:", error);
@@ -61,28 +60,23 @@ async function processQueriesSequentially() {
 
     if (!criteria.jobpoolid) {
       console.error("jobpoolid is not defined in criteria.");
-      continue; // Skip processing this criteria and move to the next one
+      continue;
     }
 
-    // Fetch custom fields for the jobpoolid
     const customFields = await fetchCustomFields(criteria.jobpoolid);
-
-    // Construct SQL query based on feed criteria
     const query = buildQueryFromCriteria(criteria);
 
-    // Log the SQL query to the console
     console.log("SQL Query:", query);
 
     try {
-      // Fetch jobs based on the constructed query
       const results = await streamResultsToXml(
         criteria.custid,
         criteria.feedid,
         criteria.jobpoolid,
         query,
-        customFields
+        customFields,
+        criteria
       );
-      // Log the results returned by the query
       if (results && results.length > 0) {
         console.log(
           `Jobs found for feedid: ${criteria.feedid} and custid: ${criteria.custid}`
@@ -106,7 +100,8 @@ async function streamResultsToXml(
   feedid,
   jobpoolid,
   query,
-  customFields
+  customFields,
+  criteria
 ) {
   return new Promise((resolve, reject) => {
     const filePath = path.join(outputXmlFolderPath, `${custid}-${feedid}.xml`);
@@ -144,7 +139,7 @@ async function streamResultsToXml(
               "custid",
             ].includes(key)
           )
-            return; // Skip specific keys
+            return;
           let value = job[key] ? job[key].toString() : "";
           value = value
             .replace(/&/g, "&amp;")
@@ -155,7 +150,6 @@ async function streamResultsToXml(
           fileStream.write(`    <${key}>${value}</${key}>\n`);
         });
 
-        // Add custom fields to the job element
         customFields.forEach((customField) => {
           let customValue = customField.staticvalue;
           if (!customValue) {
@@ -193,8 +187,13 @@ async function streamResultsToXml(
         )}`;
         customUrl = customUrl.replace(/&/g, "&amp;");
         fileStream.write(`    <url>${customUrl}</url>\n`);
-        fileStream.write(`    <cpc>${job.effective_cpc}</cpc>\n`);
-        fileStream.write(`    <cpa>${job.effective_cpa}</cpa>\n`);
+
+        // Apply arbitrage adjustments
+        const adjustedCpc = applyArbitrageAdjustment(job.cpc, criteria.arbcampcpc || criteria.arbcustcpc);
+        const adjustedCpa = applyArbitrageAdjustment(job.cpa, criteria.arbcampcpa || criteria.arbcustcpa);
+
+        fileStream.write(`    <cpc>${adjustedCpc}</cpc>\n`);
+        fileStream.write(`    <cpa>${adjustedCpa}</cpa>\n`);
         fileStream.write(`  </job>\n`);
       })
       .on("end", () => {
@@ -206,6 +205,12 @@ async function streamResultsToXml(
         resolve();
       });
   });
+}
+
+function applyArbitrageAdjustment(value, adjustmentPercentage) {
+  if (!adjustmentPercentage) return value;
+  const adjustment = 1 - (parseFloat(adjustmentPercentage) / 100);
+  return (parseFloat(value) * adjustment).toFixed(2);
 }
 
 async function closePool() {
