@@ -1,5 +1,4 @@
-// require("dotenv").config();
-
+// Optimized script to prevent potential stuck issues and ensure efficient execution
 const mysql = require("mysql");
 const fs = require("fs");
 const moment = require("moment-timezone"); // Import moment-timezone
@@ -19,7 +18,6 @@ const logFilePath = "applcleanevents.log";
 
 // Function to generate the correct time range in EDT timezone
 const generateTimeRange = () => {
-  // Convert current time to EDT
   const currentTimestamp = moment().tz("America/New_York");
   const endTime = currentTimestamp.format("YYYY-MM-DD HH:mm:ss");
   const startTime = currentTimestamp
@@ -73,19 +71,7 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
 
     pool.query(duplicateQuery, (error, results) => {
       if (error) {
-        logMessage(
-          `Error executing duplicate query: ${error.message}`,
-          logFilePath
-        );
-        logToDatabase(
-          "error",
-          "applcleaneventstime.js",
-          `Error executing duplicate query: ${error.message}`
-        );
-
-        pool.end(() => {
-          process.exit(1); // Exit with error code
-        });
+        handleError(`Error executing duplicate query: ${error.message}`);
         return;
       }
 
@@ -104,9 +90,7 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
           } batches.`
         );
 
-        pool.end(() => {
-          process.exit(1); // Exit with error code
-        });
+        cleanUpAndExit();
         return;
       }
 
@@ -131,138 +115,92 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
         `Batch ${batchNumber}: Duplicate IDs: ${duplicateIds}`
       );
 
-      pool.getConnection((err, connection) => {
-        if (err) {
-          logMessage(`Error getting connection: ${err.message}`, logFilePath);
-          logToDatabase(
-            "error",
-            "applcleaneventstime.js",
-            `Error getting connection: ${err.message}`
-          );
-
-          pool.end(() => {
-            process.exit(1); // Exit with error code
-          });
-          return;
-        }
-
-        connection.beginTransaction((transactionError) => {
-          if (transactionError) {
-            logMessage(
-              `Error starting transaction: ${transactionError.message}`,
-              logFilePath
-            );
-            logToDatabase(
-              "error",
-              "applcleaneventstime.js",
-              `Error starting transaction: ${transactionError.message}`
-            );
-            connection.release();
-            pool.end(() => {
-              process.exit(1); // Exit with error code
-            });
-            return;
-          }
-
-          const insertQuery = `
-            INSERT INTO appleventsdel (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, deletecode)
-            SELECT eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, 'time'
-            FROM applevents
-            WHERE id IN (${duplicateIds})
-          `;
-
-          connection.query(insertQuery, (insertError, insertResults) => {
-            if (insertError) {
-              logMessage(
-                `Error executing insert query: ${insertError.message}`,
-                logFilePath
-              );
-              logToDatabase(
-                "error",
-                "applcleaneventstime.js",
-                `Error executing insert query: ${insertError.message}`
-              );
-              return connection.rollback(() => {
-                connection.release();
-                pool.end(() => {
-                  process.exit(1); // Exit with error code
-                });
-              });
-            }
-
-            logMessage(
-              `Batch ${batchNumber}: Inserted ${insertResults.affectedRows} rows into appleventsdel.`,
-              logFilePath
-            );
-            logToDatabase(
-              "success",
-              "applcleaneventstime.js",
-              `Batch ${batchNumber}: Inserted ${insertResults.affectedRows} rows into appleventsdel`
-            );
-            const deleteQuery = `DELETE FROM applevents WHERE id IN (${duplicateIds})`;
-
-            connection.query(deleteQuery, (deleteError, deleteResults) => {
-              if (deleteError) {
-                logMessage(
-                  `Error executing delete query: ${deleteError.message}`,
-                  logFilePath
-                );
-                logToDatabase(
-                  "error",
-                  "applcleaneventstime.js",
-                  `Error executing delete query: ${deleteError.message}`
-                );
-                return connection.rollback(() => {
-                  connection.release();
-                  pool.end(() => {
-                    process.exit(1); // Exit with error code
-                  });
-                });
-              }
-
-              logMessage(
-                `Batch ${batchNumber}: Deleted ${deleteResults.affectedRows} rows from applevents`,
-                logFilePath
-              );
-              logToDatabase(
-                "success",
-                "applcleaneventstime.js",
-                `Batch ${batchNumber}: Deleted ${deleteResults.affectedRows} rows from applevents`
-              );
-              connection.commit((commitError) => {
-                if (commitError) {
-                  logMessage(
-                    `Error committing transaction: ${commitError.message}`,
-                    logFilePath
-                  );
-                  logToDatabase(
-                    "success",
-                    "applcleaneventstime.js",
-                    `Error committing transaction: ${commitError.message}`
-                  );
-                  return connection.rollback(() => {
-                    connection.release();
-                    pool.end(() => {
-                      process.exit(1); // Exit with error code
-                    });
-                  });
-                }
-
-                connection.release();
-                batchNumber++;
-                processBatch();
-              });
-            });
-          });
-        });
-      });
+      processTransaction(duplicateIds, batchNumber, processBatch);
     });
   };
 
   processBatch();
 };
 
-const batchSize = 200;
+const processTransaction = (duplicateIds, batchNumber, callback) => {
+  pool.getConnection((err, connection) => {
+    if (err) {
+      handleError(`Error getting connection: ${err.message}`);
+      return;
+    }
 
+    connection.beginTransaction((transactionError) => {
+      if (transactionError) {
+        handleError(`Error starting transaction: ${transactionError.message}`);
+        connection.release();
+        return;
+      }
+
+      const insertQuery = `
+        INSERT INTO appleventsdel (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, deletecode)
+        SELECT eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, 'time'
+        FROM applevents
+        WHERE id IN (${duplicateIds})
+      `;
+
+      connection.query(insertQuery, (insertError, insertResults) => {
+        if (insertError) {
+          handleTransactionError(insertError, connection);
+          return;
+        }
+
+        logMessage(
+          `Batch ${batchNumber}: Inserted ${insertResults.affectedRows} rows into appleventsdel.`,
+          logFilePath
+        );
+
+        const deleteQuery = `DELETE FROM applevents WHERE id IN (${duplicateIds})`;
+        connection.query(deleteQuery, (deleteError, deleteResults) => {
+          if (deleteError) {
+            handleTransactionError(deleteError, connection);
+            return;
+          }
+
+          logMessage(
+            `Batch ${batchNumber}: Deleted ${deleteResults.affectedRows} rows from applevents`,
+            logFilePath
+          );
+
+          connection.commit((commitError) => {
+            if (commitError) {
+              handleTransactionError(commitError, connection);
+              return;
+            }
+
+            connection.release();
+            callback();
+          });
+        });
+      });
+    });
+  });
+};
+
+const handleTransactionError = (error, connection) => {
+  logMessage(`Transaction error: ${error.message}`, logFilePath);
+  logToDatabase("error", "applcleaneventstime.js", `Transaction error: ${error.message}`);
+  connection.rollback(() => {
+    connection.release();
+  });
+};
+
+const handleError = (message) => {
+  logMessage(message, logFilePath);
+  logToDatabase("error", "applcleaneventstime.js", message);
+  cleanUpAndExit();
+};
+
+const cleanUpAndExit = () => {
+  pool.end(() => {
+    process.exit(0); // Graceful exit
+  });
+};
+
+const batchSize = 200;
 console.log("Running applcleaneventstime.js script...");
 moveDuplicateRecordsInBatches(batchSize);

@@ -24,6 +24,10 @@ env >> "$LOGFILE"
 # Start new log file
 echo "Running feed status updates $(date)" > "$LOGFILE"
 
+# Run the script to check revenue vs budget caps
+echo "Running applbudgetcheck.js $(date)" >> "$LOGFILE"
+"$NODE" "$DIR/applbudgetcheck.js" >> "$LOGFILE" 2>&1
+
 # Run the script to clean events by IP address before checking budget status
 echo "Running applcleanevents.js $(date)" >> "$LOGFILE"
 "$NODE" "$DIR/applcleanevents.js" >> "$LOGFILE" 2>&1
@@ -31,10 +35,6 @@ echo "Running applcleanevents.js $(date)" >> "$LOGFILE"
 # Run the script to clean events by time range, and ip/feedid/jobid match before checking budget status
 echo "Running applcleaneventstime.js $(date)" >> "$LOGFILE"
 "$NODE" "$DIR/applcleaneventstime.js" >> "$LOGFILE" 2>&1
-
-# Run the script to check revenue vs budget caps
-echo "Running applbudgetcheck.js $(date)" >> "$LOGFILE"
-"$NODE" "$DIR/applbudgetcheck.js" >> "$LOGFILE" 2>&1
 
 # Release lock
 rmdir "$LOCKFILE"

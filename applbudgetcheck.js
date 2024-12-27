@@ -115,8 +115,10 @@ const updateFeedStatus = async () => {
     }
 
     console.log("Feed statuses updated successfully.");
+    process.exit(0); // Exit successfully
   } catch (error) {
     console.error("An error occurred:", error.message);
+    process.exit(1); // Exit with error
   } finally {
     if (connection) await connection.release();
     await pool.end();
