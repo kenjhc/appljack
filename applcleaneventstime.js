@@ -31,7 +31,6 @@ const generateTimeRange = () => {
 
 const moveDuplicateRecordsInBatches = (batchSize) => {
   logMessage(`Script started processing.`, logFilePath);
-  console.log("Script initialized.");
 
   let batchNumber = 1;
 
@@ -49,18 +48,38 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
       `Start Time: ${startTime}, End Time: ${endTime}`
     );
 
+    // const duplicateQuery = `
+    //   SELECT t1.id, t1.eventid, t1.timestamp, t1.ipaddress, t1.jobid, t1.feedid
+    //   FROM applevents t1
+    //   INNER JOIN applevents t2
+    //     ON t1.ipaddress = t2.ipaddress
+    //     AND t1.jobid = t2.jobid
+    //     AND t1.feedid = t2.feedid
+    //     AND t1.id > t2.id
+    //     AND t1.id <= t2.id + 10
+    //     AND TIMESTAMPDIFF(SECOND, t2.timestamp, t1.timestamp) < 30
+    //   WHERE t1.timestamp >= '${startTime}'
+    //   AND t1.timestamp < '${endTime}'
+    //   LIMIT ${batchSize};
+    // `;
+
     const duplicateQuery = `
-      SELECT t1.id, t1.eventid, t1.timestamp, t1.ipaddress, t1.jobid, t1.feedid
-      FROM applevents t1
-      INNER JOIN applevents t2
-        ON t1.ipaddress = t2.ipaddress
-        AND t1.jobid = t2.jobid
-        AND t1.feedid = t2.feedid
-        AND t1.id > t2.id
-        AND t1.id <= t2.id + 10
-        AND TIMESTAMPDIFF(SECOND, t2.timestamp, t1.timestamp) < 30
-      WHERE t1.timestamp >= '${startTime}'
-      AND t1.timestamp < '${endTime}'
+      SELECT id, eventid, timestamp, ipaddress, jobid, feedid
+      FROM (
+        SELECT 
+          id, 
+          eventid, 
+          timestamp, 
+          ipaddress, 
+          jobid, 
+          feedid,
+          LAG(id, 1) OVER (PARTITION BY ipaddress, jobid, feedid ORDER BY id) as prev_id,
+          LAG(timestamp, 1) OVER (PARTITION BY ipaddress, jobid, feedid ORDER BY id) as prev_timestamp
+        FROM applevents
+        WHERE timestamp >= '${startTime}' AND timestamp < '${endTime}'
+      ) subquery
+      WHERE id <= prev_id + 10
+        AND TIMESTAMPDIFF(SECOND, prev_timestamp, timestamp) < 30
       LIMIT ${batchSize};
     `;
 
@@ -303,4 +322,5 @@ const moveDuplicateRecordsInBatches = (batchSize) => {
 const batchSize = 200;
 
 console.log("Running applcleaneventstime.js script...");
+console.log("Script initialized.");
 moveDuplicateRecordsInBatches(batchSize);
