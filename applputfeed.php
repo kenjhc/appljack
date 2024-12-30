@@ -42,8 +42,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $feedname,
             $feedbudget,
             $feedcpc,
-            $arbcampcpc,
-            $arbcampcpa
+            !empty($arbcampcpc) ? $arbcampcpc : null,
+            !empty($arbcampcpa) ? $arbcampcpa : null,
         ]);
 
         header("Location: applportal.php?custid=" . urlencode($_SESSION['custid']));

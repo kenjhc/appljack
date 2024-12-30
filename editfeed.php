@@ -219,8 +219,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $customFields[4],
             $customFields[5],
             $updatedActivePubsStr,
-            $arbcampcpc,
-            $arbcampcpa,
+            !empty($arbcampcpc) ? $arbcampcpc : null,
+            !empty($arbcampcpa) ? $arbcampcpa : null,
             $feedid,
             $_SESSION['custid']
         ]);
