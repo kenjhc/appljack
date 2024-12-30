@@ -1,4 +1,5 @@
 <?php
+ini_set('memory_limit', '512M'); 
 
 include 'database/db.php'; 
 
@@ -162,45 +163,51 @@ if (!file_exists($filepath)) {
     $error = "XML file not found at $filepath.";
 } elseif (!is_readable($filepath)) {
     $error = "XML file is not readable.";
-} else {
-    libxml_use_internal_errors(true);
-    $xml = simplexml_load_file($filepath);
-    if ($xml === false) {
+}  else {
+    $reader = new XMLReader();
+    if (!$reader->open($filepath)) {
         $error = "Failed to load XML file.";
-        foreach (libxml_get_errors() as $libxmlError) {
-            $error .= "<br>" . htmlspecialchars($libxmlError->message);
-        }
-        libxml_clear_errors();
     } else {
-        // Check for <job> or <doc> nodes
-        $jobs = $xml->xpath('//job | //doc');
-        if (empty($jobs)) {
-            $error = "No job data found in XML file.";
-            error_log("No job data found in XML file: " . file_get_contents($filepath));
-        } else {
-            $firstJob = $jobs[0];
-            // Flatten the XML structure
-            function flattenXml($xml, $prefix = '')
-            {
-                $result = [];
-                foreach ($xml as $key => $value) {
-                    $fullKey = $prefix ? $prefix . '.' . $key : $key;
-                    if ($value->count()) {
-                        $result = array_merge($result, flattenXml($value, $fullKey));
-                    } else {
-                        $result[$fullKey] = (string) $value;
+        $firstJobData = [];
+ 
+        while ($reader->read()) {
+            if ($reader->nodeType === XMLReader::ELEMENT && ($reader->localName === 'job' || $reader->localName === 'doc')) {
+                $dom = new DOMDocument;
+                $node = simplexml_import_dom($dom->importNode($reader->expand(), true));
+ 
+                function flattenXml($xml, $prefix = '')
+                {
+                    $result = [];
+                    foreach ($xml as $key => $value) {
+                        $fullKey = $prefix ? $prefix . '.' . $key : $key;
+                        if ($value->count()) {
+                            $result = array_merge($result, flattenXml($value, $fullKey));
+                        } else {
+                            $result[$fullKey] = (string) $value;
+                        }
                     }
+                    return $result;
                 }
-                return $result;
+                 
+                $firstJobData = flattenXml($node);
+                break;  
             }
-            $flattenedJob = flattenXml($firstJob);
+        }
+        $reader->close();
 
-            // Fetch existing mappings from the database
+        if (empty($firstJobData)) {
+            $error = "No job data found in XML file.";
+        } else { 
             $stmt = $conn->prepare("SELECT xml_tag, db_column FROM appldbmapping WHERE jobpoolid = ?");
             $stmt->execute([$jobpoolid]);
-            $mappings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR); // Fetch as associative array
-            // Fetch column names from appljobs table
+            $mappings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);  
+ 
             $columns = $conn->query("SHOW COLUMNS FROM appljobs")->fetchAll(PDO::FETCH_COLUMN);
+ 
+            foreach ($mappings as $xmlTag => $dbColumn) {
+                if (isset($firstJobData[$xmlTag]) && in_array($dbColumn, $columns)) { 
+                }
+            }
         }
     }
 }
@@ -317,7 +324,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php if ($flattenedJob): foreach ($flattenedJob as $nodeName => $nodeValue):
+                                                    <?php if ($firstJobData): foreach ($firstJobData as $nodeName => $nodeValue):
                                                             $mappedColumn = $mappings[$nodeName] ?? ($nodeName);
                                                             $color = $mappedColumn ? 'blue' : (in_array($nodeName, $columns) ? 'green' : 'red');
                                                     ?>

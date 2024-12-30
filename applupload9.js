@@ -430,7 +430,8 @@ const parseXmlFile = async (filePath) => {
   const feedId = path.basename(filePath, path.extname(filePath));
   const parts = feedId.split("-");
   const jobpoolid = parts[1];
-  const acctnum = await getAcctNum(jobpoolid);
+  // const acctnum = await getAcctNum(jobpoolid);
+  const acctnum = parts[0];
   const tagToPropertyMap = await loadMapping(jobpoolid);
   const totalTags = await countTags(filePath);
   let processedTags = 0;
