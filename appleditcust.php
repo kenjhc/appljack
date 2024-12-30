@@ -35,8 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
             ':custcompany' => $_POST['custname'],
             ':jobpoolid' => $_POST['jobpoolid'],
             ':custid' => $_POST['custid'],
-            ':arbcustcpc' => $_POST['arbcustcpc'],
-            ':arbcustcpa' => $_POST['arbcustcpa']
+            ':arbcustcpc' => !empty($_POST['arbcustcpc']) ? $_POST['arbcustcpc'] : null,
+            ':arbcustcpa' => !empty($_POST['arbcustcpa']) ? $_POST['arbcustcpa'] : null
         ])) {
             setToastMessage('success', "Customer updated successfully.");
             header("Location: applmasterview.php"); // Redirect
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
-                                            <button class="btn_green_dark w-100 mt-3">Create Customer</button>
+                                            <button class="btn_green_dark w-100 mt-3">Update Customer</button>
                                         </form>
                                     </div>
                                 </div>

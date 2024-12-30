@@ -82,7 +82,7 @@ try {
                                                 <thead>
                                                     <tr>
                                                         <th>Job Pool Name</th>
-                                                        <th>Arbitrage %</th>
+                                                        <!-- <th>Arbitrage %</th> -->
                                                         <th>URL</th>
                                                         <th>Edit</th>
                                                         <th>Delete</th>
@@ -92,7 +92,7 @@ try {
                                                     <?php foreach ($jobPools as $jobPool): ?>
                                                         <tr>
                                                             <td><?= htmlspecialchars($jobPool['jobpoolname']) ?></td>
-                                                            <td><?= htmlspecialchars(number_format($jobPool['arbitrage'], 2)) ?></td>
+                                                            <!-- <td><?= htmlspecialchars(number_format($jobPool['arbitrage'], 2)) ?></td> -->
                                                             <td><a href="<?= htmlspecialchars($jobPool['jobpoolurl']) ?>"><?= htmlspecialchars($jobPool['jobpoolurl']) ?></a></td>
                                                             <td class="edit-button-cell">
                                                                 <a href="appleditjobpool.php?jobpoolid=<?= $jobPool['jobpoolid'] ?>" class="edit_btn">Edit</a>

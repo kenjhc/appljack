@@ -29,9 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':acctnum' => $_SESSION['acctnum'],
             ':custtype' => $_POST['custtype'],
             ':custcompany' => $_POST['custname'],
-            ':jobpoolid' => $_POST['jobpoolid'], // Using the jobpoolid from the dropdown
-            ':arbcustcpc' => $_POST['arbcustcpc'],
-            ':arbcustcpa' => $_POST['arbcustcpa']
+            ':jobpoolid' => $_POST['jobpoolid'],
+            ':arbcustcpc' => !empty($_POST['arbcustcpc']) ? $_POST['arbcustcpc'] : null,
+            ':arbcustcpa' => !empty($_POST['arbcustcpa']) ? $_POST['arbcustcpa'] : null
         ]);
 
         setToastMessage('success', "New customer created successfully. Customer ID: $custid");

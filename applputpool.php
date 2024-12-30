@@ -13,7 +13,8 @@ try {
         $jobpoolname = $_POST['jobpoolname'] ?? '';
         $jobpoolurl = $_POST['jobpoolurl'] ?? '';
         $jobpoolfiletype = $_POST['jobpoolfiletype'] ?? ''; // Retrieve file type from the form
-        $arbitrage = floatval($_POST['arbitrage']);
+        // $arbitrage = floatval($_POST['arbitrage']);
+        $arbitrage = $_POST['arbitrage'] ?? 0;
 
         if ($arbitrage > 100) {
             $_SESSION['error'] = "Arbitrage percentage cannot be more than 100.";
@@ -29,7 +30,7 @@ try {
         // Redirect to the master view page after successful insertion
         header("Location: applmasterview.php");
         exit();
-    } 
+    }
 } catch (PDOException $e) {
     // Log error or handle it as required
     $error = "Database error: " . $e->getMessage();
