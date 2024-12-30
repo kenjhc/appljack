@@ -189,7 +189,7 @@ $nextCronTime = getNextCronTime();
         <?php
         // Create the XML URL using the current session's account number
         $acctnum = $_SESSION['acctnum'];
-        $xmlUrl = getUrl() . $envSuffix . "/applfeeds/{$acctnum}.xml";
+        $xmlUrl = getUrl() . "/applfeeds/{$acctnum}.xml";
         ?>
 
 
