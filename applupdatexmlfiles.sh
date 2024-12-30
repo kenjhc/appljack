@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/cron_jobs.lock"
+LOCKFILE="/chroot/home/appljack/appljack.com/html/dev/locks/cron_jobs.lock"
 
 # Acquire lock
 if ! mkdir "$LOCKFILE" 2>/dev/null; then
@@ -9,7 +9,7 @@ if ! mkdir "$LOCKFILE" 2>/dev/null; then
 fi
 
 # Paths
-DIR="/chroot/home/appljack/appljack.com/html/admin"
+DIR="/chroot/home/appljack/appljack.com/html/dev"
 LOGFILE="$DIR/applupdatexmlfiles.log"
 NODE="/usr/bin/node" # Ensure this is the correct path to the node executable
 PYTHON="/usr/bin/python3" # Updated path to the Python 3 executable
