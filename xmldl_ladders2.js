@@ -1,6 +1,7 @@
 const zlib = require('zlib');
 const fs = require('fs');
 const xml2js = require('xml2js');
+const { envSuffix } = require("./config");
 
 (async () => {
     const fetch = await import('node-fetch'); // Dynamic import
@@ -36,7 +37,7 @@ const xml2js = require('xml2js');
 
             if (statusCode === 200) {
                 console.log("Download successful, processing file...");
-                const xmlFilePath = '/chroot/home/appljack/appljack.com/html/feeddownloads/xmldl_ladders.xml';
+                const xmlFilePath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/xmldl_ladders.xml`;
                 let xmlData = body;
 
                 // Process XML data

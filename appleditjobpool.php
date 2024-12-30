@@ -1,7 +1,7 @@
 <?php
 ini_set('memory_limit', '512M'); 
 
-include 'database/db.php';
+include 'database/db.php'; 
 
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
@@ -12,7 +12,7 @@ $error = ''; // Initialize $error to avoid undefined variable notices
 $jobpoolid = $_GET['jobpoolid'] ?? ''; // Ensure $jobpoolid is initialized before use
 
 $acctnum = $_SESSION['acctnum']; // Retrieve account number from session
-$filepath = "/chroot/home/appljack/appljack.com/html/feedsclean/{$acctnum}-{$jobpoolid}.xml"; // Construct the file path
+$filepath = "/chroot/home/appljack/appljack.com/html$envSuffix/feedsclean/{$acctnum}-{$jobpoolid}.xml"; // Construct the file path
 
 // Function to sanitize and reformat the field name for XML
 function sanitizeFieldName($fieldName)
@@ -270,7 +270,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <section class="job_section">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-12 col-md-4">
+                <div class="col-sm-12 col-md-6">
                     <div class="job_card">
 
                         <form action="" method="post">
@@ -281,7 +281,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
 
-                <div class="col-sm-12 col-md-4">
+                <div class="col-sm-12 col-md-6">
                     <div class="job_card">
                         <form action="" method="post">
                             <p class="job_title">Edit Job Pool URL</p>
@@ -291,7 +291,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
 
-                <div class="col-sm-12 col-md-4">
+                <!-- <div class="col-sm-12 col-md-4">
                     <div class="job_card">
                         <form action="" method="post">
                             <p class="job_title">Set Arbitrage %</p>
@@ -299,7 +299,7 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <button class="update_btn" type="submit">Set Arbitrage % </button>
                         </form>
                     </div>
-                </div>
+                </div> -->
             </div>
             <div class="row xml_mapping_sec">
                 <div class="col-sm-12 col-md-12">

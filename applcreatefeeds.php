@@ -67,6 +67,16 @@ if (isset($_GET['custid']) && is_numeric($_GET['custid'])) {
                                                     <input type="text" id="feedbudget" name="feedbudget" class="light-input" maxlength="50" required>
                                                 </div>
                                             </div>
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="w-100 my-3">
+                                                    <label class="healthy-text text-dark-green mb-0" for="cpc_adjust">CPC Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" name="arbcampcpc">
+                                                </div>
+                                                <div class="w-100 my-3">
+                                                    <label class="healthy-text text-dark-green mb-0" for="cpa_adjust">CPA Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" name="arbcampcpa">
+                                                </div>
+                                            </div>
                                             <div>
                                                 <div class="d-flex justify-content-center gap-2 my-3 flex-column">
                                                     <label class="healthy-text text-dark-green mb-0" for="feedcpc">CPC Amount (optional) - NOTE: Setting this will overwrite any CPC values in the inbound feed file.</label> <span class="notes">NOTE: Do not include the dollar sign (Example: 35.75)</span>

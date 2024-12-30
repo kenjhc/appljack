@@ -4,6 +4,7 @@ const sax = require('sax');
 const mysql = require('mysql');
 const moment = require('moment');
 const config = require('./config');
+const { envSuffix } = require("./config");
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled rejection:', reason);
@@ -380,7 +381,7 @@ const closeConnectionPool = () => {
 };
 
 // Example usage to process a single file
-const filePath = '/chroot/home/appljack/appljack.com/html/feeddownloads/8215880437-1106942987.xml';
+const filePath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/8215880437-1106942987.xml`;
 processFiles(filePath).then(() => {
     console.log('Processing complete for the specified file.');
 }).catch(error => {

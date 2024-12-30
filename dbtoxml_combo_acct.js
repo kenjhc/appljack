@@ -4,7 +4,9 @@ const fs = require("fs");
 const mysql = require("mysql");
 const path = require("path");
 const config = require("./config");
-const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+const { envSuffix } = require("./config");
+
+const outputXmlFolderPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/applfeeds`;
 
 const poolXmlFeeds = mysql.createPool({
   connectionLimit: 10,
@@ -18,8 +20,10 @@ const poolXmlFeeds = mysql.createPool({
 async function fetchAllFeedsWithCriteria() {
   return new Promise((resolve, reject) => {
     poolXmlFeeds.query(
-      "SELECT acf.*, ac.jobpoolid, ac.acctnum, acf.cpc as feed_cpc, acf.cpa as feed_cpa FROM applcustfeeds acf " +
-        'JOIN applcust ac ON ac.custid = acf.custid WHERE acf.status = "active"',
+      "SELECT acf.*, ac.jobpoolid, ac.acctnum, acf.cpc as feed_cpc, acf.cpa as feed_cpa, " +
+      "ac.arbcustcpc, ac.arbcustcpa, acf.arbcampcpc, acf.arbcampcpa " +
+      "FROM applcustfeeds acf " +
+      'JOIN applcust ac ON ac.custid = acf.custid WHERE acf.status = "active"',
       (error, results) => {
         if (error) {
           console.error("Error fetching feed criteria:", error);
@@ -133,6 +137,12 @@ function buildQueryFromCriteria(criteria) {
 
   //  query += " ORDER BY aj.posted_at DESC";
   return query;
+}
+
+function applyArbitrageAdjustment(value, adjustmentPercentage) {
+  if (!adjustmentPercentage) return value;
+  const adjustment = 1 - (parseFloat(adjustmentPercentage) / 100);
+  return (parseFloat(value) * adjustment).toFixed(2);
 }
 
 async function processQueriesSequentially() {
@@ -279,8 +289,13 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
         )}&jpid=${encodeURIComponent(criteria.jobpoolid)}`;
         customUrl = customUrl.replace(/&/g, "&amp;");
         fileStream.write(`    <url>${customUrl}</url>\n`);
-        fileStream.write(`    <cpc>${job.effective_cpc}</cpc>\n`);
-        fileStream.write(`    <cpa>${job.effective_cpa}</cpa>\n`);
+
+        // Apply arbitrage adjustments
+        const adjustedCpc = applyArbitrageAdjustment(job.effective_cpc, criteria.arbcampcpc || criteria.arbcustcpc);
+        const adjustedCpa = applyArbitrageAdjustment(job.effective_cpa, criteria.arbcampcpa || criteria.arbcustcpa);
+
+        fileStream.write(`    <cpc>${adjustedCpc}</cpc>\n`);
+        fileStream.write(`    <cpa>${adjustedCpa}</cpa>\n`);
         fileStream.write(`  </job>\n`);
       })
       .on("end", () => {

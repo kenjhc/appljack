@@ -31,8 +31,8 @@ if ($logLevel !== 'all') {
 }
 
 if (!empty($scriptName)) {
-    $sql .= " AND script_name = ?";
-    $params[] = $scriptName;
+    $sql .= " AND script_name LIKE ?";
+    $params[] = "%" . $scriptName . "%";
     $types .= 's';
 }
 
@@ -68,8 +68,8 @@ if ($logLevel !== 'all') {
 }
 
 if (!empty($scriptName)) {
-    $countSql .= " AND script_name = ?";
-    $countParams[] = $scriptName;
+    $countSql .= " AND script_name LIKE ?";
+    $countParams[] = "%" . $scriptName . "%";
     $countTypes .= 's';
 }
 
@@ -242,11 +242,18 @@ $db->close();
                         <label for="script">Script Name:</label>
                         <select name="script" id="script" class="form-control">
                             <option value="">All</option>
-                            <?php foreach ($scripts as $script): ?>
-                                <option value="<?= htmlspecialchars($script['script_name']) ?>" <?= $scriptName === $script['script_name'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($script['script_name']) ?>
+                            <?php
+                            $scriptsForFilter = [];
+                            foreach ($scripts as $script) {
+                                $scriptsForFilter[] = htmlspecialchars(preg_replace('/^\d+:\s/', '', $script['script_name']));
+                            }
+                            $scriptsForFilter = array_unique($scriptsForFilter);
+                            foreach ($scriptsForFilter as $script) {
+                            ?>
+                                <option value="<?= $script ?>" <?= $scriptName === $script ? 'selected' : '' ?>>
+                                    <?= $script ?>
                                 </option>
-                            <?php endforeach; ?>
+                            <?php } ?>
                         </select>
                     </div>
                     <button class="btn_green py-1 px-4">Filter</button>
@@ -349,7 +356,8 @@ $db->close();
                         <th>ID</th>
                         <th>Type</th>
                         <th>Level</th>
-                        <th>Script/Line</th>
+                        <th>Line</th>
+                        <th>Script</th>
                         <th>Message</th>
                         <th>Time</th>
                     </tr>
@@ -359,7 +367,16 @@ $db->close();
                     $count = (($page * $limit) - ($limit - 1));
                     if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()):
-                            // Determine the background color based on the log level
+                            $scriptNameWithoutLine = preg_replace('/^\d+:\s/', '', $row['script_name']);
+
+                            if (preg_match('/^(\d+):\s/', $row['script_name'], $matches)) {
+                                $lineNumber = $matches[1];
+                                $scriptNameWithoutLine = preg_replace('/^\d+:\s/', '', $row['script_name']);
+                            } else {
+                                $lineNumber = $row['line_number'];
+                                $scriptNameWithoutLine = $row['script_name'];
+                            }
+
                             $backgroundColor = '';
                             switch ($row['log_level']) {
                                 case 'error':
@@ -380,7 +397,8 @@ $db->close();
                                 <td><?= htmlspecialchars($count) ?></td>
                                 <td><?= ucwords(htmlspecialchars($row['log_type'])) ?></td>
                                 <td><?= ucwords(htmlspecialchars($row['log_level'])) ?></td>
-                                <td><?= htmlspecialchars($row['script_name']) ?></td>
+                                <td width="20px"><?= htmlspecialchars($lineNumber) ?></td>
+                                <td><?= htmlspecialchars($scriptNameWithoutLine) ?></td>
                                 <td><?= htmlspecialchars($row['message']) ?></td>
                                 <td><?= htmlspecialchars($row['timestamp']) ?></td>
                             </tr>

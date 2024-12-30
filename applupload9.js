@@ -53,7 +53,18 @@ const retryOperation = async (operation, retries = MAX_RETRIES) => {
       await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
       return retryOperation(operation, retries - 1);
     } else {
-      throw error;
+      console.error("Operation failed after all retry attempts:", error);
+      logMessage(
+        `Operation failed after all retry attempts: ${error}`,
+        logFilePath
+      );
+      logToDatabase(
+        "error",
+        "applupload8.js",
+        `Operation failed after all retry attempts: ${error}`
+      );
+      // Instead of throwing the error, we'll return null to indicate failure
+      return null;
     }
   }
 };
@@ -437,7 +448,7 @@ const parseXmlFile = async (filePath) => {
 
     parser.on("opentag", (node) => {
       currentTag = node.name;
-      if (node.name === "job" || node.name === "doc") {  
+      if (node.name === "job" || node.name === "doc") {
         currentJobElement = node.name;
         currentItem = { feedId: feedId };
       }
@@ -550,21 +561,30 @@ const parseXmlFile = async (filePath) => {
 };
 
 const processFiles = async () => {
-  // const directoryPath = "feedsclean/";
-  const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
+  const directoryPath = `/chroot/home/appljack/appljack.com/html${config.envSuffix}/feedsclean/`;
 
   try {
-    await updateLastUpload();
-    await createTempTableOnce();
+    const updateResult = await retryOperation(updateLastUpload);
+    if (updateResult === null) {
+      console.log("Failed to update last upload, but continuing...");
+      logMessage(
+        "Failed to update last upload, but continuing...",
+        logFilePath
+      );
+    }
+
+    const createTempTableResult = await retryOperation(createTempTableOnce);
+    if (createTempTableResult === null) {
+      console.log("Failed to create temporary table, but continuing...");
+      logMessage(
+        "Failed to create temporary table, but continuing...",
+        logFilePath
+      );
+    }
 
     const filePaths = fs
       .readdirSync(directoryPath)
       .filter((file) => path.extname(file) === ".xml")
-      .map((file) => path.join(directoryPath, file));
-
-    const _filePaths = fs
-      .readdirSync(directoryPath)
-      .filter((file) => file === '8215880437-9849416351.xml') // Check for the exact file name
       .map((file) => path.join(directoryPath, file));
 
     for (const filePath of filePaths) {
@@ -572,7 +592,17 @@ const processFiles = async () => {
         recordCount = 0;
         startTime = Date.now();
 
-        await parseXmlFile(filePath);
+        const parseResult = await retryOperation(() => parseXmlFile(filePath));
+        if (parseResult === null) {
+          console.log(
+            `Failed to process file ${filePath}, moving to next file...`
+          );
+          logMessage(
+            `Failed to process file ${filePath}, moving to next file...`,
+            logFilePath
+          );
+          continue;
+        }
 
         logProgress();
       } catch (err) {
@@ -586,6 +616,8 @@ const processFiles = async () => {
           "applupload8.js",
           `Error processing XML file ${filePath}: ${err}`
         );
+        // Continue to the next file instead of throwing an error
+        continue;
       }
     }
   } catch (err) {

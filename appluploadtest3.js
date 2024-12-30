@@ -4,6 +4,7 @@ const sax = require('sax');
 const mysql = require('mysql');
 const moment = require('moment');
 const config = require('./config');
+const { envSuffix } = require("./config");
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled rejection:', reason);
@@ -361,7 +362,7 @@ const testSingleXmlFile = async (filePath) => {
 };
 
 // Usage example: Testing on a single XML file
-const xmlFilePath = '/chroot/home/appljack/appljack.com/html/feeddownloads/8215880437-2698261924.xml';
+const xmlFilePath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/8215880437-2698261924.xml`;
 testSingleXmlFile(xmlFilePath);
 
 // Uncomment to use for processing a directory of XML files

@@ -20,6 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $feedbudget = filter_input(INPUT_POST, 'feedbudget', FILTER_SANITIZE_STRING);
     $feedcpc = filter_input(INPUT_POST, 'feedcpc', FILTER_SANITIZE_STRING);
+    $arbcampcpc = filter_input(INPUT_POST, 'arbcampcpc', FILTER_SANITIZE_STRING);
+    $arbcampcpa = filter_input(INPUT_POST, 'arbcampcpa', FILTER_SANITIZE_STRING);
 
     // Handle the optional feedcpc field
     if ($feedcpc === '' || $feedcpc === null) {
@@ -32,14 +34,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Insert into database
     try {
         // Updated the INSERT statement to include the acctnum column after custid
-        $stmt = $pdo->prepare("INSERT INTO applcustfeeds (custid, acctnum, feedid, feedname, budget, cpc, status) VALUES (?, ?, ?, ?, ?, ?, 'active')");
+        $stmt = $pdo->prepare("INSERT INTO applcustfeeds (custid, acctnum, feedid, feedname, budget, cpc, status, arbcampcpc, arbcampcpa) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?)");
         $stmt->execute([
             $_SESSION['custid'], // Assuming custid is also part of the session and needs to be included
             $_SESSION['acctnum'], // Include the acctnum from the session
             $feedid,
             $feedname,
             $feedbudget,
-            $feedcpc
+            $feedcpc,
+            !empty($arbcampcpc) ? $arbcampcpc : null,
+            !empty($arbcampcpa) ? $arbcampcpa : null,
         ]);
 
         header("Location: applportal.php?custid=" . urlencode($_SESSION['custid']));

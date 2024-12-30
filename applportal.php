@@ -246,8 +246,8 @@ if ($custid) {
                                             <p class="mb-1"><strong>Job Pool:</strong> <?= htmlspecialchars($jobPoolName) ?></p>
                                             <p class="mb-1"><strong>Customer-level Feed URL:</strong>
                                             <div class="bg-light border py-1 px-2 mb-1 rounded">
-                                                <a href="<?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml" target="_blank">
-                                                    <?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml
+                                                <a href="<?= getUrl() . $envSuffix ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml" target="_blank">
+                                                    <?= getUrl() . $envSuffix ?>/applfeeds/<?= htmlspecialchars($custid); ?>.xml
                                                 </a>
                                             </div>
                                             </p>
@@ -257,8 +257,8 @@ if ($custid) {
                                                 <div class="bg-light border py-1 px-2 mb-1 rounded">
                                                     <?php foreach ($publishers as $publisher): ?>
                                                         <?= htmlspecialchars($publisher['publishername']); ?>:
-                                                        <a href="<?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml" target="_blank">
-                                                            <?= getUrl() ?>/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml
+                                                        <a href="<?= getUrl() . $envSuffix ?>/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml" target="_blank">
+                                                            <?= getUrl() . $envSuffix ?>/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($publisher['publisherid']) ?>.xml
                                                         </a>
                                                         <br>
                                                     <?php endforeach; ?>

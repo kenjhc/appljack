@@ -4,6 +4,7 @@ const mysql = require("mysql2/promise");
 const fs = require("fs").promises; // Use fs promises API for async operations
 const path = require("path");
 const config = require("./config");
+const { envSuffix } = require("./config");
 
 // Configure your database connection here
 const pool = mysql.createPool({
@@ -29,7 +30,7 @@ const generateXmlFilesForFeeds = async () => {
       const fileName = `${feed.custid}-${feed.feedid}.xml`;
       // Define the file path (adjust the directory path as needed)
       const filePath = path.join(
-        "/chroot/home/appljack/appljack.com/html/applfeeds/",
+        `/chroot/home/appljack/appljack.com/html${envSuffix}/applfeeds/`,
         fileName
       );
 

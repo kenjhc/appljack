@@ -78,10 +78,10 @@ $jobpoolid = mt_rand(1000000000, 9999999999);
                                                 <label for="jobpoolurl">Job Pool URL (required)</label>
                                                 <input type="text" id="jobpoolurl" name="jobpoolurl" maxlength="200" class="light-input" required>
                                             </div>
-                                            <div class="mt-3"> 
+                                            <!-- <div class="mt-3"> 
                                                 <label for="arbitrage">Arbitrage %</label>
                                                 <input type="number" id="arbitrage" name="arbitrage" step="0.01" max="100" class="light-input">
-                                            </div> 
+                                            </div>  -->
                                             <button class="btn_green_dark w-100 mt-3">Create Job Pool</button>
                                         </form>
                                     </div>

@@ -3,6 +3,7 @@ const path = require('path');
 const sax = require('sax');
 const mysql = require('mysql');
 const config = require('./config');
+const { envSuffix } = require("./config");
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled rejection:', reason);
@@ -327,7 +328,7 @@ const processRemainingJobs = async () => {
 
 // Function to parse and process XML files
 const processFiles = async () => {
-  const directoryPath = '/chroot/home/appljack/appljack.com/html/feeddownloads/';
+  const directoryPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/`;
 
   try {
     await emptyTable();

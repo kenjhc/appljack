@@ -18,6 +18,18 @@ const getEnvPath = () => {
   }
 };
 
+const getAppEnv = () => {
+  if (currentPath.includes("admin")) {
+    return "PRODUCTION"; // If directory includes 'admin'
+  } else if (currentPath.includes("dev")) {
+    return "DEVELOPMENT"; // If directory includes 'dev'
+  } else if (currentPath.includes("appljack")) {
+    return "PRODUCTION"; // Root of the appljack project
+  } else {
+    return "unknown"; // If none match
+  }
+};
+
 // Access your environment variables like this
 const config = {
   host: process.env.DB_HOST || "localhost",
@@ -26,6 +38,8 @@ const config = {
   password: process.env.DB_PASSWORD || "",
   charset: process.env.DB_CHARSET || "utf8mb4",
   envPath: getEnvPath(),
+  appEnv: getAppEnv(),
+  envSuffix: getAppEnv() == "DEVELOPMENT" ? "/dev" : ""
 };
 
 module.exports = config;

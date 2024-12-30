@@ -29,12 +29,14 @@ if (isset($_GET['custid'])) {
 // Update customer on form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
     try {
-        $updateStmt = $pdo->prepare("UPDATE applcust SET custtype = :custtype, custcompany = :custcompany, jobpoolid = :jobpoolid WHERE custid = :custid");
+        $updateStmt = $pdo->prepare("UPDATE applcust SET custtype = :custtype, custcompany = :custcompany, jobpoolid = :jobpoolid, arbcustcpc = :arbcustcpc, arbcustcpa = :arbcustcpa WHERE custid = :custid");
         if ($updateStmt->execute([
             ':custtype' => $_POST['custtype'],
             ':custcompany' => $_POST['custname'],
             ':jobpoolid' => $_POST['jobpoolid'],
-            ':custid' => $_POST['custid']
+            ':custid' => $_POST['custid'],
+            ':arbcustcpc' => !empty($_POST['arbcustcpc']) ? $_POST['arbcustcpc'] : null,
+            ':arbcustcpa' => !empty($_POST['arbcustcpa']) ? $_POST['arbcustcpa'] : null
         ])) {
             setToastMessage('success', "Customer updated successfully.");
             header("Location: applmasterview.php"); // Redirect
@@ -81,33 +83,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
                                             <input type="hidden" name="custid" value="<?= htmlspecialchars($customer['custid']) ?>">
                                             <div class="cust-check mb-3">
                                                 <div class="custom-radio">
-                                                    <input type="radio" id="employer" name="custtype" value="emp" <?= $customer['custtype'] == 'emp' ? 'checked' : '' ?> required>
+                                                    <input type="radio" id="employer" name="custtype" value="emp" <?= ($customer['custtype'] ?? '') == 'emp' ? 'checked' : '' ?> required>
                                                     <label for="employer">
                                                         <i class="far fa-circle"></i>
                                                         <i class="fas fa-check-circle"></i> Employer
                                                     </label>
                                                 </div>
                                                 <div class="custom-radio">
-                                                    <input type="radio" id="publisher" name="custtype" value="pub" <?= $customer['custtype'] == 'pub' ? 'checked' : '' ?> required>
+                                                    <input type="radio" id="publisher" name="custtype" value="pub" <?= ($customer['custtype'] ?? '') == 'pub' ? 'checked' : '' ?> required>
                                                     <label for="publisher">
                                                         <i class="far fa-circle"></i>
                                                         <i class="fas fa-check-circle"></i> Publisher
                                                     </label><br>
                                                 </div>
                                             </div>
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="w-100">
+                                                    <label for="cpc_adjust">CPC Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" name="arbcustcpc" value="<?php echo $customer['arbcustcpc']; ?>">
+                                                </div>
+                                                <div class="w-100">
+                                                    <label for="cpa_adjust">CPA Adjust (%)</label>
+                                                    <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" name="arbcustcpa" value="<?php echo $customer['arbcustcpa']; ?>">
+                                                </div>
+                                            </div>
                                             <div>
                                                 <label for="custname">Customer Name:</label>
-                                                <input type="text" id="custname" name="custname" class="light-input" value="<?= htmlspecialchars($customer['custcompany']) ?>" required>
+                                                <input type="text" id="custname" name="custname" class="light-input" value="<?= htmlspecialchars($customer['custcompany']) ?? '' ?>" required>
                                             </div>
                                             <div class="mt-3">
                                                 <label for="jobpoolid">Select Job Pool:</label>
                                                 <select id="jobpoolid" name="jobpoolid" class="light-input" required>
                                                     <?php foreach ($jobPools as $pool): ?>
-                                                        <option value="<?= htmlspecialchars($pool['jobpoolid']) ?>" <?= $pool['jobpoolid'] == $customer['jobpoolid'] ? 'selected' : '' ?>><?= htmlspecialchars($pool['jobpoolname']) ?></option>
+                                                        <?php if (isset($pool['jobpoolid'], $customer['jobpoolid'])) { ?>
+                                                            <option value="<?= htmlspecialchars($pool['jobpoolid']) ?>" <?= $pool['jobpoolid'] == $customer['jobpoolid'] ? 'selected' : '' ?>><?= htmlspecialchars($pool['jobpoolname']) ?></option>
+                                                        <?php } ?>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
-                                            <button class="btn_green_dark w-100 mt-3">Create Customer</button>
+                                            <button class="btn_green_dark w-100 mt-3">Update Customer</button>
                                         </form>
                                     </div>
                                 </div>

@@ -103,3 +103,21 @@ function renderHeader($pageTitle, $subtitle = '', $notificationCount = 0)
     </div>
 <?php
 }
+
+function getAppEnv()
+{
+    $currentPath = __DIR__;
+
+    if (strpos($currentPath, "admin") !== false) {
+        return "PRODUCTION"; // If directory includes 'admin'
+    } elseif (strpos($currentPath, "dev") !== false) {
+        return "DEVELOPMENT"; // If directory includes 'dev'
+    } elseif (strpos($currentPath, "appljack") !== false) {
+        return "PRODUCTION"; // Root of the appljack project
+    } else {
+        return "unknown"; // If none match
+    }
+}
+
+$envClean = getAppEnv() == "DEVELOPMENT" ? "dev." : "";
+$envSuffix = getAppEnv() == "DEVELOPMENT" ? "/dev" : "";

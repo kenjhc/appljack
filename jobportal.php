@@ -155,7 +155,7 @@ try {
 
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-12 col-md-4">
+                <div class="col-sm-12 col-md-6">
                     <div class="job_card">
                         <p class="job_title">Edit Job Pool Name</p>
                         <input type="text" class="job_input" name="job_pool_name" placeholder="Enter Job Pool Name">
@@ -163,7 +163,7 @@ try {
                     </div>
                 </div>
 
-                <div class="col-sm-12 col-md-4">
+                <div class="col-sm-12 col-md-6">
                     <div class="job_card">
                         <p class="job_title">Edit Job URL</p>
                         <input type="text" class="job_input" name="job_pool_url" placeholder="Enter Job Pool URL">
@@ -171,13 +171,13 @@ try {
                     </div>
                 </div>
 
-                <div class="col-sm-12 col-md-4">
+                <!-- <div class="col-sm-12 col-md-4">
                     <div class="job_card">
                         <p class="job_title">Set Arbitrage %</p>
                         <input type="text" class="job_input" name="job_pool_arbitrage" placeholder="Enter Arbitrage ">
                         <button class="update_btn">Set Arbitrage % </button>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- another section  -->
 

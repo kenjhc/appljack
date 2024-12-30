@@ -2,6 +2,7 @@ const axios = require('axios');
 const zlib = require('zlib');
 const fs = require('fs');
 const xml2js = require('xml2js');
+const { envSuffix } = require("./config");
 
 const gzFileUrl = 'https://www.theladders.com/job-feeds/job-rapido-job-feed.xml';
 
@@ -21,7 +22,7 @@ async function downloadAndExtractXml() {
 
     if (response.status === 200) {
       console.log("Download successful, processing file...");
-      const xmlFilePath = '/chroot/home/appljack/appljack.com/html/feeddownloads/xmldl_ladders.xml';
+      const xmlFilePath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/xmldl_ladders.xml`;
       let xmlData = '';
       let stream = response.data;
 

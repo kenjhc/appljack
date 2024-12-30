@@ -2,6 +2,7 @@ const axios = require('axios');
 const zlib = require('zlib');
 const fs = require('fs');
 const xml2js = require('xml2js');
+const { envSuffix } = require("./config");
 
 const gzFileUrl = 'https://clickcastfeeds.s3.amazonaws.com/af146f38797f7e92453378d5fa19f3e4/feed.xml.gz';
 
@@ -11,7 +12,7 @@ async function downloadAndExtractXml() {
     const response = await axios.get(gzFileUrl, { responseType: 'stream' });
     if (response.status === 200) {
       console.log("Download successful, processing file...");
-      const xmlFilePath = '/chroot/home/appljack/appljack.com/html/feeddownloads/xmldl_orcdicefeed.xml';
+      const xmlFilePath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/xmldl_orcdicefeed.xml`;
       let gunzipStream = zlib.createGunzip();
       let xmlData = '';
 
