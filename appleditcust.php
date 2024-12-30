@@ -83,14 +83,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
                                             <input type="hidden" name="custid" value="<?= htmlspecialchars($customer['custid']) ?>">
                                             <div class="cust-check mb-3">
                                                 <div class="custom-radio">
-                                                    <input type="radio" id="employer" name="custtype" value="emp" <?= $customer['custtype'] == 'emp' ? 'checked' : '' ?> required>
+                                                    <input type="radio" id="employer" name="custtype" value="emp" <?= ($customer['custtype'] ?? '') == 'emp' ? 'checked' : '' ?> required>
                                                     <label for="employer">
                                                         <i class="far fa-circle"></i>
                                                         <i class="fas fa-check-circle"></i> Employer
                                                     </label>
                                                 </div>
                                                 <div class="custom-radio">
-                                                    <input type="radio" id="publisher" name="custtype" value="pub" <?= $customer['custtype'] == 'pub' ? 'checked' : '' ?> required>
+                                                    <input type="radio" id="publisher" name="custtype" value="pub" <?= ($customer['custtype'] ?? '') == 'pub' ? 'checked' : '' ?> required>
                                                     <label for="publisher">
                                                         <i class="far fa-circle"></i>
                                                         <i class="fas fa-check-circle"></i> Publisher
@@ -109,13 +109,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custid'])) {
                                             </div>
                                             <div>
                                                 <label for="custname">Customer Name:</label>
-                                                <input type="text" id="custname" name="custname" class="light-input" value="<?= htmlspecialchars($customer['custcompany']) ?>" required>
+                                                <input type="text" id="custname" name="custname" class="light-input" value="<?= htmlspecialchars($customer['custcompany']) ?? '' ?>" required>
                                             </div>
                                             <div class="mt-3">
                                                 <label for="jobpoolid">Select Job Pool:</label>
                                                 <select id="jobpoolid" name="jobpoolid" class="light-input" required>
                                                     <?php foreach ($jobPools as $pool): ?>
-                                                        <option value="<?= htmlspecialchars($pool['jobpoolid']) ?>" <?= $pool['jobpoolid'] == $customer['jobpoolid'] ? 'selected' : '' ?>><?= htmlspecialchars($pool['jobpoolname']) ?></option>
+                                                        <?php if (isset($pool['jobpoolid'], $customer['jobpoolid'])) { ?>
+                                                            <option value="<?= htmlspecialchars($pool['jobpoolid']) ?>" <?= $pool['jobpoolid'] == $customer['jobpoolid'] ? 'selected' : '' ?>><?= htmlspecialchars($pool['jobpoolname']) ?></option>
+                                                        <?php } ?>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>

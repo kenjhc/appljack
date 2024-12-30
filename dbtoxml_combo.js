@@ -14,7 +14,6 @@ const poolXmlFeeds = mysql.createPool({
 
 const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
 
-// Function to fetch all custid values from the applcust table
 async function fetchAllCustIds() {
   return new Promise((resolve, reject) => {
     poolXmlFeeds.query("SELECT custid FROM applcust", (error, results) => {
@@ -32,7 +31,8 @@ async function fetchAllCustIds() {
 async function fetchFeedsWithCriteria(custid) {
   return new Promise((resolve, reject) => {
     let query =
-      "SELECT acf.*, ac.jobpoolid, acf.cpc as feed_cpc, acf.cpa as feed_cpa FROM applcustfeeds acf " +
+      "SELECT acf.*, ac.jobpoolid, ac.arbcustcpc, ac.arbcustcpa, acf.cpc as feed_cpc, acf.cpa as feed_cpa, acf.arbcampcpc, acf.arbcampcpa " +
+      "FROM applcustfeeds acf " +
       'JOIN applcust ac ON ac.custid = acf.custid WHERE acf.status = "active" AND ac.custid = ?';
     poolXmlFeeds.query(query, [custid], (error, results) => {
       if (error) {
@@ -140,7 +140,6 @@ function buildQueryFromCriteria(criteria) {
     query += " AND " + conditions.join(" AND ");
   }
 
-  // query += " ORDER BY aj.posted_at DESC";
   return query;
 }
 
@@ -180,13 +179,11 @@ async function processQueriesSequentially() {
           continue;
         }
 
-        // Fetch custom fields for the jobpoolid
         const customFields = await fetchCustomFields(criteria.jobpoolid);
 
         const query = buildQueryFromCriteria(criteria);
         console.log("SQL Query:", query);
 
-        // Manage file stream creation per custid
         if (!custFileHandles[criteria.custid]) {
           const filePath = path.join(
             outputXmlFolderPath,
@@ -200,7 +197,6 @@ async function processQueriesSequentially() {
           );
         }
 
-        // Note that we now pass the entire 'criteria' object to ensure access to necessary identifiers
         await streamResultsToXml(
           custFileHandles[criteria.custid],
           query,
@@ -209,7 +205,6 @@ async function processQueriesSequentially() {
         );
       }
 
-      // Ensure closing of all file handles for the current custid
       Object.keys(custFileHandles).forEach((custid) => {
         if (custFileHandles[custid]) {
           custFileHandles[custid].write("</jobs>\n");
@@ -223,6 +218,12 @@ async function processQueriesSequentially() {
     console.log("All feeds processed. Closing database connection.");
     await closePool();
   }
+}
+
+function applyArbitrageAdjustment(value, adjustmentPercentage) {
+  if (!adjustmentPercentage) return value;
+  const adjustment = 1 - (parseFloat(adjustmentPercentage) / 100);
+  return (parseFloat(value) * adjustment).toFixed(2);
 }
 
 async function streamResultsToXml(fileStream, query, criteria, customFields) {
@@ -255,7 +256,7 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
               "custid",
             ].includes(key)
           )
-            return; // Skip specific keys
+            return;
           let value = job[key] ? job[key].toString() : "";
           value = value
             .replace(/&/g, "&amp;")
@@ -266,7 +267,6 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
           fileStream.write(`    <${key}>${value}</${key}>\n`);
         });
 
-        // Add custom fields to the job element
         customFields.forEach((customField) => {
           let customValue = customField.staticvalue;
           if (!customValue) {
@@ -304,8 +304,13 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
         )}&jpid=${encodeURIComponent(criteria.jobpoolid)}`;
         customUrl = customUrl.replace(/&/g, "&amp;");
         fileStream.write(`    <url>${customUrl}</url>\n`);
-        fileStream.write(`    <cpc>${job.effective_cpc}</cpc>\n`);
-        fileStream.write(`    <cpa>${job.effective_cpa}</cpa>\n`);
+
+        // Apply arbitrage adjustments
+        const adjustedCpc = applyArbitrageAdjustment(job.effective_cpc, criteria.arbcampcpc || criteria.arbcustcpc);
+        const adjustedCpa = applyArbitrageAdjustment(job.effective_cpa, criteria.arbcampcpa || criteria.arbcustcpa);
+
+        fileStream.write(`    <cpc>${adjustedCpc}</cpc>\n`);
+        fileStream.write(`    <cpa>${adjustedCpa}</cpa>\n`);
         fileStream.write(`  </job>\n`);
       })
       .on("end", () => {
