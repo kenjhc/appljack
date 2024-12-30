@@ -2,8 +2,9 @@ const fs = require('fs');
 const mysql = require('mysql');
 const path = require('path');
 const config = require('./config');
+const { envSuffix } = require("./config");
 
-const outputXmlFolderPath = '/chroot/home/appljack/appljack.com/html/applfeeds';
+const outputXmlFolderPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/applfeeds`;
 
 const poolXmlFeeds = mysql.createPool({
     connectionLimit: 10,

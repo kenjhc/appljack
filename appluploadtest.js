@@ -4,6 +4,7 @@ const sax = require('sax');
 const mysql = require('mysql');
 const moment = require('moment');
 const config = require('./config');
+const { envSuffix } = require("./config");
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled rejection:', reason);
@@ -316,7 +317,7 @@ const processRemainingJobs = async (feedId) => {
     }
 };
 
-const filePath = '/chroot/home/appljack/appljack.com/html/feeddownloads/8215880437-5845774622.xml'; // Update this with the specific file path for testing
+const filePath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/8215880437-5845774622.xml`; // Update this with the specific file path for testing
 
 (async () => {
     try {

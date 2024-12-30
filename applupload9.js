@@ -54,8 +54,15 @@ const retryOperation = async (operation, retries = MAX_RETRIES) => {
       return retryOperation(operation, retries - 1);
     } else {
       console.error("Operation failed after all retry attempts:", error);
-      logMessage(`Operation failed after all retry attempts: ${error}`, logFilePath);
-      logToDatabase("error", "applupload8.js", `Operation failed after all retry attempts: ${error}`);
+      logMessage(
+        `Operation failed after all retry attempts: ${error}`,
+        logFilePath
+      );
+      logToDatabase(
+        "error",
+        "applupload8.js",
+        `Operation failed after all retry attempts: ${error}`
+      );
       // Instead of throwing the error, we'll return null to indicate failure
       return null;
     }
@@ -440,7 +447,7 @@ const parseXmlFile = async (filePath) => {
 
     parser.on("opentag", (node) => {
       currentTag = node.name;
-      if (node.name === "job" || node.name === "doc") {  
+      if (node.name === "job" || node.name === "doc") {
         currentJobElement = node.name;
         currentItem = { feedId: feedId };
       }
@@ -552,21 +559,26 @@ const parseXmlFile = async (filePath) => {
   });
 };
 
-
 const processFiles = async () => {
-  const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
+  const directoryPath = `/chroot/home/appljack/appljack.com/html${config.envSuffix}/feedsclean/`;
 
   try {
     const updateResult = await retryOperation(updateLastUpload);
     if (updateResult === null) {
       console.log("Failed to update last upload, but continuing...");
-      logMessage("Failed to update last upload, but continuing...", logFilePath);
+      logMessage(
+        "Failed to update last upload, but continuing...",
+        logFilePath
+      );
     }
 
     const createTempTableResult = await retryOperation(createTempTableOnce);
     if (createTempTableResult === null) {
       console.log("Failed to create temporary table, but continuing...");
-      logMessage("Failed to create temporary table, but continuing...", logFilePath);
+      logMessage(
+        "Failed to create temporary table, but continuing...",
+        logFilePath
+      );
     }
 
     const filePaths = fs
@@ -581,16 +593,28 @@ const processFiles = async () => {
 
         const parseResult = await retryOperation(() => parseXmlFile(filePath));
         if (parseResult === null) {
-          console.log(`Failed to process file ${filePath}, moving to next file...`);
-          logMessage(`Failed to process file ${filePath}, moving to next file...`, logFilePath);
+          console.log(
+            `Failed to process file ${filePath}, moving to next file...`
+          );
+          logMessage(
+            `Failed to process file ${filePath}, moving to next file...`,
+            logFilePath
+          );
           continue;
         }
 
         logProgress();
       } catch (err) {
         console.error(`Error processing XML file ${filePath}:`, err);
-        logMessage(`Error processing XML file ${filePath}: ${err}`, logFilePath);
-        logToDatabase("error", "applupload8.js", `Error processing XML file ${filePath}: ${err}`);
+        logMessage(
+          `Error processing XML file ${filePath}: ${err}`,
+          logFilePath
+        );
+        logToDatabase(
+          "error",
+          "applupload8.js",
+          `Error processing XML file ${filePath}: ${err}`
+        );
         // Continue to the next file instead of throwing an error
         continue;
       }

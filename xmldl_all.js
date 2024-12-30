@@ -7,6 +7,7 @@ const js2xmlparser = require("js2xmlparser");
 const mysql = require("mysql");
 const stream = require("stream");
 const config = require("./config");
+const { envSuffix } = require("./config");
 
 // Set up a MySQL connection
 const db = mysql.createConnection({
@@ -50,7 +51,7 @@ async function startProcess() {
           }
 
           const outputFileName = `${acctnum}-${jobpoolid}.xml`;
-          const outputPath = `/chroot/home/appljack/appljack.com/html/feeddownloads/${outputFileName}`;
+          const outputPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/${outputFileName}`;
           if (file_type.toLowerCase() === "xml") {
             await downloadAndProcessXml(
               file_url.trim(),

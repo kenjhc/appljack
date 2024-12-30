@@ -1,6 +1,7 @@
 const axios = require('axios');
 const zlib = require('zlib');
 const fs = require('fs');
+const { envSuffix } = require("./config");
 
 // URL of the .gz file you want to download
 const gzFileUrl = 'https://clickcastfeeds.s3.amazonaws.com/13a27ffa60d42c953cf6968cecff7291/feed.xml.gz';
@@ -13,7 +14,7 @@ async function downloadAndExtractXml() {
     });
 
     if (response.status === 200) {
-      const xmlFilePath = '/chroot/home/appljack/appljack.com/html/feeddownloads/xmldl_orccpa.xml';
+      const xmlFilePath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/xmldl_orccpa.xml`;
       const writeStream = fs.createWriteStream(xmlFilePath);
 
       // Create a gunzip stream

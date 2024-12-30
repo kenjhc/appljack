@@ -138,7 +138,7 @@ fetch("<?= getUrl(1) ?>secondary-event.php")
                                             <tbody>
                                                 <tr>
                                                     <td>
-                                                        <a href="https://appljack.com/applfeeds/<?= htmlspecialchars($acctnum) ?>.xml">https://appljack.com/applfeeds/<?= htmlspecialchars($acctnum) ?>.xml</a>
+                                                        <a href="https://<?= $envClean ?>appljack.com/applfeeds/<?= htmlspecialchars($acctnum) ?>.xml">https://<?= $envClean ?>appljack.com/applfeeds/<?= htmlspecialchars($acctnum) ?>.xml</a>
                                                     </td>
                                                     <td colspan="4"></td>
                                                 </tr>
@@ -146,7 +146,7 @@ fetch("<?= getUrl(1) ?>secondary-event.php")
                                                     <tr>
                                                         <td></td>
                                                         <td class="healthy-text text-dark-green"><?= htmlspecialchars($info['company']) ?></td>
-                                                        <td><a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>.xml">https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>.xml</a></td>
+                                                        <td><a href="https://<?= $envClean ?>appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>.xml">https://<?= $envClean ?>appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>.xml</a></td>
                                                         <td colspan="2"></td>
                                                     </tr>
                                                     <?php foreach ($info['feeds'] as $feed): ?>
@@ -155,7 +155,7 @@ fetch("<?= getUrl(1) ?>secondary-event.php")
                                                             <td></td>
                                                             <td></td>
                                                             <td class="healthy-text text-dark-green"><?= htmlspecialchars($feed['name']) ?></td>
-                                                            <td><a href="https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($feed['id']) ?>.xml">https://appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($feed['id']) ?>.xml</a></td>
+                                                            <td><a href="https://<?= $envClean ?>appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($feed['id']) ?>.xml">https://<?= $envClean ?>appljack.com/applfeeds/<?= htmlspecialchars($custid) ?>-<?= htmlspecialchars($feed['id']) ?>.xml</a></td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 <?php endforeach; ?>

@@ -4,6 +4,7 @@ const sax = require('sax');
 const mysql = require('mysql');
 const moment = require('moment');
 const config = require('./config');
+const { envSuffix } = require("./config");
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled rejection:', reason);
@@ -385,7 +386,7 @@ const processRemainingJobs = async () => {
 };
 
 const processFiles = async () => {
-    const directoryPath = '/chroot/home/appljack/appljack.com/html/feeddownloads/';
+    const directoryPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/`;
 
     try {
         await createTempTableWithConnection();
@@ -438,5 +439,5 @@ const processSingleFile = async (filePath) => {
 // processFiles().then(() => console.log('All processing complete.')).catch(error => console.error('An error occurred during processing:', error));
 
 // Uncomment the following line to process a single file for testing
-const singleFilePath = '/chroot/home/appljack/appljack.com/html/feeddownloads/8215880437-5845774622.xml'; // Adjust the file path as necessary
+const singleFilePath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/8215880437-5845774622.xml`; // Adjust the file path as necessary
 processSingleFile(singleFilePath).then(() => console.log('Single file processing complete.')).catch(error => console.error('An error occurred during single file processing:', error));

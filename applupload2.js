@@ -1,15 +1,16 @@
-const fs = require('fs');
-const path = require('path');
-const sax = require('sax');
-const mysql = require('mysql');
-const config = require('./config');
+const fs = require("fs");
+const path = require("path");
+const sax = require("sax");
+const mysql = require("mysql");
+const config = require("./config");
+const { envSuffix } = require("./config");
 
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled rejection:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled rejection:", reason);
 });
 
-process.on('uncaughtException', (error) => {
-    console.error('Uncaught exception:', error);
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught exception:", error);
 });
 
 let jobQueue = [];
@@ -21,32 +22,35 @@ let connectionReleased = false;
 
 // Function to create a temporary table with a dedicated connection
 const createTempTableWithConnection = async () => {
-    tempConnection = await new Promise((resolve, reject) => {
-        pool.getConnection((err, connection) => {
-            if (err) reject(err);
-            else resolve(connection);
-        });
+  tempConnection = await new Promise((resolve, reject) => {
+    pool.getConnection((err, connection) => {
+      if (err) reject(err);
+      else resolve(connection);
     });
+  });
 
-    return new Promise((resolve, reject) => {
-        tempConnection.query(`CREATE TEMPORARY TABLE IF NOT EXISTS appljobs_temp LIKE appljobs`, (err, result) => {
-            if (err) {
-                console.error('Failed to create temporary table', err);
-                reject(err);
-            } else {
-                console.log('Temporary table created successfully');
-                resolve();
-            }
-        });
-    });
+  return new Promise((resolve, reject) => {
+    tempConnection.query(
+      `CREATE TEMPORARY TABLE IF NOT EXISTS appljobs_temp LIKE appljobs`,
+      (err, result) => {
+        if (err) {
+          console.error("Failed to create temporary table", err);
+          reject(err);
+        } else {
+          console.log("Temporary table created successfully");
+          resolve();
+        }
+      }
+    );
+  });
 };
 
 function logFailedBatch(batch, feedId, error) {
-  const logDir = path.join('/chroot/home/appljack/appljack.com/html/log'); // Specify the log directory path
-  const logFile = path.join(logDir, 'failed_batches.log');
+  const logDir = path.join("/chroot/home/appljack/appljack.com/html/log"); // Specify the log directory path
+  const logFile = path.join(logDir, "failed_batches.log");
 
   // Ensure the log directory exists
-  if (!fs.existsSync(logDir)){
+  if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true }); // Create the directory if it doesn't exist
   }
 
@@ -55,29 +59,28 @@ function logFailedBatch(batch, feedId, error) {
     timestamp,
     feedId,
     error: error.message,
-    batchDetails: batch.map(item => ({
+    batchDetails: batch.map((item) => ({
       job_reference: item.job_reference,
-      city: item.city // Example: log specific fields that might be causing issues
+      city: item.city, // Example: log specific fields that might be causing issues
       // Add more fields as necessary
-    }))
+    })),
   };
 
   // Append the log entry to the log file
-  fs.appendFile(logFile, JSON.stringify(logEntry) + '\n', (err) => {
+  fs.appendFile(logFile, JSON.stringify(logEntry) + "\n", (err) => {
     if (err) {
-      console.error('Failed to log failed batch details:', err);
+      console.error("Failed to log failed batch details:", err);
     }
   });
 }
 
-
 const pool = mysql.createPool({
-    connectionLimit: 10,
-    host: config.host,
-    user: config.username,
-    password: config.password,
-    database: config.database,
-    charset: config.charset,
+  connectionLimit: 10,
+  host: config.host,
+  user: config.username,
+  password: config.password,
+  database: config.database,
+  charset: config.charset,
 });
 
 // Define processQueue function
@@ -90,9 +93,9 @@ const processQueue = async (feedId) => {
 
   try {
     await processBatch(batch, feedId);
-  //  console.log(`Batch processed successfully. Inserted ${batch.length} rows for feedId: ${feedId}. Remaining jobs in queue: ${jobQueue.length}`);
+    //  console.log(`Batch processed successfully. Inserted ${batch.length} rows for feedId: ${feedId}. Remaining jobs in queue: ${jobQueue.length}`);
   } catch (err) {
-    console.error('Failed to process batch:', err);
+    console.error("Failed to process batch:", err);
     logFailedBatch(batch, feedId, err);
   } finally {
     isProcessingBatch = false;
@@ -102,32 +105,47 @@ const processQueue = async (feedId) => {
   }
 };
 
-
 const createTempTable = async () => {
-    return new Promise((resolve, reject) => {
-        pool.query(`CREATE TEMPORARY TABLE IF NOT EXISTS appljobs_temp LIKE appljobs`, (err, result) => {
-            if (err) {
-                console.error('Failed to create temporary table', err);
-                return reject(err);
-            }
-            console.log('Temporary table created successfully');
-            resolve();
-        });
-    });
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `CREATE TEMPORARY TABLE IF NOT EXISTS appljobs_temp LIKE appljobs`,
+      (err, result) => {
+        if (err) {
+          console.error("Failed to create temporary table", err);
+          return reject(err);
+        }
+        console.log("Temporary table created successfully");
+        resolve();
+      }
+    );
+  });
 };
-
-
 
 // Modify the processBatch function to use appljobs_temp
 const processBatch = async (batch, feedId) => {
-  const values = batch.map(item => [
-    item.feedId, item.location, item.title, item.city, item.state, item.zip, item.country,
-    item.job_type, item.posted_at, item.job_reference, item.company, item.mobile_friendly_apply,
-    item.category, item.html_jobs, item.url, item.body, item.custid
+  const values = batch.map((item) => [
+    item.feedId,
+    item.location,
+    item.title,
+    item.city,
+    item.state,
+    item.zip,
+    item.country,
+    item.job_type,
+    item.posted_at,
+    item.job_reference,
+    item.company,
+    item.mobile_friendly_apply,
+    item.category,
+    item.html_jobs,
+    item.url,
+    item.body,
+    item.custid,
   ]);
 
   return new Promise((resolve, reject) => {
-    const query = 'INSERT INTO appljobs_temp (feedId, location, title, city, state, zip, country, job_type, posted_at, job_reference, company, mobile_friendly_apply, category, html_jobs, url, body, custid) VALUES ?';
+    const query =
+      "INSERT INTO appljobs_temp (feedId, location, title, city, state, zip, country, job_type, posted_at, job_reference, company, mobile_friendly_apply, category, html_jobs, url, body, custid) VALUES ?";
     tempConnection.query(query, [values], (err, result) => {
       if (err) return reject(err);
       console.log(`Batch processed: ${result.affectedRows} rows inserted.`);
@@ -136,7 +154,6 @@ const processBatch = async (batch, feedId) => {
   });
 };
 
-
 // Function to parse and process the XML file using sax
 const parseXmlFile = (filePath) => {
   console.log(`Starting to process file: ${filePath}`);
@@ -144,7 +161,7 @@ const parseXmlFile = (filePath) => {
     const stream = fs.createReadStream(filePath);
     const parser = sax.createStream(true);
     let currentItem = {};
-    let currentTag = '';
+    let currentTag = "";
 
     // Extract the filename without extension as feedId
     const feedId = path.basename(filePath, path.extname(filePath));
@@ -154,30 +171,27 @@ const parseXmlFile = (filePath) => {
     let jobCloseCount = 0;
     let jobsQueuedCount = 0; // Increment when a job is added to the queue
 
-
-
-    parser.on('opentag', (node) => {
+    parser.on("opentag", (node) => {
       currentTag = node.name;
-      if (node.name === 'job') {
+      if (node.name === "job") {
         jobOpenCount++;
         // Initialize currentItem with feedId when a new job element is encountered
         currentItem = { feedId: feedId };
       }
     });
 
-
     // Define a mapping from XML tag names to standardized property names
     const tagToPropertyMap = {
-      referencenumber: 'job_reference',
+      referencenumber: "job_reference",
       // Add other mappings here for different fields that need normalization
-      description: 'body',
-      date: 'posted_at',
-      custid: 'custid',
+      description: "body",
+      date: "posted_at",
+      custid: "custid",
 
       // Continue mapping other tags as needed
     };
 
-    parser.on('text', (text) => {
+    parser.on("text", (text) => {
       if (currentItem && currentTag) {
         let trimmedText = text.trim();
 
@@ -185,22 +199,24 @@ const parseXmlFile = (filePath) => {
         if (tagToPropertyMap[currentTag]) {
           // Use the standardized property name from the mapping
           let propertyName = tagToPropertyMap[currentTag];
-          currentItem[propertyName] = (currentItem[propertyName] || '') + trimmedText;
+          currentItem[propertyName] =
+            (currentItem[propertyName] || "") + trimmedText;
         } else {
           // For tags not in the mapping, use the tag name directly
-          currentItem[currentTag] = (currentItem[currentTag] || '') + trimmedText;
+          currentItem[currentTag] =
+            (currentItem[currentTag] || "") + trimmedText;
         }
       }
     });
 
     // Add this cdata event handler
-    parser.on('cdata', (cdata) => {
+    parser.on("cdata", (cdata) => {
       if (currentItem && currentTag) {
         if (tagToPropertyMap[currentTag]) {
           let propertyName = tagToPropertyMap[currentTag];
-          currentItem[propertyName] = (currentItem[propertyName] || '') + cdata;
+          currentItem[propertyName] = (currentItem[propertyName] || "") + cdata;
         } else {
-          currentItem[currentTag] = (currentItem[currentTag] || '') + cdata;
+          currentItem[currentTag] = (currentItem[currentTag] || "") + cdata;
         }
       }
     });
@@ -208,42 +224,45 @@ const parseXmlFile = (filePath) => {
     const maxLength = 100; // Adjust based on your column's definition
     const maxLengthMore = 255; // Adjust based on your column's definition
 
-
-    parser.on('closetag', (nodeName) => {
-      if (nodeName === 'job') {
+    parser.on("closetag", (nodeName) => {
+      if (nodeName === "job") {
         jobCloseCount++;
         currentItem.feedId = feedId; // Ensure feedId is assigned to each job
 
         // Trim the 'city' field if it exceeds the maxLength (100 characters)
         if (currentItem.city && currentItem.city.length > maxLength) {
-          console.warn(`Trimming 'city' data for job_reference ${currentItem.job_reference} because it exceeds ${maxLength} characters.`);
+          console.warn(
+            `Trimming 'city' data for job_reference ${currentItem.job_reference} because it exceeds ${maxLength} characters.`
+          );
           currentItem.city = currentItem.city.substring(0, maxLength);
         }
 
         // Trim the 'category' field if it exceeds maxLengthMore (255 characters)
-        if (currentItem.category && currentItem.category.length > maxLengthMore) {
-          console.warn(`Trimming 'category' data for job_reference ${currentItem.job_reference} because it exceeds ${maxLengthMore} characters.`);
-          currentItem.category = currentItem.category.substring(0, maxLengthMore);
+        if (
+          currentItem.category &&
+          currentItem.category.length > maxLengthMore
+        ) {
+          console.warn(
+            `Trimming 'category' data for job_reference ${currentItem.job_reference} because it exceeds ${maxLengthMore} characters.`
+          );
+          currentItem.category = currentItem.category.substring(
+            0,
+            maxLengthMore
+          );
         }
 
         // Previously: Filtering based on CPC value
         // This filtering is now removed based on the requirements
 
-
-             jobQueue.push(currentItem); // Add the currentItem to the job queue only if it has all required fields
-             jobsQueuedCount++; // Increment the counter for jobs added to the queue
-
+        jobQueue.push(currentItem); // Add the currentItem to the job queue only if it has all required fields
+        jobsQueuedCount++; // Increment the counter for jobs added to the queue
 
         // Attempt to process the queue without awaiting, as this is within an event callback
         processQueue(feedId);
       }
     });
 
-
-
-
-
-    parser.on('end', async () => {
+    parser.on("end", async () => {
       console.log(`Total jobs opened: ${jobOpenCount}`);
       console.log(`Total jobs closed: ${jobCloseCount}`);
       console.log(`Total jobs queued: ${jobsQueuedCount}`);
@@ -251,17 +270,14 @@ const parseXmlFile = (filePath) => {
       if (jobQueue.length > 0) {
         await processQueue(feedId);
       }
-      console.log('XML file processing completed.');
+      console.log("XML file processing completed.");
       console.log(`Total jobs inserted: ${totalJobsInsertedCount}`);
-
-
 
       resolve(); // Resolve the promise indicating the completion of XML file processing
     });
 
-
-    parser.on('error', (err) => {
-      console.error('Parsing error:', err);
+    parser.on("error", (err) => {
+      console.error("Parsing error:", err);
       reject(err);
     });
 
@@ -272,7 +288,7 @@ const parseXmlFile = (filePath) => {
 const updateApplJobsTable = async () => {
   return new Promise((resolve, reject) => {
     // Begin a transaction with tempConnection
-    tempConnection.beginTransaction(err => {
+    tempConnection.beginTransaction((err) => {
       if (err) return reject(err);
 
       const updateExisting = `
@@ -301,44 +317,42 @@ const updateApplJobsTable = async () => {
         LEFT JOIN appljobs_temp ajt ON aj.job_reference = ajt.job_reference
         WHERE ajt.job_reference IS NULL`;
 
-        // Execute the updateExisting query
-        tempConnection.query(updateExisting, (err, result) => {
+      // Execute the updateExisting query
+      tempConnection.query(updateExisting, (err, result) => {
+        if (err) {
+          tempConnection.rollback(() => reject(err));
+          return;
+        }
+
+        // Execute the insertNew query
+        tempConnection.query(insertNew, (err, result) => {
           if (err) {
             tempConnection.rollback(() => reject(err));
             return;
           }
 
-          // Execute the insertNew query
-          tempConnection.query(insertNew, (err, result) => {
+          // Execute the deleteOld query
+          tempConnection.query(deleteOld, (err, result) => {
             if (err) {
               tempConnection.rollback(() => reject(err));
               return;
             }
 
-            // Execute the deleteOld query
-            tempConnection.query(deleteOld, (err, result) => {
+            // Commit the transaction
+            tempConnection.commit((err) => {
               if (err) {
                 tempConnection.rollback(() => reject(err));
                 return;
               }
-
-              // Commit the transaction
-              tempConnection.commit(err => {
-                if (err) {
-                  tempConnection.rollback(() => reject(err));
-                  return;
-                }
-                console.log('Updated appljobs table successfully.');
-                resolve();
-              });
+              console.log("Updated appljobs table successfully.");
+              resolve();
             });
           });
         });
       });
     });
-  };
-
-
+  });
+};
 
 // Function to process the remaining jobs in the queue with the correct feedId
 const processRemainingJobs = async () => {
@@ -352,57 +366,60 @@ const processRemainingJobs = async () => {
 
 // Function to parse and process XML files
 const processFiles = async () => {
-    const directoryPath = '/chroot/home/appljack/appljack.com/html/feeddownloads/';
+  const directoryPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/`;
 
-    try {
-        await createTempTableWithConnection(); // Use the function that establishes tempConnection
+  try {
+    await createTempTableWithConnection(); // Use the function that establishes tempConnection
 
-        const filePaths = fs.readdirSync(directoryPath)
-                            .filter(file => path.extname(file) === '.xml')
-                            .map(file => path.join(directoryPath, file));
+    const filePaths = fs
+      .readdirSync(directoryPath)
+      .filter((file) => path.extname(file) === ".xml")
+      .map((file) => path.join(directoryPath, file));
 
-        for (const filePath of filePaths) {
-            await parseXmlFile(filePath);
-            console.log(`Processed file: ${filePath}`);
-            await processRemainingJobs();
-        }
+    for (const filePath of filePaths) {
+      await parseXmlFile(filePath);
+      console.log(`Processed file: ${filePath}`);
+      await processRemainingJobs();
+    }
 
-        await updateApplJobsTable();
-        console.log('appljobs table synchronized successfully.');
-    } catch (err) {
-        console.error('An error occurred:', err);
-    } finally {
-    console.log('Ensuring all operations have completed before closing the connection pool...');
+    await updateApplJobsTable();
+    console.log("appljobs table synchronized successfully.");
+  } catch (err) {
+    console.error("An error occurred:", err);
+  } finally {
+    console.log(
+      "Ensuring all operations have completed before closing the connection pool..."
+    );
     // Check if the tempConnection exists and has not been released yet
     if (tempConnection && !connectionReleased) {
-        try {
-            tempConnection.release(); // Release the dedicated connection
-            console.log('Temporary connection released successfully.');
-            connectionReleased = true; // Mark the connection as released to prevent future release attempts
-        } catch (releaseError) {
-            console.error('Error releasing temporary connection:', releaseError);
-        }
+      try {
+        tempConnection.release(); // Release the dedicated connection
+        console.log("Temporary connection released successfully.");
+        connectionReleased = true; // Mark the connection as released to prevent future release attempts
+      } catch (releaseError) {
+        console.error("Error releasing temporary connection:", releaseError);
+      }
     }
     closeConnectionPool(); // Proceed with closing the pool
-}
-
+  }
 };
-
 
 // Function to safely close the connection pool
 const closeConnectionPool = () => {
-  pool.end(err => {
+  pool.end((err) => {
     if (err) {
-      console.error('Failed to close the connection pool:', err);
+      console.error("Failed to close the connection pool:", err);
     } else {
-      console.log('Connection pool closed successfully.');
+      console.log("Connection pool closed successfully.");
     }
   });
 };
 
 // Call processFiles to start processing
-processFiles().then(() => {
-  console.log('All processing complete.');
-}).catch(error => {
-  console.error('An error occurred during processing:', error);
-});
+processFiles()
+  .then(() => {
+    console.log("All processing complete.");
+  })
+  .catch((error) => {
+    console.error("An error occurred during processing:", error);
+  });

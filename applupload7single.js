@@ -406,7 +406,7 @@ const closeConnectionPool = () => {
 };
 
 // Example local file path for testing
-const testFilePath = '/chroot/home/appljack/appljack.com/html/feedsclean/8215880437-5845774622.xml';
+const testFilePath = `/chroot/home/appljack/appljack.com/html${config.envSuffix}/feedsclean/8215880437-5845774622.xml`;
 
 processFileFromPath(testFilePath).then(() => {
     console.log('All processing complete.');

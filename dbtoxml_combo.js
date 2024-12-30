@@ -2,6 +2,7 @@ const fs = require("fs");
 const mysql = require("mysql");
 const path = require("path");
 const config = require("./config");
+const { envSuffix } = require("./config");
 
 const poolXmlFeeds = mysql.createPool({
   connectionLimit: 10,
@@ -12,7 +13,7 @@ const poolXmlFeeds = mysql.createPool({
   charset: config.charset,
 });
 
-const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+const outputXmlFolderPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/applfeeds`;
 
 async function fetchAllCustIds() {
   return new Promise((resolve, reject) => {

@@ -1,6 +1,6 @@
 <?php
 
-include 'database/db.php';
+include 'database/db.php'; 
 
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
@@ -11,7 +11,7 @@ $error = ''; // Initialize $error to avoid undefined variable notices
 $jobpoolid = $_GET['jobpoolid'] ?? ''; // Ensure $jobpoolid is initialized before use
 
 $acctnum = $_SESSION['acctnum']; // Retrieve account number from session
-$filepath = "/chroot/home/appljack/appljack.com/html/feedsclean/{$acctnum}-{$jobpoolid}.xml"; // Construct the file path
+$filepath = "/chroot/home/appljack/appljack.com/html$envSuffix/feedsclean/{$acctnum}-{$jobpoolid}.xml"; // Construct the file path
 
 // Function to sanitize and reformat the field name for XML
 function sanitizeFieldName($fieldName)

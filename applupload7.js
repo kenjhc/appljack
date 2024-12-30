@@ -6,6 +6,7 @@ const sax = require("sax");
 const mysql = require("mysql");
 const moment = require("moment");
 const config = require("./config");
+const { envSuffix } = require("./config");
 
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled rejection:", reason);
@@ -500,7 +501,7 @@ const closeConnectionPool = () => {
 };
 
 const processFiles = async () => {
-  const directoryPath = "/chroot/home/appljack/appljack.com/html/feedsclean/";
+  const directoryPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feedsclean/`;
 
   try {
     await createTempTableWithConnection();

@@ -6,9 +6,10 @@ const mysql = require("mysql");
 const sax = require("sax");
 const { logMessage, logToDatabase } = require("./utils/helpers");
 const config = require("./config");
+const { envSuffix } = require("./config");
 
 // Define the folder where XML files are stored
-const xmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+const xmlFolderPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/applfeeds`;
 
 // Setup MySQL connection pool
 const pool = mysql.createPool({

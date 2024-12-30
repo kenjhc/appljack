@@ -38,7 +38,7 @@ try {
     }
 
     // Construct Feed URL
-    $feedUrl = "https://appljack.com/applfeeds/" . urlencode($_SESSION['custid']) . "-" . urlencode($feed['feedid']) . ".xml";
+    $feedUrl = "https://" . $envClean . "appljack.com/applfeeds/" . urlencode($_SESSION['custid']) . "-" . urlencode($feed['feedid']) . ".xml";
 } catch (PDOException $e) {
     setToastMessage('error', "Database error: " . $e->getMessage());
     header("Location: applmasterview.php");
@@ -90,7 +90,7 @@ try {
                                         <?php
                                         // Construct the local file path from the feed URL
                                         // Assuming the feed URL structure and local file path are directly related
-                                        $localFilePath = '/chroot/home/appljack/appljack.com/html/applfeeds/' . urlencode($_SESSION['custid']) . "-" . urlencode($feed['feedid']) . ".xml";
+                                        $localFilePath = '/chroot/home/appljack/appljack.com/html' . $envSuffix . '/applfeeds/' . urlencode($_SESSION['custid']) . "-" . urlencode($feed['feedid']) . ".xml";
 
                                         // Check if the XML file exists
                                         $fileExistsMessage = file_exists($localFilePath) ? "(feed is ready!)" : "(feed under construction)";

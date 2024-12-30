@@ -2,6 +2,7 @@ const axios = require('axios');
 const zlib = require('zlib');
 const fs = require('fs');
 const xml2js = require('xml2js');
+const { envSuffix } = require("./config");
 
 const gzFileUrl = 'https://jobhubcentral.com/combined_plumb.xml';
 
@@ -12,7 +13,7 @@ async function downloadAndExtractXml() {
 
     if (response.status === 200) {
       console.log("Download successful, processing file...");
-      const xmlFilePath = '/chroot/home/appljack/appljack.com/html/feeddownloads/xmldl_plumb.xml';
+      const xmlFilePath = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads/xmldl_plumb.xml`;
       let xmlData = '';
       let stream = response.data;
 

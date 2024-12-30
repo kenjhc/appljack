@@ -1,12 +1,8 @@
 // require("dotenv").config();
-
-const fs = require("fs");
-const mysql = require("mysql");
-const path = require("path");
+ 
+const mysql = require("mysql"); 
 const config = require("./config");
-
-const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
-
+ 
 const poolXmlFeeds = mysql.createPool({
   connectionLimit: 10,
   host: config.host,

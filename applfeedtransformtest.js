@@ -2,9 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const sax = require('sax');
 const js2xmlparser = require("js2xmlparser");
+const { envSuffix } = require("./config");
 
-const inputDirectory = '/chroot/home/appljack/appljack.com/html/feeddownloads';
-const outputDirectory = '/chroot/home/appljack/appljack.com/html/feedsclean';
+const inputDirectory = `/chroot/home/appljack/appljack.com/html${envSuffix}/feeddownloads`;
+const outputDirectory = `/chroot/home/appljack/appljack.com/html${envSuffix}/feedsclean`;
 
 // Read all XML files from the input directory
 fs.readdir(inputDirectory, (err, files) => {
