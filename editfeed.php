@@ -1,6 +1,7 @@
 <?php
 include 'database/db.php';
 
+
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();
@@ -74,7 +75,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dailybudget = filter_input(INPUT_POST, 'dailybudget', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $arbcampcpc = filter_input(INPUT_POST, 'arbcampcpc', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $arbcampcpa = filter_input(INPUT_POST, 'arbcampcpa', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $startdate = filter_input(INPUT_POST, 'startdate', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $enddate = filter_input(INPUT_POST, 'enddate', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
+$startdate = !empty($startdate) ? date('Y-m-d H:i:s', strtotime($startdate)) : null;
+$enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
+
+
+if (!empty($startdate)) {
+    $startdate = (new DateTime($startdate))->modify('-4 hours')->format('Y-m-d H:i:s');
+} else {
+    $startdate = null;
+}
+
+if (!empty($enddate)) {
+    $enddate = (new DateTime($enddate))->modify('-4 hours')->format('Y-m-d H:i:s');
+} else {
+    $enddate = null;
+}
     if (empty($feedbudget)) {
         setToastMessage('error', "Please provide a valid budget.");
     }
@@ -194,13 +212,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Update the applcustfeeds table with the new data
     try {
+
+
+        if (!empty($startdate)) {
+            $startdate = (new DateTime($startdate))->modify('-4 hours')->format('Y-m-d H:i:s');
+        } else {
+            $startdate = null;
+        }
+    
+        if (!empty($enddate)) {
+            $enddate = (new DateTime($enddate))->modify('-4 hours')->format('Y-m-d H:i:s');
+        } else {
+            $enddate = null;
+        }
+    
+        // Fetch current status from the database
+        $stmt = $pdo->prepare("SELECT status FROM applcustfeeds WHERE feedid = ? AND custid = ?");
+        $stmt->execute([$feedid, $_SESSION['custid']]);
+        $currentStatus = $stmt->fetchColumn();
+    
+        // Determine new status only if it's not "capped" or "stopped"
+        if ($currentStatus !== 'capped' && $currentStatus !== 'stopped') {
+            $currentDate = new DateTime(); // Current date/time
+            if ($startdate && new DateTime($startdate) > $currentDate) {
+                $newStatus = 'date stopped'; // Start date is in the future
+            } elseif ($enddate && new DateTime($enddate) < $currentDate) {
+                $newStatus = 'date stopped'; // End date is in the past
+            } else {
+                $newStatus = 'active'; // Default to active
+            }
+        } else {
+            $newStatus = $currentStatus; // Preserve current status
+        }
         $stmt = $pdo->prepare("UPDATE applcustfeeds
                                SET feedname = ?, budget = ?, budgetdaily = ?, cpc = ?, cpa = ?,
                                    custquerykws = ?, custqueryco = ?, custqueryindustry = ?,
                                    custquerycity = ?, custquerystate = ?, custquerycustom1 = ?,
                                    custquerycustom2 = ?, custquerycustom3 = ?, custquerycustom4 = ?,
                                    custquerycustom5 = ?, activepubs = ?,
-                                   arbcampcpc = ?, arbcampcpa = ?
+                                   arbcampcpc = ?, arbcampcpa = ?, date_start = ?, date_end = ?, status = ?
                                WHERE feedid = ? AND custid = ?");
         $stmt->execute([
             $feedname,
@@ -221,6 +271,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updatedActivePubsStr,
             !empty($arbcampcpc) ? $arbcampcpc : null,
             !empty($arbcampcpa) ? $arbcampcpa : null,
+            $startdate,
+            $enddate,
+            $newStatus,
             $feedid,
             $_SESSION['custid']
         ]);
@@ -405,6 +458,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <input type="number" step="0.01" placeholder="0.01" min="0" max="100.00" class="light-input" value="<?= htmlspecialchars($feed['arbcampcpa'] ?? ''); ?>" name="arbcampcpa">
                                                 </div>
                                             </div>
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                 <div class="w-100 my-3">
+                                                    <label class="healthy-text text-dark-green mb-0" for="start_date">Start Date</label>
+                                                    <input type="date" id="startdate" name="startdate" class="form-control" value="<?= htmlspecialchars(substr($feed['date_start'], 0, 10)) ?>" >
+
+                                                </div>
+
+                                         
+                                                <div class="w-100 my-3">
+                                                    <label class="healthy-text text-dark-green mb-0" for="end_date">End Date</label>
+                                                    <input type="date" id="enddate" name="enddate" class="form-control" value="<?= htmlspecialchars(substr($feed['date_end'], 0, 10)) ?>" >
+                                                </div>
+                                                </div>
                                             <h4>Keywords</h4>
                                             <div>
                                                 <label for="keywords_include">Keywords Include</label>

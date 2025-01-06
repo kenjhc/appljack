@@ -16,7 +16,7 @@ const pool = mysql.createPool({
 
 const transporter = nodemailer.createTransport({
   // service: 'cloudvpsserver.host.jobhubcentral.com',
-  host: "69.167.170.128",
+  host: "67.225.189.14",
   port: 587,
   auth: {
     user: "budgets@appljack.com",
@@ -85,7 +85,7 @@ const updateFeedStatus = async () => {
       );
       const monthlyTotal = parseFloat(monthlySumResult[0].total) || 0;
       const monthlyBudget = parseFloat(feed.budget);
-      await sendEmail(feed, "90%");
+      // await sendEmail(feed, "90%");
 
       if (monthlyBudget) {
         if (monthlyTotal >= monthlyBudget * 0.95) {
@@ -204,8 +204,6 @@ const sendEmail = async (feed, percentage) => {
     to: [
       feed.customerEmail,
       feed.publisherEmail || null,
-      // "mannananxari@gmail.com",
-      // "odit33959@gmail.com",
       "budgets@appljack.com",
     ]
       .filter(Boolean)

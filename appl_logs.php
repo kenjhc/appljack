@@ -373,8 +373,8 @@ $db->close();
                                 $lineNumber = $matches[1];
                                 $scriptNameWithoutLine = preg_replace('/^\d+:\s/', '', $row['script_name']);
                             } else {
-                                $lineNumber = $row['line_number'];
-                                $scriptNameWithoutLine = $row['script_name'];
+                                $lineNumber = $row['line_number'] ?? '-';
+                                $scriptNameWithoutLine = $row['script_name'] ?? '-';
                             }
 
                             $backgroundColor = '';

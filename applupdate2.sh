@@ -4,7 +4,7 @@
 export PATH=/usr/local/bin:/usr/bin:/bin
 export NODE_ENV=production
 
-LOCKFILE="/chroot/home/appljack/appljack.com/html/dev/locks/appl_update_2_log.lock"
+LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/appl_update_2_log.lock"
 
 # Function to clean up lockfile
 cleanup() {
@@ -29,7 +29,7 @@ if ! mkdir "$LOCKFILE"; then
 fi
 
 # Paths
-DIR="/chroot/home/appljack/appljack.com/html/dev"
+DIR="/chroot/home/appljack/appljack.com/html/admin"
 LOGFILE="$DIR/applupdate2.log"
 NODE="/usr/bin/node" # Ensure this is the correct path to the node executable
 PYTHON="/usr/bin/python3" # Updated path to the Python 3 executable
@@ -57,7 +57,7 @@ echo "Running dbtoxml_appl2.js" >> "$LOGFILE"
 $NODE "$DIR/dbtoxml_appl2.js" >> "$LOGFILE" 2>&1
 
 echo "Running dbtoxml_combo.js" >> "$LOGFILE"
-$NODE "$DIR/dbtoxml_combo.js" >> "$DIR/dbtoxml_combo_output.log" 2>> "$DIR/dbtoxml_combo_error.log"
+$NODE "$DIR/dbtoxml_combo.js" >> "$DIR/dbtoxml_combo.log" 2>> "$DIR/dbtoxml_combo_error.log"
 
 echo "Running dbtoxml_combo_acct.js" >> "$LOGFILE"
 $NODE "$DIR/dbtoxml_combo_acct.js" >> "$LOGFILE" 2>&1

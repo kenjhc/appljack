@@ -13,7 +13,7 @@ function logMessage($message)
     // Construct the log message with the timestamp and the original message
     $logEntry = "[$timestamp] $message\n";
     // Specify the path to your log file
-    $logFilePath = "/chroot/home/appljack/appljack.com/html/dev/cpa-event.log";
+    $logFilePath = "/chroot/home/appljack/appljack.com/html/admin/cpa-event.log";
     // Write the log entry to the file
     error_log($logEntry, 3, $logFilePath);
 }

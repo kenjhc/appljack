@@ -22,8 +22,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $feedcpc = filter_input(INPUT_POST, 'feedcpc', FILTER_SANITIZE_STRING);
     $arbcampcpc = filter_input(INPUT_POST, 'arbcampcpc', FILTER_SANITIZE_STRING);
     $arbcampcpa = filter_input(INPUT_POST, 'arbcampcpa', FILTER_SANITIZE_STRING);
-
+    $startdate = filter_input(INPUT_POST, 'startdate', FILTER_SANITIZE_STRING);
+    $enddate = filter_input(INPUT_POST, 'enddate', FILTER_SANITIZE_STRING);
     // Handle the optional feedcpc field
+    if (!empty($startdate)) {
+        $startdate = (new DateTime($startdate))->modify('-4 hours')->format('Y-m-d H:i:s');
+    } else {
+        $startdate = null;
+    }
+
+    if (!empty($enddate)) {
+        $enddate = (new DateTime($enddate))->modify('-4 hours')->format('Y-m-d H:i:s');
+    } else {
+        $enddate = null;
+    }
+
+
+    $currentDate = new DateTime(); // Current date/time
+    $status = 'active'; 
+
+    if ($startdate && new DateTime($startdate) > $currentDate) {
+        $status = 'date stopped'; 
+    } elseif ($enddate && new DateTime($enddate) < $currentDate) {
+        $status = 'date stopped'; 
+    }
+
+    
+    $startdate = !empty($startdate) ? $startdate : null;
+    $enddate = !empty($enddate) ? $enddate : null;
     if ($feedcpc === '' || $feedcpc === null) {
         $feedcpc = null;
     }
@@ -35,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Insert into database
     try {
         // Updated the INSERT statement to include the acctnum column after custid
-        $stmt = $pdo->prepare("INSERT INTO applcustfeeds (custid, acctnum, feedid, feedname, budget, cpc, status, arbcampcpc, arbcampcpa) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO applcustfeeds (custid, acctnum, feedid, feedname, budget, cpc, status, arbcampcpc, arbcampcpa,date_start, date_end ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )");
         $stmt->execute([
             $_SESSION['custid'], // Assuming custid is also part of the session and needs to be included
             $_SESSION['acctnum'], // Include the acctnum from the session
@@ -43,8 +69,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $feedname,
             $feedbudget,
             $feedcpc,
+            $status, 
             !empty($arbcampcpc) ? $arbcampcpc : null,
             !empty($arbcampcpa) ? $arbcampcpa : null,
+            $startdate,
+            $enddate
         ]);
 
         header("Location: applportal.php?custid=" . urlencode($_SESSION['custid']));

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCKFILE="/chroot/home/appljack/appljack.com/html/dev/locks/update_feed_status_log.lock"
+LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/update_feed_status_log.lock"
 
 # Acquire lock
 if ! mkdir "$LOCKFILE" 2>/dev/null; then
@@ -9,7 +9,7 @@ if ! mkdir "$LOCKFILE" 2>/dev/null; then
 fi
 
 # Paths
-DIR="/chroot/home/appljack/appljack.com/html/dev"
+DIR="/chroot/home/appljack/appljack.com/html/admin"
 LOGFILE="$DIR/applupdatexmlfeedstatus.log"
 NODE="/usr/bin/node" # Ensure this is the correct path to the node executable
 PYTHON="/usr/bin/python3" # Updated path to the Python 3 executable

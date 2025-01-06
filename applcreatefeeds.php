@@ -85,6 +85,19 @@ if (isset($_GET['custid']) && is_numeric($_GET['custid'])) {
                                                     <input type="text" id="feedcpc" name="feedcpc" class="light-input" maxlength="50">
                                                 </div>
                                             </div>
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="w-100 my-3">
+                                                    <label class="healthy-text text-dark-green mb-0" for="start_date">Start Date</label>
+                                                    <input type="date" id="startdate" name="startdate" class="form-control" value="" >
+
+                                                </div>
+
+                                         
+                                                <div class="w-100 my-3">
+                                                    <label class="healthy-text text-dark-green mb-0" for="end_date">End Date</label>
+                                                    <input type="date" id="enddate" name="enddate" class="form-control" value="" >
+                                                </div>
+                                            </div>
                                             <button class="btn_green_dark w-100 mt-4">Create Campaign</button>
                                         </form>
                                     </div>
