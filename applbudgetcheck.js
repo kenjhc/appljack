@@ -27,6 +27,71 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const checkStartAndEndDates = async (connection, feeds) => {
+  const currentTimestamp = new Date();
+
+  for (const feed of feeds) {
+    // Log the feed being processed
+    console.log(`Processing feed ID ${feed.feedid}...`);
+    logToDatabase("info", "applbudgetcheck.js", `Processing feed ID ${feed.feedid}...`);
+  
+    // Skip if both date_start and date_end are missing or null
+    if (!feed.date_start && !feed.date_end) {
+      console.log(`Feed ID ${feed.feedid} skipped: Both date_start and date_end are null.`);
+      logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid} skipped: Both date_start and date_end are null.`);
+      continue;
+    }
+  
+    // Handle date_start logic
+    if (feed.date_start) {
+      const startDate = new Date(feed.date_start);
+      console.log(`Feed ID ${feed.feedid}: date_start = ${startDate}, currentTimestamp = ${currentTimestamp}`);
+      logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: date_start = ${startDate}, currentTimestamp = ${currentTimestamp}`);
+  
+      if (startDate <= currentTimestamp && feed.status === "date stopped") {
+        await connection.query(
+          "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
+          ["active", feed.feedid]
+        );
+        console.log(`Feed ID ${feed.feedid} status changed to 'active' (start date condition).`);
+        logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid} status changed to 'active' (start date condition).`);
+      } else {
+        console.log(`Feed ID ${feed.feedid}: No status change (start date condition).`);
+        logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: No status change (start date condition).`);
+      }
+    }
+  
+    // Handle date_end logic
+    if (feed.date_end) {
+      const endDate = new Date(feed.date_end);
+      console.log(`Feed ID ${feed.feedid}: date_end = ${endDate}, currentTimestamp = ${currentTimestamp}`);
+      logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: date_end = ${endDate}, currentTimestamp = ${currentTimestamp}`);
+  
+      if (
+        endDate <= currentTimestamp &&
+        feed.status !== "capped" &&
+        feed.status !== "stopped"
+      ) {
+        await connection.query(
+          "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
+          ["date stopped", feed.feedid]
+        );
+        console.log(`Feed ID ${feed.feedid} status changed to 'date stopped' (end date condition).`);
+        logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid} status changed to 'date stopped' (end date condition).`);
+      } else {
+        console.log(`Feed ID ${feed.feedid}: No status change (end date condition).`);
+        logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: No status change (end date condition).`);
+      }
+    }
+  
+    console.log(`Finished processing feed ID ${feed.feedid}.`);
+    logToDatabase("info", "applbudgetcheck.js", `Finished processing feed ID ${feed.feedid}.`);
+  }
+  
+};
+
+
+
 const updateFeedStatus = async () => {
   let connection;
   try {
@@ -177,7 +242,7 @@ const updateFeedStatus = async () => {
         );
       }
     }
-
+    await checkStartAndEndDates(connection, feeds);
     console.log("Feed statuses updated successfully.");
     process.exit(0); // Exit successfully
   } catch (error) {
