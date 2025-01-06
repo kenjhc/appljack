@@ -31,6 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Generate a random 10-character alphanumeric string for feedid
     $feedid = bin2hex(random_bytes(5));
 
+    
     // Insert into database
     try {
         // Updated the INSERT statement to include the acctnum column after custid
