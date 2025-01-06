@@ -215,22 +215,30 @@ if (!empty($enddate)) {
 
 
         if (!empty($startdate)) {
+            // Store the original date
+            $actualStartDate = (new DateTime($startdate))->format('Y-m-d H:i:s');
+            // Adjust the date by subtracting 4 hours
             $startdate = (new DateTime($startdate))->modify('-4 hours')->format('Y-m-d H:i:s');
         } else {
+            $actualStartDate = null;
             $startdate = null;
         }
-    
+        
         if (!empty($enddate)) {
+            // Store the original date
+            $actualEndDate = (new DateTime($enddate))->format('Y-m-d H:i:s');
+            // Adjust the date by subtracting 4 hours
             $enddate = (new DateTime($enddate))->modify('-4 hours')->format('Y-m-d H:i:s');
         } else {
+            $actualEndDate = null;
             $enddate = null;
         }
-    
+        
         // Fetch current status from the database
         $stmt = $pdo->prepare("SELECT status FROM applcustfeeds WHERE feedid = ? AND custid = ?");
         $stmt->execute([$feedid, $_SESSION['custid']]);
         $currentStatus = $stmt->fetchColumn();
-    
+        
         // Determine new status only if it's not "capped" or "stopped"
         if ($currentStatus !== 'capped' && $currentStatus !== 'stopped') {
             $currentDate = new DateTime(); // Current date/time
@@ -244,13 +252,16 @@ if (!empty($enddate)) {
         } else {
             $newStatus = $currentStatus; // Preserve current status
         }
+        
+        // Update the campaign
         $stmt = $pdo->prepare("UPDATE applcustfeeds
                                SET feedname = ?, budget = ?, budgetdaily = ?, cpc = ?, cpa = ?,
                                    custquerykws = ?, custqueryco = ?, custqueryindustry = ?,
                                    custquerycity = ?, custquerystate = ?, custquerycustom1 = ?,
                                    custquerycustom2 = ?, custquerycustom3 = ?, custquerycustom4 = ?,
                                    custquerycustom5 = ?, activepubs = ?,
-                                   arbcampcpc = ?, arbcampcpa = ?, date_start = ?, date_end = ?, status = ?
+                                   arbcampcpc = ?, arbcampcpa = ?, date_start = ?, date_end = ?, 
+                                   actual_startdate = ?, actual_enddate = ?, status = ?
                                WHERE feedid = ? AND custid = ?");
         $stmt->execute([
             $feedname,
@@ -271,17 +282,20 @@ if (!empty($enddate)) {
             $updatedActivePubsStr,
             !empty($arbcampcpc) ? $arbcampcpc : null,
             !empty($arbcampcpa) ? $arbcampcpa : null,
-            $startdate,
-            $enddate,
+            $startdate,         // Adjusted start date
+            $enddate,           // Adjusted end date
+            $actualStartDate,   // Original start date
+            $actualEndDate,     // Original end date
             $newStatus,
             $feedid,
             $_SESSION['custid']
         ]);
-
+        
         // Redirect back to the page with the feedid
         setToastMessage('success', "Updated Successfully.");
         header("Location: editfeed.php?feedid=" . urlencode($feedid));
         exit();
+        
     } catch (PDOException $e) {
         setToastMessage('error', "Database error: " . $e->getMessage());
         exit();
@@ -461,14 +475,14 @@ if (!empty($enddate)) {
                                             <div class="d-flex align-items-center justify-content-between gap-3">
                                                  <div class="w-100 my-3">
                                                     <label class="healthy-text text-dark-green mb-0" for="start_date">Start Date</label>
-                                                    <input type="date" id="startdate" name="startdate" class="form-control" value="<?= htmlspecialchars(substr($feed['date_start'], 0, 10)) ?>" >
+                                                    <input type="date" id="startdate" name="startdate" class="form-control" value="<?= htmlspecialchars(substr($feed['actual_startdate'], 0, 10)) ?>" >
 
                                                 </div>
 
                                          
                                                 <div class="w-100 my-3">
                                                     <label class="healthy-text text-dark-green mb-0" for="end_date">End Date</label>
-                                                    <input type="date" id="enddate" name="enddate" class="form-control" value="<?= htmlspecialchars(substr($feed['date_end'], 0, 10)) ?>" >
+                                                    <input type="date" id="enddate" name="enddate" class="form-control" value="<?= htmlspecialchars(substr($feed['actual_enddate'], 0, 10)) ?>" >
                                                 </div>
                                                 </div>
                                             <h4>Keywords</h4>

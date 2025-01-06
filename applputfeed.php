@@ -25,30 +25,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $startdate = filter_input(INPUT_POST, 'startdate', FILTER_SANITIZE_STRING);
     $enddate = filter_input(INPUT_POST, 'enddate', FILTER_SANITIZE_STRING);
     // Handle the optional feedcpc field
-    if (!empty($startdate)) {
-        $startdate = (new DateTime($startdate))->modify('-4 hours')->format('Y-m-d H:i:s');
-    } else {
-        $startdate = null;
-    }
+  // Store the original dates
+        $actualStartDate = !empty($startdate) ? (new DateTime($startdate))->format('Y-m-d H:i:s') : null;
+        $actualEndDate = !empty($enddate) ? (new DateTime($enddate))->format('Y-m-d H:i:s') : null;
 
-    if (!empty($enddate)) {
-        $enddate = (new DateTime($enddate))->modify('-4 hours')->format('Y-m-d H:i:s');
-    } else {
-        $enddate = null;
-    }
+        // Adjust the dates to "DATE MINUS 4 HOURS"
+        $adjustedStartDate = !empty($startdate) ? (new DateTime($startdate))->modify('-4 hours')->format('Y-m-d H:i:s') : null;
+        $adjustedEndDate = !empty($enddate) ? (new DateTime($enddate))->modify('-4 hours')->format('Y-m-d H:i:s') : null;
+
 
 
     $currentDate = new DateTime(); // Current date/time
     $status = 'active'; 
 
-    if ($startdate && new DateTime($startdate) > $currentDate) {
-        $status = 'date stopped'; 
-    } elseif ($enddate && new DateTime($enddate) < $currentDate) {
-        $status = 'date stopped'; 
+    if ($adjustedStartDate && new DateTime($adjustedStartDate) > $currentDate) {
+        $status = 'date stopped'; // Start date is in the future
+    } elseif ($adjustedEndDate && new DateTime($adjustedEndDate) < $currentDate) {
+        $status = 'date stopped'; // End date is in the past
     }
 
     
-    $startdate = !empty($startdate) ? $startdate : null;
+  
+
     $enddate = !empty($enddate) ? $enddate : null;
     if ($feedcpc === '' || $feedcpc === null) {
         $feedcpc = null;
@@ -61,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Insert into database
     try {
         // Updated the INSERT statement to include the acctnum column after custid
-        $stmt = $pdo->prepare("INSERT INTO applcustfeeds (custid, acctnum, feedid, feedname, budget, cpc, status, arbcampcpc, arbcampcpa,date_start, date_end ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )");
+        $stmt = $pdo->prepare("INSERT INTO applcustfeeds (custid, acctnum, feedid, feedname, budget, cpc, status, arbcampcpc, arbcampcpa,date_start, date_end, actual_startdate, actual_enddate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,? )");
         $stmt->execute([
             $_SESSION['custid'], // Assuming custid is also part of the session and needs to be included
             $_SESSION['acctnum'], // Include the acctnum from the session
@@ -72,10 +70,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $status, 
             !empty($arbcampcpc) ? $arbcampcpc : null,
             !empty($arbcampcpa) ? $arbcampcpa : null,
-            $startdate,
-            $enddate
+            $adjustedStartDate,   // Adjusted start date
+            $adjustedEndDate,     // Adjusted end date
+            $actualStartDate,     // Original start date
+            $actualEndDate        // Original end date
         ]);
-
+        setToastMessage('success', "Created Successfully.");
         header("Location: applportal.php?custid=" . urlencode($_SESSION['custid']));
         exit();
     } catch (PDOException $e) {
