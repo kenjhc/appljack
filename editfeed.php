@@ -82,17 +82,6 @@ $startdate = !empty($startdate) ? date('Y-m-d H:i:s', strtotime($startdate)) : n
 $enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
 
 
-if (!empty($startdate)) {
-    $startdate = (new DateTime($startdate))->modify('-4 hours')->format('Y-m-d H:i:s');
-} else {
-    $startdate = null;
-}
-
-if (!empty($enddate)) {
-    $enddate = (new DateTime($enddate))->modify('-4 hours')->format('Y-m-d H:i:s');
-} else {
-    $enddate = null;
-}
     if (empty($feedbudget)) {
         setToastMessage('error', "Please provide a valid budget.");
     }
@@ -215,9 +204,7 @@ if (!empty($enddate)) {
 
 
         if (!empty($startdate)) {
-            // Store the original date
             $actualStartDate = (new DateTime($startdate))->format('Y-m-d H:i:s');
-            // Adjust the date by subtracting 4 hours
             $startdate = (new DateTime($startdate))->modify('-4 hours')->format('Y-m-d H:i:s');
         } else {
             $actualStartDate = null;
@@ -225,15 +212,13 @@ if (!empty($enddate)) {
         }
         
         if (!empty($enddate)) {
-            // Store the original date
             $actualEndDate = (new DateTime($enddate))->format('Y-m-d H:i:s');
-            // Adjust the date by subtracting 4 hours
             $enddate = (new DateTime($enddate))->modify('-4 hours')->format('Y-m-d H:i:s');
         } else {
             $actualEndDate = null;
             $enddate = null;
         }
-        
+              
         // Fetch current status from the database
         $stmt = $pdo->prepare("SELECT status FROM applcustfeeds WHERE feedid = ? AND custid = ?");
         $stmt->execute([$feedid, $_SESSION['custid']]);
