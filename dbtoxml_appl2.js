@@ -233,11 +233,11 @@ async function emptyXmlForStoppedFeeds(feeds) {
   for (const feed of feeds) {
 
 
-    // Check if the feed status is "stopped" or "date stopped"
+   
     if (feed.status == "stopped" || feed.status == "date stopped") {
       const filePath = path.join(outputXmlFolderPath, `${feed.custid}-${feed.feedid}.xml`);
 
-      // Overwrite the existing XML file with empty structure
+   
       try {
         fs.writeFileSync(filePath, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs></jobs>\n');
         console.log(`Emptied XML file for Feed ID ${feed.feedid} with status "${feed.status}".`);
