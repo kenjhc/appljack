@@ -31,9 +31,7 @@ async function fetchAllFeedsWithCriteria() {
        FROM 
          applcustfeeds acf FORCE INDEX (idx_status) 
        JOIN 
-         applcust ac ON ac.custid = acf.custid 
-       WHERE 
-         acf.status IN ('active', 'stopped', 'date stopped');`,
+         applcust ac ON ac.custid = acf.custid;`,
       (error, results) => {
         if (error) {
           console.error("Error fetching feed criteria:", error);
@@ -107,6 +105,8 @@ async function processQueriesSequentially() {
       console.error("Error during query execution or XML file writing:", error);
     }
   }
+
+
   await emptyXmlForStoppedFeeds(feedsCriteria);
   console.log("All feeds processed. Closing database connection.");
   await closePool();
@@ -212,6 +212,8 @@ async function streamResultsToXml(
         fileStream.write(`    <cpc>${adjustedCpc}</cpc>\n`);
         fileStream.write(`    <cpa>${adjustedCpa}</cpa>\n`);
         fileStream.write(`  </job>\n`);
+
+        
       })
       .on("end", () => {
         fileStream.write("</jobs>\n");
@@ -221,7 +223,10 @@ async function streamResultsToXml(
         );
         resolve();
       });
+      
   });
+
+
 }
 
 async function emptyXmlForStoppedFeeds(feeds) {
@@ -229,7 +234,7 @@ async function emptyXmlForStoppedFeeds(feeds) {
 
 
     // Check if the feed status is "stopped" or "date stopped"
-    if (feed.status === "stopped" || feed.status === "date stopped") {
+    if (feed.status == "stopped" || feed.status == "date stopped") {
       const filePath = path.join(outputXmlFolderPath, `${feed.custid}-${feed.feedid}.xml`);
 
       // Overwrite the existing XML file with empty structure
