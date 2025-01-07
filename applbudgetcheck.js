@@ -47,8 +47,10 @@ const checkStartAndEndDates = async (connection, feeds) => {
       const startDate = new Date(feed.date_start);
       console.log(`Feed ID ${feed.feedid}: date_start = ${startDate}, currentTimestamp = ${currentTimestamp}`);
       logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: date_start = ${startDate}, currentTimestamp = ${currentTimestamp}`);
-  
-      if (startDate <= currentTimestamp && feed.status == "date stopped") {
+      if (feed.status === "stopped") {
+        console.log(`Feed ID ${feed.feedid} is manually stopped. No status updates will be performed.`);
+        logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid} is manually stopped. No status updates will be performed.`);
+      } else if (startDate <= currentTimestamp && feed.status === "date stopped") {
         await connection.query(
           "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
           ["active", feed.feedid]
