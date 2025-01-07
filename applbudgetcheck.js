@@ -28,7 +28,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const checkStartAndEndDates = async (connection, feeds) => {
-  const currentTimestamp = new Date(currentTimestamp.toISOString());
+  const currentTimestamp = new Date();
 
   for (const feed of feeds) {
     // Log the feed being processed
@@ -48,7 +48,7 @@ const checkStartAndEndDates = async (connection, feeds) => {
       console.log(`Feed ID ${feed.feedid}: date_start = ${startDate}, currentTimestamp = ${currentTimestamp}`);
       logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: date_start = ${startDate}, currentTimestamp = ${currentTimestamp}`);
   
-      if (startDate <= currentTimestamp && feed.status === "date stopped") {
+      if (startDate <= currentTimestamp && feed.status == "date stopped") {
         await connection.query(
           "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
           ["active", feed.feedid]
@@ -103,39 +103,30 @@ const updateFeedStatus = async () => {
 
     const [feeds] = await connection.query("SELECT * FROM applcustfeeds");
 
-    // const [feeds] = await connection.query(
-    //   "SELECT * FROM applcustfeeds"
-    // );
+    // Prioritize start and end date checks
+    await checkStartAndEndDates(connection, feeds);
 
     for (const feed of feeds) {
-      // Skip checking if the feed status is 'stopped'
-      if (feed.status === "stopped") {
-        console.log(
-          `Feed ID ${feed.feedid} is stopped. No budget checks performed.`
-        );
+      const startDate = feed.date_start ? new Date(feed.date_start) : null;
+      const currentTimestamp = new Date();
+
+      // Ensure budget checks only apply if start_date is valid
+      if (startDate && startDate > currentTimestamp) {
+        console.log(`Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`);
         logToDatabase(
-          "warning",
+          "info",
           "applbudgetcheck.js",
-          `Feed ID ${feed.feedid} is stopped. No budget checks performed.`
+          `Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`
         );
         continue;
       }
-      // Get customer email and publisher details
-      const [customerData] = await connection.query(
-        `SELECT c.acctemail, CONCAT(c.acctfname, ' ', c.acctlname) AS customerFullName FROM applacct c WHERE c.acctnum = ?`,
-        [feed.acctnum]
-      );
 
-      feed.customerEmail = customerData[0]?.acctemail;
-      feed.customerName = customerData[0]?.customerFullName;
-      feed.customerID = feed.acctnum;
- 
-      const [publisherData] = await connection.query(
-        `SELECT p.publisher_contact_email, p.publishername FROM applpubs p WHERE p.publisherid = ?`,
-        [feed.activepubs]
-      );
-      feed.publisherEmail = publisherData[0]?.publisher_contact_email;
-      feed.publisherName = publisherData[0]?.publishername;
+      // Skip checking if the feed status is 'stopped'
+      if (feed.status === "stopped") {
+        console.log(`Feed ID ${feed.feedid} is stopped. No budget checks performed.`);
+        logToDatabase("warning", "applbudgetcheck.js", `Feed ID ${feed.feedid} is stopped. No budget checks performed.`);
+        continue;
+      }
 
       // Monthly budget check
       const [monthlySumResult] = await connection.query(
@@ -150,7 +141,6 @@ const updateFeedStatus = async () => {
       );
       const monthlyTotal = parseFloat(monthlySumResult[0].total) || 0;
       const monthlyBudget = parseFloat(feed.budget);
-      // await sendEmail(feed, "90%");
 
       if (monthlyBudget) {
         if (monthlyTotal >= monthlyBudget * 0.95) {
@@ -158,53 +148,17 @@ const updateFeedStatus = async () => {
             "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
             ["capped", feed.feedid]
           );
-          console.log(
-            `Monthly status changed to 'capped' for feed ID ${feed.feedid} at 95% budget`
-          );
-          logToDatabase(
-            "warning",
-            "applbudgetcheck.js",
-            `Monthly status changed to 'capped' for feed ID ${feed.feedid} at 95% budget`
-          );
-        } else {
+          console.log(`Monthly status changed to 'capped' for feed ID ${feed.feedid} at 95% budget.`);
+        } else if (feed.status !== "capped") {
           await connection.query(
             "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
             ["active", feed.feedid]
           );
-          console.log(
-            `Monthly status changed to 'active' for feed ID ${feed.feedid}`
-          );
-          logToDatabase(
-            "warning",
-            "applbudgetcheck.js",
-            `Monthly status changed to 'active' for feed ID ${feed.feedid}`
-          );
+          console.log(`Monthly status changed to 'active' for feed ID ${feed.feedid}.`);
         }
-
-        if (monthlyTotal >= monthlyBudget * 0.9) {
-          await sendEmail(feed, "90%");
-        } else if (monthlyTotal >= monthlyBudget * 0.75) {
-          await sendEmail(feed, "75%");
-        }
-        console.log(
-          `Feed ID ${
-            feed.feedid
-          }: Monthly total is ${monthlyTotal}, 95% budget cap is ${
-            monthlyBudget * 0.95
-          }`
-        );
-        logToDatabase(
-          "success",
-          "applbudgetcheck.js",
-          `Feed ID ${
-            feed.feedid
-          }: Monthly total is ${monthlyTotal}, 95% budget cap is ${
-            monthlyBudget * 0.95
-          }`
-        );
       }
 
-      // Daily budget check (regardless of monthly budget status)
+      // Daily budget check
       if (
         feed.dailybudget !== null &&
         feed.dailybudget !== "" &&
@@ -221,38 +175,25 @@ const updateFeedStatus = async () => {
             "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
             ["capped", feed.feedid]
           );
-          console.log(
-            `Daily status changed to 'capped' for feed ID ${feed.feedid}`
-          );
+          console.log(`Daily status changed to 'capped' for feed ID ${feed.feedid}.`);
         } else if (feed.status !== "capped") {
           await connection.query(
             "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
             ["active", feed.feedid]
           );
-          console.log(
-            `Daily status changed to 'active' for feed ID ${feed.feedid}`
-          );
+          console.log(`Daily status changed to 'active' for feed ID ${feed.feedid}.`);
         }
-        console.log(
-          `Feed ID ${feed.feedid}: Daily total is ${dailyTotal}, daily budget is ${feed.dailybudget}`
-        );
+        console.log(`Feed ID ${feed.feedid}: Daily total is ${dailyTotal}, daily budget is ${feed.dailybudget}.`);
       } else {
-        console.log(
-          `No valid daily budget set for feed ID ${feed.feedid}; daily status check skipped.`
-        );
+        console.log(`No valid daily budget set for feed ID ${feed.feedid}; daily status check skipped.`);
       }
     }
-    await checkStartAndEndDates(connection, feeds);
+
     console.log("Feed statuses updated successfully.");
     process.exit(0); // Exit successfully
   } catch (error) {
     console.error("An error occurred:", error.message);
-    logToDatabase(
-      "error",
-      "applbudgetcheck.js",
-      "An error occurred:",
-      error.message
-    );
+    logToDatabase("error", "applbudgetcheck.js", `An error occurred: ${error.message}`);
     process.exit(1); // Exit with error
   } finally {
     if (connection) await connection.release();
@@ -261,6 +202,7 @@ const updateFeedStatus = async () => {
     process.exit(0);
   }
 };
+
 
 // Function to send emails at 75% and 90% budget thresholds
 const sendEmail = async (feed, percentage) => {
