@@ -58,6 +58,21 @@ const checkStartAndEndDates = async (connection, feeds) => {
         console.log(`Feed ID ${feed.feedid} status changed to 'active' (start date condition).`);
         logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid} status changed to 'active' (start date condition).`);
       } else {
+
+        if (
+          feed.status !== "capped" &&
+          feed.status !== "stopped"
+        ) {
+          await connection.query(
+            "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
+            ["date stopped", feed.feedid]
+          );
+          console.log(`Feed ID ${feed.feedid} status changed to 'date stopped' (end date condition).`);
+          logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid} status changed to 'date stopped' (end date condition).`);
+        } else {
+          console.log(`Feed ID ${feed.feedid}: No status change (end date condition).`);
+          logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: No status change (end date condition).`);
+        }
         console.log(`Feed ID ${feed.feedid}: No status change (start date condition).`);
         logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: No status change (start date condition).`);
       }
