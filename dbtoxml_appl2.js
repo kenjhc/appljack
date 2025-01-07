@@ -68,7 +68,7 @@ async function processQueriesSequentially() {
   console.log("Starting to process criteria into queries");
 
   const feedsCriteria = await fetchAllFeedsWithCriteria();
-  await emptyXmlForStoppedFeeds(feedsCriteria);
+
 
   for (let criteria of feedsCriteria) {
     console.log(
@@ -107,7 +107,7 @@ async function processQueriesSequentially() {
       console.error("Error during query execution or XML file writing:", error);
     }
   }
-
+  await emptyXmlForStoppedFeeds(feedsCriteria);
   console.log("All feeds processed. Closing database connection.");
   await closePool();
 }
