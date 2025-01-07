@@ -28,7 +28,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const checkStartAndEndDates = async (connection, feeds) => {
-  const currentTimestamp = new Date();
+  const currentTimestamp = new Date(currentTimestamp.toISOString());
 
   for (const feed of feeds) {
     // Log the feed being processed
