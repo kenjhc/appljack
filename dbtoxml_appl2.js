@@ -19,7 +19,21 @@ const poolXmlFeeds = mysql.createPool({
 async function fetchAllFeedsWithCriteria() {
   return new Promise((resolve, reject) => {
     poolXmlFeeds.query(
-      'SELECT acf.*, ac.jobpoolid, ac.arbcustcpc, ac.arbcustcpa, acf.cpc as feed_cpc, acf.cpa as feed_cpa, acf.arbcampcpc, acf.arbcampcpa FROM applcustfeeds acf FORCE INDEX (idx_status) JOIN applcust ac ON ac.custid = acf.custid WHERE acf.status = "active";',
+      `SELECT 
+         acf.*, 
+         ac.jobpoolid, 
+         ac.arbcustcpc, 
+         ac.arbcustcpa, 
+         acf.cpc AS feed_cpc, 
+         acf.cpa AS feed_cpa, 
+         acf.arbcampcpc, 
+         acf.arbcampcpa 
+       FROM 
+         applcustfeeds acf FORCE INDEX (idx_status) 
+       JOIN 
+         applcust ac ON ac.custid = acf.custid 
+       WHERE 
+         acf.status IN ('active', 'stopped', 'date stopped');`,
       (error, results) => {
         if (error) {
           console.error("Error fetching feed criteria:", error);
@@ -31,6 +45,7 @@ async function fetchAllFeedsWithCriteria() {
     );
   });
 }
+
 
 async function fetchCustomFields(jobpoolid) {
   return new Promise((resolve, reject) => {
