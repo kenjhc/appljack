@@ -53,6 +53,7 @@ async function processQueriesSequentially() {
   console.log("Starting to process criteria into queries");
 
   const feedsCriteria = await fetchAllFeedsWithCriteria();
+  await emptyXmlForStoppedFeeds(feedsCriteria);
 
   for (let criteria of feedsCriteria) {
     console.log(
@@ -108,25 +109,9 @@ async function streamResultsToXml(
     const filePath = path.join(outputXmlFolderPath, `${custid}-${feedid}.xml`);
     const fileStream = fs.createWriteStream(filePath, { flags: "w" });
 
-    // Check if the feed status is "stopped" or "date stopped"
-    if (criteria.status === "stopped" || criteria.status === "date stopped") {
-      console.log(`Feed ID ${feedid} has status "${criteria.status}". Creating an empty XML file.`);
-      logToDatabase(
-        "info",
-        "streamResultsToXml",
-        `Feed ID ${feedid} has status "${criteria.status}". Creating an empty XML file.`
-      );
-
-      fileStream.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs></jobs>\n');
-      fileStream.end(() => {
-        console.log(`${custid}-${feedid}.xml (empty) has been saved in ${outputXmlFolderPath}`);
-        resolve();
-      });
-      return;
-    }
-
-    // Handle non-empty feeds
-    fileStream.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs>\n');
+    fileStream.write(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs>\n'
+    );
 
     const queryStream = poolXmlFeeds.query(query).stream();
     queryStream
@@ -222,6 +207,33 @@ async function streamResultsToXml(
         resolve();
       });
   });
+}
+
+async function emptyXmlForStoppedFeeds(feeds) {
+  for (const feed of feeds) {
+    // Check if the feed status is "stopped" or "date stopped"
+    if (feed.status === "stopped" || feed.status === "date stopped") {
+      const filePath = path.join(outputXmlFolderPath, `${feed.custid}-${feed.feedid}.xml`);
+
+      // Overwrite the existing XML file with empty structure
+      try {
+        fs.writeFileSync(filePath, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs></jobs>\n');
+        console.log(`Emptied XML file for Feed ID ${feed.feedid} with status "${feed.status}".`);
+        logToDatabase(
+          "info",
+          "emptyXmlForStoppedFeeds",
+          `Emptied XML file for Feed ID ${feed.feedid} with status "${feed.status}".`
+        );
+      } catch (error) {
+        console.error(`Failed to empty XML file for Feed ID ${feed.feedid}:`, error.message);
+        logToDatabase(
+          "error",
+          "emptyXmlForStoppedFeeds",
+          `Failed to empty XML file for Feed ID ${feed.feedid}: ${error.message}`
+        );
+      }
+    }
+  }
 }
 
 
