@@ -236,18 +236,10 @@ async function emptyXmlForStoppedFeeds(feeds) {
       try {
         fs.writeFileSync(filePath, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs></jobs>\n');
         console.log(`Emptied XML file for Feed ID ${feed.feedid} with status "${feed.status}".`);
-        logToDatabase(
-          "info",
-          "emptyXmlForStoppedFeeds",
-          `Emptied XML file for Feed ID ${feed.feedid} with status "${feed.status}".`
-        );
+       
       } catch (error) {
         console.error(`Failed to empty XML file for Feed ID ${feed.feedid}:`, error.message);
-        logToDatabase(
-          "error",
-          "emptyXmlForStoppedFeeds",
-          `Failed to empty XML file for Feed ID ${feed.feedid}: ${error.message}`
-        );
+     
       }
     }
   }
