@@ -108,9 +108,25 @@ async function streamResultsToXml(
     const filePath = path.join(outputXmlFolderPath, `${custid}-${feedid}.xml`);
     const fileStream = fs.createWriteStream(filePath, { flags: "w" });
 
-    fileStream.write(
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs>\n'
-    );
+    // Check if the feed status is "stopped" or "date stopped"
+    if (criteria.status === "stopped" || criteria.status === "date stopped") {
+      console.log(`Feed ID ${feedid} has status "${criteria.status}". Creating an empty XML file.`);
+      logToDatabase(
+        "info",
+        "streamResultsToXml",
+        `Feed ID ${feedid} has status "${criteria.status}". Creating an empty XML file.`
+      );
+
+      fileStream.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs></jobs>\n');
+      fileStream.end(() => {
+        console.log(`${custid}-${feedid}.xml (empty) has been saved in ${outputXmlFolderPath}`);
+        resolve();
+      });
+      return;
+    }
+
+    // Handle non-empty feeds
+    fileStream.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<jobs>\n');
 
     const queryStream = poolXmlFeeds.query(query).stream();
     queryStream
@@ -207,6 +223,7 @@ async function streamResultsToXml(
       });
   });
 }
+
 
 function applyArbitrageAdjustment(value, adjustmentPercentage) {
   if (!adjustmentPercentage) return value;
