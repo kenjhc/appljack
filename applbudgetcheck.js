@@ -125,6 +125,7 @@ const updateFeedStatus = async () => {
 
     for (const feed of feeds) {
       const startDate = feed.date_start ? new Date(feed.date_start) : null;
+      const endDate = feed.date_end ? new Date(feed.date_end) : null;
       const currentTimestamp = new Date();
 
       // Ensure budget checks only apply if start_date is valid
