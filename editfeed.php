@@ -411,14 +411,17 @@ $enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
                         <div class="card rounded-md shadow-md">
                             <div class="card-header card-title p-0 d-flex justify-content-between">
                                 <h5 class="card-title">Edit Campaign </h5>
-                                <form action="changecampaignstatus.php" method="post" class="text-center">
-                                    <input type="hidden" name="feedid" value="<?= htmlspecialchars($feedid); ?>">
-                                    <?php if (isset($feed['status']) && $feed['status'] === 'active'): ?>
-                                        <button name="action" value="stop" class="btn btn-danger mx-4 my-2 no-wrap">Stop Campaign</button>
-                                    <?php else: ?>
-                                        <button name="action" value="start" class="btn btn-success mx-4 my-2 no-wrap">Start Campaign</button>
-                                    <?php endif; ?>
-                                </form>
+                                                <form action="changecampaignstatus.php" method="post" class="text-center">
+                    <input type="hidden" name="feedid" value="<?= htmlspecialchars($feedid); ?>">
+                    <?php if (isset($feed['status']) && ($feed['status'] === 'active' || $feed['status'] === 'date stopped')): ?>
+                        <button name="action" value="stop" class="btn btn-danger mx-4 my-2 no-wrap">Stop Campaign</button>
+                    <?php elseif (isset($feed['status']) && $feed['status'] === 'stopped'): ?>
+                        <button name="action" value="start" class="btn btn-success mx-4 my-2 no-wrap">Start Campaign</button>
+                    <?php else: ?>
+                        <button name="action" value="start" class="btn btn-success mx-4 my-2 no-wrap">Start Campaign</button>
+                    <?php endif; ?>
+                </form>
+
                             </div>
                             <div class="card-body">
                                 <div class="card styled m-4 p-4">
