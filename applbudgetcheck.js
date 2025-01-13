@@ -41,6 +41,19 @@ const checkStartAndEndDates = async (connection, feeds) => {
     //   logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid} skipped: Both date_start and date_end are null.`);
     //   continue;
     // }
+
+    if (!feed.date_start && !feed.date_end) {
+      console.log(
+        `Feed ID ${feed.feedid}: Both date_start and date_end are null. ` +
+        `Skipping date-based checks, but budget checks will continue.`
+      );
+      logToDatabase(
+        "info",
+        "applbudgetcheck.js",
+        `Feed ID ${feed.feedid}: Both date_start and date_end are null. Skipping date-based checks.`
+      );
+      // Do NOT "continue;" so budget checks can still happen
+    } else {
   
     // Handle date_start logic
     if (feed.date_start) {
@@ -100,6 +113,8 @@ const checkStartAndEndDates = async (connection, feeds) => {
         logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: No status change (end date condition).`);
       }
     }
+
+  }
   
     console.log(`Finished processing feed ID ${feed.feedid}.`);
     logToDatabase("info", "applbudgetcheck.js", `Finished processing feed ID ${feed.feedid}.`);
@@ -129,29 +144,26 @@ const updateFeedStatus = async () => {
       const currentTimestamp = new Date();
 
       // Ensure budget checks only apply if start_date is valid
-      // if (startDate && startDate > currentTimestamp) {
-      //   console.log(`Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`);
-      //   logToDatabase(
-      //     "info",
-      //     "applbudgetcheck.js",
-      //     `Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`
-      //   );
-      //   continue;
-      // }
-
-      // if (endDate && endDate < currentTimestamp) {
-      //   console.log(`Feed ID ${feed.feedid} skipped: end_date (${endDate.toISOString()}) is in the past.`);
-      //   logToDatabase(
-      //     "info",
-      //     "applbudgetcheck.js",
-      //     `Feed ID ${feed.feedid} skipped: end_date (${endDate.toISOString()}) is in the past.`
-      //   );
-      //   continue; // Skip processing this feed
-      // }
-      if (!startDate && !endDate) {
-        console.log(`Feed ID ${feed.feedid}: Processing campaign without start or end date.`);
-        logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: Processing campaign without start or end date.`);
+      if (startDate && startDate > currentTimestamp) {
+        console.log(`Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`);
+        logToDatabase(
+          "info",
+          "applbudgetcheck.js",
+          `Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`
+        );
+        continue;
       }
+
+      if (endDate && endDate < currentTimestamp) {
+        console.log(`Feed ID ${feed.feedid} skipped: end_date (${endDate.toISOString()}) is in the past.`);
+        logToDatabase(
+          "info",
+          "applbudgetcheck.js",
+          `Feed ID ${feed.feedid} skipped: end_date (${endDate.toISOString()}) is in the past.`
+        );
+        continue; // Skip processing this feed
+      }
+
       // Skip checking if the feed status is 'stopped'
       if (feed.status === "stopped") {
         console.log(`Feed ID ${feed.feedid} is stopped. No budget checks performed.`);
