@@ -13,3 +13,5 @@ applupload8.log
 applpass_cpa_queue.json
 applpass_tobeprocessed.json
 large-file.xml
+
+.deploy_dev.yml
