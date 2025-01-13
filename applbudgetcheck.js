@@ -187,7 +187,7 @@ const updateFeedStatus = async () => {
       );
       const monthlyTotal = parseFloat(monthlySumResult[0].total) || 0;
       const monthlyBudget = parseFloat(feed.budget);
-      console.log(`monthlyTotal:`, monthlyTotal, ` monthlyBudget:`, monthlyBudget * 0.95);
+      console.log(`Feed ID ${feed.feedid}: monthlyTotal:`, monthlyTotal, ` monthlyBudget:`, monthlyBudget * 0.95);
       if (monthlyBudget) {
         if (monthlyTotal >= monthlyBudget * 0.95) {
           await connection.query(
