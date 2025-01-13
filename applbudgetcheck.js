@@ -195,7 +195,7 @@ const updateFeedStatus = async () => {
             ["capped", feed.feedid]
           );
           console.log(`Monthly status changed to 'capped' for feed ID ${feed.feedid} at 95% budget.`);
-        } else if (feed.status !== "capped") {
+        } else if (feed.status == "capped") {
           await connection.query(
             "UPDATE applcustfeeds SET status = ? WHERE feedid = ?",
             ["active", feed.feedid]
