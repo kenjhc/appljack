@@ -36,11 +36,11 @@ const checkStartAndEndDates = async (connection, feeds) => {
     logToDatabase("info", "applbudgetcheck.js", `Processing feed ID ${feed.feedid}...`);
   
     // Skip if both date_start and date_end are missing or null
-    if (!feed.date_start && !feed.date_end) {
-      console.log(`Feed ID ${feed.feedid} skipped: Both date_start and date_end are null.`);
-      logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid} skipped: Both date_start and date_end are null.`);
-      continue;
-    }
+    // if (!feed.date_start && !feed.date_end) {
+    //   console.log(`Feed ID ${feed.feedid} skipped: Both date_start and date_end are null.`);
+    //   logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid} skipped: Both date_start and date_end are null.`);
+    //   continue;
+    // }
   
     // Handle date_start logic
     if (feed.date_start) {
