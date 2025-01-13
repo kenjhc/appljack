@@ -129,26 +129,29 @@ const updateFeedStatus = async () => {
       const currentTimestamp = new Date();
 
       // Ensure budget checks only apply if start_date is valid
-      if (startDate && startDate > currentTimestamp) {
-        console.log(`Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`);
-        logToDatabase(
-          "info",
-          "applbudgetcheck.js",
-          `Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`
-        );
-        continue;
-      }
+      // if (startDate && startDate > currentTimestamp) {
+      //   console.log(`Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`);
+      //   logToDatabase(
+      //     "info",
+      //     "applbudgetcheck.js",
+      //     `Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`
+      //   );
+      //   continue;
+      // }
 
-      if (endDate && endDate < currentTimestamp) {
-        console.log(`Feed ID ${feed.feedid} skipped: end_date (${endDate.toISOString()}) is in the past.`);
-        logToDatabase(
-          "info",
-          "applbudgetcheck.js",
-          `Feed ID ${feed.feedid} skipped: end_date (${endDate.toISOString()}) is in the past.`
-        );
-        continue; // Skip processing this feed
+      // if (endDate && endDate < currentTimestamp) {
+      //   console.log(`Feed ID ${feed.feedid} skipped: end_date (${endDate.toISOString()}) is in the past.`);
+      //   logToDatabase(
+      //     "info",
+      //     "applbudgetcheck.js",
+      //     `Feed ID ${feed.feedid} skipped: end_date (${endDate.toISOString()}) is in the past.`
+      //   );
+      //   continue; // Skip processing this feed
+      // }
+      if (!startDate && !endDate) {
+        console.log(`Feed ID ${feed.feedid}: Processing campaign without start or end date.`);
+        logToDatabase("info", "applbudgetcheck.js", `Feed ID ${feed.feedid}: Processing campaign without start or end date.`);
       }
-
       // Skip checking if the feed status is 'stopped'
       if (feed.status === "stopped") {
         console.log(`Feed ID ${feed.feedid} is stopped. No budget checks performed.`);
