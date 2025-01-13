@@ -139,10 +139,13 @@ const updateFeedStatus = async () => {
     await checkStartAndEndDates(connection, feeds);
 
     for (const feed of feeds) {
+
+      console.log(`Feed ID ${feed.feedid} -> raw date_start:`, feed.date_start, " raw date_end:", feed.date_end);
+
       const startDate = feed.date_start ? new Date(feed.date_start) : null;
       const endDate = feed.date_end ? new Date(feed.date_end) : null;
       const currentTimestamp = new Date();
-
+      console.log(`Converted startDate:`, startDate, ` endDate:`, endDate);
       // Ensure budget checks only apply if start_date is valid
       if (startDate && startDate > currentTimestamp) {
         console.log(`Feed ID ${feed.feedid} skipped: start_date (${startDate.toISOString()}) is in the future.`);
@@ -184,7 +187,7 @@ const updateFeedStatus = async () => {
       );
       const monthlyTotal = parseFloat(monthlySumResult[0].total) || 0;
       const monthlyBudget = parseFloat(feed.budget);
-
+      console.log(`monthlyTotal:`, monthlyTotal, ` monthlyBudget:`, monthlyBudget * 0.95);
       if (monthlyBudget) {
         if (monthlyTotal >= monthlyBudget * 0.95) {
           await connection.query(
