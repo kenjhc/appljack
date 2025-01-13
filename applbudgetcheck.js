@@ -177,7 +177,7 @@ const updateFeedStatus = async () => {
       // Monthly budget check
       const [monthlySumResult] = await connection.query(
         `
-        SELECT SUM(cpc + cpa) AS total
+        SELECT SUM(COALESCE(cpc, 0) + COALESCE(cpa, 0)) AS total
         FROM applevents
         WHERE feedid = ?
           AND timestamp >= ?
