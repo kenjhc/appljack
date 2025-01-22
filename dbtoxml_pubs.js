@@ -3,9 +3,9 @@ const path = require('path');
 const xml2js = require('xml2js');
 const mysql = require('mysql2');
 const config = require('./config');
-
+const { envSuffix } = require("./config");
 // Define the output directory for the combined XML files
-const outputXmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+const outputXmlFolderPath = `/chroot/home/appljack/appljack.com/html${envSuffix}/applfeeds`;
 
 // Initialize MySQL connection pool using the config
 const poolXmlFeeds = mysql.createPool({
