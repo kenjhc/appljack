@@ -66,22 +66,22 @@ async function updateUrlInCombinedXml(custid, publisherid) {
       try {
         const xmlContent = await readXMLFile(filePath);
   
-        // Modify the <url> field in each <job> element
-        if (xmlContent.jobs && xmlContent.jobs.job) {
-          xmlContent.jobs.job.forEach(job => {
+        // Ensure jobs and job arrays exist before proceeding
+        if (xmlContent && xmlContent.jobs && Array.isArray(xmlContent.jobs.job)) {
+          xmlContent.jobs.job.forEach((job) => {
             if (job.url && job.url[0]) {
               const currentUrl = job.url[0];
-              const separator = currentUrl.includes('?') ? '&' : '?';
+              const separator = currentUrl.includes("?") ? "&" : "?";
               job.url[0] = `${currentUrl}${separator}pub=${publisherid}`;
             }
           });
   
           // Write the updated XML back to the file
           const updatedXml = builder.buildObject(xmlContent);
-          fs.writeFileSync(filePath, updatedXml, 'utf8');
+          fs.writeFileSync(filePath, updatedXml, "utf8");
           console.log(`Updated URLs in ${fileName}`);
         } else {
-          console.warn(`No jobs found in ${fileName} to update URLs.`);
+          console.warn(`No <jobs> or <job> elements found in ${fileName} to update URLs.`);
         }
       } catch (err) {
         console.error(`Error updating URLs in ${fileName}:`, err);
@@ -90,6 +90,7 @@ async function updateUrlInCombinedXml(custid, publisherid) {
       console.warn(`File not found for URL update: ${fileName}`);
     }
   }
+  
 
 // Main function to combine XML files by custid and publisherid
 async function combineXmlFiles() {
