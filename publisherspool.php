@@ -1,6 +1,6 @@
 <?php
 include 'database/db.php';
-
+require 'PublisherController.php'; 
 if (!isset($_SESSION['acctnum'])) {
     header("Location: appllogin.php");
     exit();
@@ -98,32 +98,45 @@ try {
 
                                 <div class="table-responsive">
                                     <div class="custom_padding">
-                                        <table class="campaign-overview-table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Publisher Name</th>
-                                                    <th>Publisher ID</th>
-                                                    <th>Publisher Contact Name</th>
-                                                    <th>Publisher Contact Email</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if (empty($publishers)): ?>
-                                                    <tr>
-                                                        <td colspan="4">No publishers found.</td>
-                                                    </tr>
-                                                <?php else: ?>
-                                                    <?php foreach ($publishers as $publisher): ?>
-                                                        <tr>
-                                                            <td><?= htmlspecialchars($publisher['publishername']) ?></td>
-                                                            <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
-                                                            <td><?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></td>
-                                                            <td><?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </tbody>
-                                        </table>
+                                    <table class="campaign-overview-table table-striped">
+    <thead>
+        <tr>
+            <th>Publisher Name</th>
+            <th>Publisher ID</th>
+            <th>Publisher Contact Name</th>
+            <th>Publisher Contact Email</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if (empty($publishers)): ?>
+            <tr>
+                <td colspan="5">No publishers found.</td>
+            </tr>
+        <?php else: ?>
+            <?php foreach ($publishers as $publisher): ?>
+                <tr>
+                    <td><?= htmlspecialchars($publisher['publishername']) ?></td>
+                    <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
+                    <td><?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></td>
+                    <td>
+                    <a href="view_publisher.php?publisherid=<?= htmlspecialchars($publisher['publisherid']) ?>" class="btn btn-info" title="View">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="edit_publisher.php?id=<?= htmlspecialchars($publisher['publisherid']) ?>" class="btn btn-success" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="delete_publisher.php?id=<?= htmlspecialchars($publisher['publisherid']) ?>" class="btn btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this publisher?');">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </tbody>
+</table>
+
                                     </div>
                                 </div>
                             </div>
@@ -135,5 +148,25 @@ try {
     </section>
     <?php include 'footer.php'; ?>
 </body>
+<?php
+if (isset($_GET['message']) && isset($_GET['type'])):
+    $message = htmlspecialchars($_GET['message']);
+    $type = htmlspecialchars($_GET['type']); // Use 'success' or 'error'
+    ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: '<?= $type ?>', // 'success' or 'error'
+                title: '<?= $message ?>',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    </script>
+<?php
+endif;
+?>
 
 </html>

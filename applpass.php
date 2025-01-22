@@ -11,6 +11,7 @@ $custid = $_GET['c'] ?? 'default';
 $feedid = $_GET['f'] ?? 'default';
 $job_reference = $_GET['j'] ?? 'default';
 $jobpoolid = $_GET['jpid'] ?? 'default';
+$pubid = $_GET['pub'] ?? 'default';
 $refurl = urldecode($_GET['refurl'] ?? ($_SERVER['HTTP_REFERER'] ?? 'no-referrer'));
 
 // Log extracted parameters
@@ -55,6 +56,7 @@ $eventData = [
     'eventid' => bin2hex(random_bytes(5)), // Generate random event ID
     'timestamp' => date('Y-m-d H:i:s'),
     'custid' => $custid,
+    'publisherid' => $pubid,
     'job_reference' => $job_reference,
     'jobpoolid' => $jobpoolid,
     'refurl' => $refurl,

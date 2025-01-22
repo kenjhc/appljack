@@ -1,0 +1,20 @@
+on: 
+  push:
+    branches:
+      development
+
+name: 🚀 Deploy Appljack on development server
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: 67.225.189.14
+        username: appljack_autodeploy@appljack.com
+        password: HubcapAftBruinsMother74
