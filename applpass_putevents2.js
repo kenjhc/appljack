@@ -38,6 +38,7 @@ function checkForRequiredFields(eventData) {
     "userAgent",
     "ipaddress",
     "feedid",
+    "publisherid",
   ];
   const missingFields = [];
 
@@ -170,8 +171,8 @@ async function processEvents() {
 
           // Insert data into applevents table
           const query = `
-                        INSERT INTO applevents (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        INSERT INTO applevents (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, publisherid)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     `;
 
           const values = [
@@ -186,6 +187,7 @@ async function processEvents() {
             cpcValue, // Use fetched cpc value
             eventData.cpa ?? null,
             eventData.feedid,
+            eventData.publisherid,
           ];
 
           // console.log("Executing insert query with values:", values); // Log the query values

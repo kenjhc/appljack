@@ -2,7 +2,7 @@
 include 'database/db.php';
 
 // Set the default error log file location
-ini_set("error_log", "/chroot/home/appljack/appljack.com/html/applpass7.log");
+ini_set("error_log", "/chroot/home/appljack/appljack.com/html" . getEnvPath() . "/applpass7.log");
 
 error_log("Script started...");
 
