@@ -63,6 +63,7 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
       [feedid]
     );
     console.log(`result: ${result}`);
+    console.log(`feedRows: ${feedRows[0].cpc}`);
     // console.log("Feed rows result:", feedRows); // Log query result for applcustfeeds
 
     // If a result is found and cpc is not 0.0, return this cpc value
