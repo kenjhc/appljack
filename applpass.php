@@ -19,6 +19,7 @@ error_log("custid: " . $custid);
 error_log("feedid: " . $feedid);
 error_log("job_reference: " . $job_reference);
 error_log("jobpoolid: " . $jobpoolid);
+error_log("pubid: " . $pubid);
 
 // Ensure critical parameters are provided
 if ($job_reference === 'default' || $jobpoolid === 'default') {

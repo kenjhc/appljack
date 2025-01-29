@@ -84,12 +84,12 @@ async function processCPAEvents() {
         try {
           // Query and process the CPA event
           const [rows] = await connection.execute(
-            `SELECT custid, jobid, feedid, timestamp FROM applevents
+            `SELECT custid, jobid, feedid, timestamp, publisherid FROM applevents
                          WHERE useragent = ? AND ipaddress = ?
                          ORDER BY timestamp DESC LIMIT 1`,
             [eventData.userAgent, eventData.ipaddress]
           );
-
+          const data = rows[0];
           console.log(
             `Length of rows from query and process the cpa event: ${rows.length}`
           );
@@ -105,8 +105,8 @@ async function processCPAEvents() {
               `No matching event found for eventID: ${eventData.eventid}. Adding to appleventsdel.`
             );
             await connection.execute(
-              `INSERT INTO appleventsdel (eventid, timestamp, eventtype, custid, jobid, refurl, ipaddress, cpc, cpa, feedid, useragent, deletecode)
-                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              `INSERT INTO appleventsdel (eventid, timestamp, eventtype, custid, jobid, refurl, ipaddress, cpc, cpa, feedid, useragent, deletecode, publisherid)
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
               [
                 eventData.eventid,
                 eventData.timestamp,
@@ -120,12 +120,13 @@ async function processCPAEvents() {
                 "0000000000", // Default value instead of null
                 eventData.userAgent,
                 "nomatch",
+                data.publisherid,
               ]
             );
             continue;
           }
 
-          const data = rows[0];
+         
 
           // Retrieve jobpoolid using custid from the applcust table
           const [custRows] = await connection.execute(
@@ -173,7 +174,7 @@ async function processCPAEvents() {
 
           // Insert CPA event into applevents table
           await connection.execute(
-            `INSERT INTO applevents (eventid, timestamp, eventtype, custid, jobid, refurl, ipaddress, cpc, cpa, feedid, useragent)
+            `INSERT INTO applevents (eventid, timestamp, eventtype, custid, jobid, refurl, ipaddress, cpc, cpa, feedid, useragent, publisherid)
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               eventData.eventid,
@@ -187,6 +188,7 @@ async function processCPAEvents() {
               cpa,
               data.feedid,
               eventData.userAgent,
+              data.publisherid,
             ]
           );
 
