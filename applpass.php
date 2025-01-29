@@ -2,7 +2,7 @@
 include 'database/db.php';
 
 // Set the default error log file location
-ini_set("error_log", "/chroot/home/appljack/appljack.com/html" . getEnvPath() . "/applpass7.log");
+ini_set("error_log", "/chroot/home/appljack/appljack.com/html/applpass7.log");
 
 error_log("Script started...");
 
@@ -70,8 +70,11 @@ $eventData = [
 error_log("Event data to write: " . json_encode($eventData));
 
 // Attempt to write event data to a JSON file
-$file_path = "/chroot/home/appljack/appljack.com/html" . getEnvPath() . "applpass_queue.json";
-$write_result = file_put_contents($file_path, json_encode($eventData) . PHP_EOL, FILE_APPEND | LOCK_EX);
+$file_path = rtrim("/chroot/home/appljack/appljack.com/html", "/") . 
+             "/" . 
+             ltrim(getEnvPath(), "/") . 
+             "applpass_queue.json";
+             $write_result = file_put_contents($file_path, json_encode($eventData) . PHP_EOL, FILE_APPEND | LOCK_EX);
 
 // Log the result of the file write operation
 if ($write_result === false) {
