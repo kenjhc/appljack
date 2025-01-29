@@ -54,6 +54,18 @@ function getEnvPath()
         return "unknown";
     }
 }
+
+function getEnvPathUpdated()
+    {
+        $currentPath = __DIR__;
+        if (strpos($currentPath, "/dev/") !== false) {
+            return "/dev/";
+        } elseif (strpos($currentPath, "/admin/") !== false) {
+            return "/admin/";
+        } else {
+            return "/dev/";
+        }
+    }
 function renderHeader($pageTitle, $subtitle = '', $notificationCount = 0)
 {
     $userName = $_SESSION["acctname"] ?? "N/A";
