@@ -192,8 +192,7 @@ if ($custid) {
     <meta charset="UTF-8">
     <title>Campaign Portal | Appljack</title>
     <?php include 'header.php'; ?>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
 
 </head>
 

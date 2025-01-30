@@ -1,9 +1,14 @@
 <?php
 // PublisherController.php
 // Function to fetch publisher details by ID
+
+if (!isset($_SESSION['acctnum'])) {
+    header("Location: appllogin.php");
+    exit();
+}
 function getPublisherById($id, $pdo) {
-    $stmt = $pdo->prepare("SELECT * FROM applpubs WHERE publisherid = ?");
-    $stmt->execute([$id]);
+    $stmt = $pdo->prepare("SELECT * FROM applpubs WHERE publisherid = ? AND acctnum = ?");
+    $stmt->execute([$id, $_SESSION['acctnum']]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
