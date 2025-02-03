@@ -17,9 +17,52 @@ $enddate = date('Y-m-d', strtotime($enddate)) . " 23:59:59";
 try {
     // Fetch current publishers 
     $publishers = [];
-    $stmt = $conn->prepare("SELECT publisherid, publishername, publisher_contact_name, publisher_contact_email FROM applpubs WHERE acctnum = ?");
+    $stmt = $conn->prepare("
+        SELECT 
+            p.publisherid, 
+            p.publishername, 
+            p.publisher_contact_name, 
+            p.publisher_contact_email,
+            f.feedid,
+            f.feedname,
+            f.budget,
+            f.status,
+            f.numjobs
+        FROM applpubs p
+        LEFT JOIN applcustfeeds f ON p.publisherid = f.activepubs
+        WHERE p.acctnum = ?
+    ");
     $stmt->execute([$_SESSION['acctnum']]);
     $publishers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Modify the status and update the budget for each publisher
+    foreach ($publishers as &$publisher) {
+        $publisher['status'] = $publisher['status'] > 0 ? 'Active' : 'Inactive';
+
+        // Fetch and update the budget for each publisher
+        $budgetStmt = $conn->prepare("SELECT SUM(budget) FROM applcustfeeds WHERE activepubs = :publisherid");
+        $budgetStmt->execute(['publisherid' => $publisher['publisherid']]);
+        $publisher['budget'] = $budgetStmt->fetchColumn() ?? 0;
+
+        // Fetch and update the total spend, clicks, and applies for each publisher
+        $eventStmt = $conn->prepare("
+            SELECT
+                SUM(CASE WHEN eventtype = 'cpc' THEN cpc ELSE 0 END) AS total_cpc,
+                SUM(CASE WHEN eventtype = 'cpa' THEN cpa ELSE 0 END) AS total_cpa,
+                COUNT(CASE WHEN eventtype = 'cpc' THEN 1 ELSE NULL END) AS clicks,
+                COUNT(CASE WHEN eventtype = 'cpa' THEN 1 ELSE NULL END) AS applies
+            FROM applevents
+            WHERE publisherid = :publisherid AND timestamp BETWEEN :startdate AND :enddate
+        ");
+        $eventStmt->execute(['publisherid' => $publisher['publisherid'], 'startdate' => $startdate, 'enddate' => $enddate]);
+        $eventData = $eventStmt->fetch(PDO::FETCH_ASSOC);
+        $total_cpc = $eventData['total_cpc'] ?? 0;
+        $total_cpa = $eventData['total_cpa'] ?? 0;
+        $publisher['spend'] = $total_cpc + $total_cpa;
+        $publisher['clicks'] = $eventData['clicks'] ?? 0;
+        $publisher['applies'] = $eventData['applies'] ?? 0;
+    }
+    unset($publisher); // Break the reference with the last element
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Handle job pool deletion
@@ -39,10 +82,10 @@ try {
 
             $conn->beginTransaction();
             try {
-                $conn->prepare("DELETE FROM applevents WHERE custid = :custid")->execute(['custid' => $custid]);
-                $conn->prepare("DELETE FROM applcustfeeds WHERE custid = :custid")->execute(['custid' => $custid]);
-                $conn->prepare("DELETE FROM applcust WHERE custid = :custid")->execute(['custid' => $custid]);
-                $conn->commit();
+                // $conn->prepare("DELETE FROM applevents WHERE custid = :custid")->execute(['custid' => $custid]);
+                // $conn->prepare("DELETE FROM applcustfeeds WHERE custid = :custid")->execute(['custid' => $custid]);
+                // $conn->prepare("DELETE FROM applcust WHERE custid = :custid")->execute(['custid' => $custid]);
+                // $conn->commit();
             } catch (Exception $e) {
                 $conn->rollBack();
                 setToastMessage('error', "Failed to delete customer: " . $e->getMessage());
@@ -103,6 +146,14 @@ try {
         <tr>
             <th>Publisher Name</th>
             <th>Publisher ID</th>
+            <th>Status</th>
+            <th>Budget</th>
+            <th>Spend</th>
+            <th>Clicks</th>
+            <th>Applies</th>
+            <th>CPA</th>
+            <th>CPC</th>
+            <th>Conv. Rate</th>
             <th>Publisher Contact Name</th>
             <th>Publisher Contact Email</th>
             <th>Action</th>
@@ -116,8 +167,14 @@ try {
         <?php else: ?>
             <?php foreach ($publishers as $publisher): ?>
                 <tr>
+                    <?php
+                        print_r($publisher);
+                    ?>
                     <td><?= htmlspecialchars($publisher['publishername']) ?></td>
                     <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
+                    <td><?= $publisher['status'] ?></td>
+                    <td><?= htmlspecialchars($publisher['budget']) ?></td>
+                    <td><?= htmlspecialchars($publisher['spend']) ?></td>
                     <td><?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></td>
                     <td><?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></td>
                     <td>
