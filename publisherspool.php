@@ -13,6 +13,8 @@ $startdate = isset($_GET['startdate']) ? $_GET['startdate'] : $defaultStartDate;
 $enddate = isset($_GET['enddate']) ? $_GET['enddate'] : $defaultEndDate;
 $startdate = date('Y-m-d', strtotime($startdate)) . " 00:00:00";
 $enddate = date('Y-m-d', strtotime($enddate)) . " 23:59:59";
+$applies = '';
+$clicks  = '';
 
 try {
     // Fetch current publishers 
@@ -61,6 +63,17 @@ try {
         $publisher['spend'] = $total_cpc + $total_cpa;
         $publisher['clicks'] = $eventData['clicks'] ?? 0;
         $publisher['applies'] = $eventData['applies'] ?? 0;
+
+        $cpa = $applies > 0 ? $spend / $applies : 0;
+        $cpc = $clicks > 0 ? $spend / $clicks : 0;
+
+        // Conversion Rate
+        $conversion_rate = $clicks > 0 ? ($applies / $clicks) * 100 : 0;
+
+        // Num Jobs
+        $numJobsStmt = $conn->prepare("SELECT SUM(numjobs) FROM applcustfeeds WHERE activepubs = :publisherid");
+        $numJobsStmt->execute(['publisherid' => $publisher['publisherid']]);
+        $numJobs = $numJobsStmt->fetchColumn() ?? 0;
     }
     unset($publisher); // Break the reference with the last element
 
@@ -154,6 +167,7 @@ try {
             <th>CPA</th>
             <th>CPC</th>
             <th>Conv. Rate</th>
+            <th>Num Jobs</th>
             <th>Publisher Contact Name</th>
             <th>Publisher Contact Email</th>
             <th>Action</th>
@@ -167,14 +181,18 @@ try {
         <?php else: ?>
             <?php foreach ($publishers as $publisher): ?>
                 <tr>
-                    <?php
-                        print_r($publisher);
-                    ?>
+                  
                     <td><?= htmlspecialchars($publisher['publishername']) ?></td>
                     <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
                     <td><?= $publisher['status'] ?></td>
-                    <td><?= htmlspecialchars($publisher['budget']) ?></td>
-                    <td><?= htmlspecialchars($publisher['spend']) ?></td>
+                    <td>$<?= number_format($publisher['budget'], 2); ?></td>
+                    <td>$<?= number_format($publisher['spend'], 2); ?></td>
+                    <td><?= htmlspecialchars($publisher['clicks']); ?></td>
+                    <td><?= htmlspecialchars($publisher['applies']); ?></td>
+                    <td>$<?= number_format($cpa, 2); ?></td>
+                    <td>$<?= number_format($cpc, 2); ?></td>
+                    <td><?= number_format($conversion_rate, 2); ?>%</td>
+                    <td><?= number_format($numJobs); ?></td>
                     <td><?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></td>
                     <td><?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></td>
                     <td>

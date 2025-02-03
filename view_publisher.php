@@ -233,12 +233,23 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
 
                                         <?php if (!empty($publisher)): ?>
                                             <div class="mb-4">
-                            
-                           
+                        
                                 <p><strong>Name:</strong> <?= htmlspecialchars($publisher['publishername']) ?></p>
                                 <p><strong>ID:</strong> <?= htmlspecialchars($publisher['publisherid']) ?></p>
                                 <p><strong>Contact Name:</strong> <?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></p>
                                 <p><strong>Contact Email:</strong> <?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></p>
+                                <p class="mb-1"><strong>Customer-level Feed URL:</strong>
+                                            <div class="bg-light border py-1 px-2 mb-1 rounded">
+                                                <a href="<?= getUrl() . $envSuffix ?>/applfeeds/<?= $feed['custid'] . '-' . $feed['feedid']; ?>.xml" target="_blank">
+                                                    <?= getUrl() . $envSuffix ?>/applfeeds/<?= $feed['custid'] . '-' . $feed['feedid']; ?>.xml
+                                                </a>
+                                            </div>
+                                            </p>
+                                            <div class="text-center">
+                                <a href="publisherspool.php" class="btn btn-secondary">Back to List</a>
+                                <a href="edit_publisher.php?id=<?= htmlspecialchars($publisher['publisherid']) ?>" class="btn btn-success">Edit Publisher</a>
+                                <a href="delete_publisher.php?id=<?= htmlspecialchars($publisher['publisherid']) ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this publisher?');">Delete Publisher</a>
+                            </div>
                             </div>
                                       
                                         <?php else: ?>
@@ -271,7 +282,8 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
                     <div class="rounded-md shadow-md p-3 customer-filter-bar bg-white feed-url h-100">
                         <div class="row w-100 mx-auto">
                             <div class="col-md-9">
-                                <form action="applportal.php" id="applPortalFilter" class="row w-100 mx-auto">
+                                <form action="view_publisher.php" id="applPortalFilter" class="row w-100 mx-auto" method="get">
+                                    <input type="hidden" name="publisherid" value="<?= htmlspecialchars($_GET['publisherid']) ?>">
                                     <div class="col-md-6 px-0 customer-info-dates">
                                         <div class="form-group mb-0">
                                             <label for="startdate">Start</label>
@@ -358,7 +370,7 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
                                     <a href="editfeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-success btn-sm" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="deletefeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-danger btn-sm"
+                                    <a href="deletepub.php?publisherid=<?= urlencode($_GET['publisherid']); ?>&feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-danger btn-sm"
                                         onclick="return confirm('Are you sure you want to delete this feed?');" title="Delete">
                                         <i class="fas fa-trash"></i>
                                     </a>
@@ -370,29 +382,7 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
             </div>
          
         </div>
-        <div class="col-md-12" >
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0 bold text-white">Publisher Details</h5>
-                        </div>
-                      
-                        <div class="card-body">
-                            <div class="mb-4">
-                                <h6 class="text-muted">Publisher Information</h6>
-                                <hr>
-                                <p><strong>Name:</strong> <?= htmlspecialchars($publisher['publishername']) ?></p>
-                                <p><strong>ID:</strong> <?= htmlspecialchars($publisher['publisherid']) ?></p>
-                                <p><strong>Contact Name:</strong> <?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></p>
-                                <p><strong>Contact Email:</strong> <?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></p>
-                            </div>
-                            <div class="text-center">
-                                <a href="publisherspool.php" class="btn btn-secondary">Back to List</a>
-                                <a href="edit_publisher.php?id=<?= htmlspecialchars($publisher['publisherid']) ?>" class="btn btn-success">Edit Publisher</a>
-                                <a href="delete_publisher.php?id=<?= htmlspecialchars($publisher['publisherid']) ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this publisher?');">Delete Publisher</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      
     </section>
 
     <?php include 'footer.php'; ?>
