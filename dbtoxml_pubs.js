@@ -46,7 +46,7 @@ function readXMLFile(filePath) {
 }
 
 // Write a combined XML file
-function writeCombinedXMLFile(acctnum, custid, publisherid, combinedJobs) {
+function writeCombinedXMLFile(custid, publisherid, combinedJobs, acctnum) {
   const combinedXml = builder.buildObject({ jobs: { job: combinedJobs } });
   const fileName = `${acctnum}-${publisherid}.xml`;
   const outputFilePath = path.join(outputXmlFolderPath, fileName);
@@ -58,8 +58,8 @@ function writeCombinedXMLFile(acctnum, custid, publisherid, combinedJobs) {
 }
 
 
-async function updateUrlInCombinedXml(acctnum, custid, publisherid) {
-    const fileName = `${custid}-${publisherid}.xml`;
+async function updateUrlInCombinedXml(custid, publisherid, acctnum) {
+    const fileName = `${acctnum}-${publisherid}.xml`;
     const filePath = path.join(outputXmlFolderPath, fileName);
   
     if (fs.existsSync(filePath)) {
@@ -103,27 +103,27 @@ async function combineXmlFiles() {
         const { acctnum, custid, feedid, activepubs } = feedData;
         const publisherIds = activepubs.split(','); // Handle multiple publishers
   
-        if (!groupedFeeds[acctnum]) {
-          groupedFeeds[acctnum] = {};
+        if (!groupedFeeds[custid]) {
+          groupedFeeds[custid] = {};
         }
   
         // Group feedid by each publisherid
         publisherIds.forEach(publisherid => {
-          if (!groupedFeeds[acctnum][publisherid]) {
-            groupedFeeds[acctnum][publisherid] = [];
+          if (!groupedFeeds[custid][publisherid]) {
+            groupedFeeds[custid][publisherid] = [];
           }
-          groupedFeeds[acctnum][publisherid].push(feedid);
+          groupedFeeds[custid][publisherid].push(feedid);
         });
       }
   
       // Process each custid and publisherid group
-      for (const acctnum in groupedFeeds) {
-        for (const publisherid in groupedFeeds[acctnum]) {
+      for (const custid in groupedFeeds) {
+        for (const publisherid in groupedFeeds[custid]) {
           const jobElements = [];
-          const feedids = groupedFeeds[acctnum][publisherid];
+          const feedids = groupedFeeds[custid][publisherid];
   
           for (const feedid of feedids) {
-            const xmlFileName = `${acctnum}-${feedid}.xml`;
+            const xmlFileName = `${custid}-${feedid}.xml`;
             const xmlFilePath = path.join(outputXmlFolderPath, xmlFileName);
   
             // Check if the file exists
@@ -148,10 +148,10 @@ async function combineXmlFiles() {
   
           // If jobs were found, write them to a new combined file
           if (jobElements.length > 0) {
-            writeCombinedXMLFile(acctnum, custid, publisherid, jobElements);
+            writeCombinedXMLFile(custid, publisherid, jobElements, acctnum);
   
             // Update the URL in the combined file
-            await updateUrlInCombinedXml(acctnum, custid, publisherid);
+            await updateUrlInCombinedXml(custid, publisherid, acctnum);
           }
         }
       }
