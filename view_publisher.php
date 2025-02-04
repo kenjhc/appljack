@@ -85,13 +85,13 @@ foreach ($feeds as &$feed) {
             COUNT(DISTINCT eventid) AS clicks, 
             SUM(cpc) AS total_cpc
         FROM applevents
-        WHERE custid    = :custid
+        WHERE publisherid    = :activepubs
           AND feedid    = :feedid
           AND eventtype = 'cpc'
           AND timestamp BETWEEN :startdate AND :enddate
     ");
     $clickStmt->execute([
-        'custid' => $feed['custid'],
+        'activepubs' => $feed['activepubs'],
         'feedid' => $feed['feedid'],
         'startdate' => $startdate,
         'enddate'   => $enddate
