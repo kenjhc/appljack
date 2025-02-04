@@ -339,7 +339,7 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
                             <th>Campaign ID</th>
                             <th>Status</th>
                             <th>Mo. Budget</th>
-                            <th>Spend</th>
+                            <th>Publisher Spend</th>
                             <th>Clicks</th>
                             <th>Applies</th>
                             <th>Spend/Apply</th>
