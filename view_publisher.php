@@ -240,8 +240,8 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
                                 <p><strong>Contact Email:</strong> <?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></p>
                                 <p class="mb-1"><strong>Customer-level Feed URL:</strong>
                                             <div class="bg-light border py-1 px-2 mb-1 rounded">
-                                                <a href="<?= getUrl() . $envSuffix ?>/applfeeds/<?= $feed['custid'] . '-' . $feed['feedid']; ?>.xml" target="_blank">
-                                                    <?= getUrl() . $envSuffix ?>/applfeeds/<?= $feed['custid'] . '-' . $feed['feedid']; ?>.xml
+                                                <a href="<?= getUrl() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $feed['feedid']; ?>.xml" target="_blank">
+                                                    <?= getUrl() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $feed['feedid']; ?>.xml
                                                 </a>
                                             </div>
                                             </p>
