@@ -104,13 +104,13 @@ foreach ($feeds as &$feed) {
             COUNT(*) AS applies, 
             SUM(cpa) AS total_cpa
         FROM applevents
-        WHERE custid    = :custid
+        WHERE publisherid    = :publisherid
           AND feedid    = :feedid
           AND eventtype = 'cpa'
           AND timestamp BETWEEN :startdate AND :enddate
     ");
     $appliesStmt->execute([
-        'custid' => $feed['custid'],
+        'publisherid' => $feed['publisherid'],
         'feedid' => $feed['feedid'],
         'startdate' => $startdate,
         'enddate'   => $enddate
@@ -345,7 +345,7 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
                             <th>Spend/Apply</th>
                             <th>Spend/Click</th>
                             <th>Conv. Rate</th>
-                            <th>Job Exported</th>
+                            <!-- <th>Job Exported</th> -->
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -362,7 +362,7 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
                                 <td><?= $feed['spend_per_apply']; ?></td>
                                 <td><?= $feed['spend_per_click']; ?></td>
                                 <td><?= $feed['conversion_rate']; ?></td>
-                                <td><?= number_format($feed['numjobs'] ?? 0); ?></td>
+                                <!-- <td><?= number_format($feed['numjobs'] ?? 0); ?></td> -->
                                 <td>
                                     <a href="viewfeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-info btn-sm" title="View">
                                         <i class="fas fa-eye"></i>
