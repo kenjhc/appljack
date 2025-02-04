@@ -109,8 +109,9 @@ foreach ($feeds as &$feed) {
           AND eventtype = 'cpa'
           AND timestamp BETWEEN :startdate AND :enddate
     ");
+    
     $appliesStmt->execute([
-        'publisherid' => $feed['publisherid'],
+        'publisherid' => $feed['activepubs'],
         'feedid' => $feed['feedid'],
         'startdate' => $startdate,
         'enddate'   => $enddate
