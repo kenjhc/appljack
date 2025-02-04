@@ -159,8 +159,8 @@ try {
         <tr>
             <th>Publisher Name</th>
             <th>Publisher ID</th>
-            <th>Status</th>
-            <th>Budget</th>
+            <!-- <th>Status</th> -->
+            <!-- <th>Budget</th> -->
             <th>Spend</th>
             <th>Clicks</th>
             <th>Applies</th>
@@ -168,8 +168,8 @@ try {
             <th>CPC</th>
             <th>Conv. Rate</th>
             <th>Num Jobs</th>
-            <th>Publisher Contact Name</th>
-            <th>Publisher Contact Email</th>
+            <!-- <th>Publisher Contact Name</th>
+            <th>Publisher Contact Email</th> -->
             <th>Action</th>
         </tr>
     </thead>
@@ -184,8 +184,8 @@ try {
                   
                     <td><?= htmlspecialchars($publisher['publishername']) ?></td>
                     <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
-                    <td><?= $publisher['status'] ?></td>
-                    <td>$<?= number_format($publisher['budget'], 2); ?></td>
+                    <!-- <td><?= $publisher['status'] ?></td> -->
+                    <!-- <td>$<?= number_format($publisher['budget'], 2); ?></td> -->
                     <td>$<?= number_format($publisher['spend'], 2); ?></td>
                     <td><?= htmlspecialchars($publisher['clicks']); ?></td>
                     <td><?= htmlspecialchars($publisher['applies']); ?></td>
@@ -193,8 +193,8 @@ try {
                     <td>$<?= number_format($cpc, 2); ?></td>
                     <td><?= number_format($conversion_rate, 2); ?>%</td>
                     <td><?= number_format($numJobs); ?></td>
-                    <td><?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></td>
-                    <td><?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></td>
+                    <!-- <td><?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></td> -->
                     <td>
                     <a href="view_publisher.php?publisherid=<?= htmlspecialchars($publisher['publisherid']) ?>" class="btn btn-info" title="View">
                         <i class="fas fa-eye"></i>
