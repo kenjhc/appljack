@@ -59,7 +59,7 @@ function writeCombinedXMLFile(acctnum, custid, publisherid, combinedJobs) {
 
 
 async function updateUrlInCombinedXml(acctnum, custid, publisherid) {
-    const fileName = `${acctnum}-${publisherid}.xml`;
+    const fileName = `${custid}-${publisherid}.xml`;
     const filePath = path.join(outputXmlFolderPath, fileName);
   
     if (fs.existsSync(filePath)) {
