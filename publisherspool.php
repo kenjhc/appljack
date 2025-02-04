@@ -25,24 +25,29 @@ try {
             p.publishername, 
             p.publisher_contact_name, 
             p.publisher_contact_email,
-            f.feedid,
-            f.feedname,
-            f.budget,
-            f.status,
-            f.numjobs
+            GROUP_CONCAT(f.feedid) AS feedids,
+            GROUP_CONCAT(f.feedname) AS feednames,
+            GROUP_CONCAT(f.budget) AS budgets,
+            GROUP_CONCAT(f.status) AS statuses,
+            GROUP_CONCAT(f.numjobs) AS numjobs
         FROM applpubs p
-        LEFT JOIN applcustfeeds f ON p.publisherid = f.activepubs
+        LEFT JOIN applcustfeeds f ON FIND_IN_SET(p.publisherid, f.activepubs) > 0
         WHERE p.acctnum = ?
+        GROUP BY p.publisherid
     ");
     $stmt->execute([$_SESSION['acctnum']]);
     $publishers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Modify the status and update the budget for each publisher
     foreach ($publishers as &$publisher) {
-        $publisher['status'] = $publisher['status'] > 0 ? 'Active' : 'Inactive';
+        // Convert status to 'Active' or 'Inactive'
+        $publisher['status'] = (isset($statusList[0]) && $statusList[0] > 0) ? 'Active' : 'Inactive';
 
         // Fetch and update the budget for each publisher
-        $budgetStmt = $conn->prepare("SELECT SUM(budget) FROM applcustfeeds WHERE activepubs = :publisherid");
+        $budgetStmt = $conn->prepare("
+            SELECT SUM(budget) FROM applcustfeeds 
+            WHERE FIND_IN_SET(:publisherid, activepubs) > 0
+        ");
         $budgetStmt->execute(['publisherid' => $publisher['publisherid']]);
         $publisher['budget'] = $budgetStmt->fetchColumn() ?? 0;
 
@@ -56,26 +61,33 @@ try {
             FROM applevents
             WHERE publisherid = :publisherid AND timestamp BETWEEN :startdate AND :enddate
         ");
-        $eventStmt->execute(['publisherid' => $publisher['publisherid'], 'startdate' => $startdate, 'enddate' => $enddate]);
+        $eventStmt->execute([
+            'publisherid' => $publisher['publisherid'],
+            'startdate' => $startdate,
+            'enddate' => $enddate
+        ]);
         $eventData = $eventStmt->fetch(PDO::FETCH_ASSOC);
-        $total_cpc = $eventData['total_cpc'] ?? 0;
-        $total_cpa = $eventData['total_cpa'] ?? 0;
-        $publisher['spend'] = $total_cpc + $total_cpa;
+
+        $publisher['spend'] = ($eventData['total_cpc'] ?? 0) + ($eventData['total_cpa'] ?? 0);
         $publisher['clicks'] = $eventData['clicks'] ?? 0;
         $publisher['applies'] = $eventData['applies'] ?? 0;
 
-        $cpa = $applies > 0 ? $spend / $applies : 0;
-        $cpc = $clicks > 0 ? $spend / $clicks : 0;
+        // Compute CPA and CPC safely
+        $publisher['cpa'] = ($publisher['applies'] > 0) ? ($publisher['spend'] / $publisher['applies']) : 0;
+        $publisher['cpc'] = ($publisher['clicks'] > 0) ? ($publisher['spend'] / $publisher['clicks']) : 0;
 
-        // Conversion Rate
-        $conversion_rate = $clicks > 0 ? ($applies / $clicks) * 100 : 0;
+        // Compute Conversion Rate
+        $publisher['conversion_rate'] = ($publisher['clicks'] > 0) ? (($publisher['applies'] / $publisher['clicks']) * 100) : 0;
 
-        // Num Jobs
-        $numJobsStmt = $conn->prepare("SELECT SUM(numjobs) FROM applcustfeeds WHERE activepubs = :publisherid");
+        // Fetch and update the total number of jobs
+        $numJobsStmt = $conn->prepare("
+            SELECT SUM(numjobs) FROM applcustfeeds 
+            WHERE FIND_IN_SET(:publisherid, activepubs) > 0
+        ");
         $numJobsStmt->execute(['publisherid' => $publisher['publisherid']]);
-        $numJobs = $numJobsStmt->fetchColumn() ?? 0;
+        $publisher['numjobs'] = $numJobsStmt->fetchColumn() ?? 0;
     }
-    unset($publisher); // Break the reference with the last element
+    unset($publisher); // Break reference with the last element
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Handle job pool deletion
@@ -189,10 +201,10 @@ try {
                     <td>$<?= number_format($publisher['spend'], 2); ?></td>
                     <td><?= htmlspecialchars($publisher['clicks']); ?></td>
                     <td><?= htmlspecialchars($publisher['applies']); ?></td>
-                    <td>$<?= number_format($cpa, 2); ?></td>
-                    <td>$<?= number_format($cpc, 2); ?></td>
-                    <td><?= number_format($conversion_rate, 2); ?>%</td>
-                    <td><?= number_format($numJobs); ?></td>
+                    <td>$<?= number_format($publisher['cpa'], 2); ?></td>
+                    <td>$<?= number_format($publisher['cpc'], 2); ?></td>
+                    <td><?= number_format(number_format($publisher['cpc'], 2), 2); ?>%</td>
+                    <td><?= number_format($publisher['numjobs']); ?></td>
                     <!-- <td><?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></td>
                     <td><?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></td> -->
                     <td>
