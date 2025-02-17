@@ -25,8 +25,8 @@ function updatePublisher($id, $data, $pdo) {
 }
 
 // Function to delete a publisher by ID
-function deletePublisherById($id, $pdo) {
-    $stmt = $pdo->prepare("DELETE FROM applpubs WHERE publisherid = ?");
+function deactivatePublisherById($id, $pdo) {
+    $stmt = $pdo->prepare("UPDATE applpubs SET pubstatus = 'inactive' WHERE publisherid = ?");
     $stmt->execute([$id]);
     return $stmt->rowCount();
 }
