@@ -276,8 +276,8 @@ foreach ($feeds as $feed) {
                                         
                                             if (file_exists($filePath)): ?>
                                                 <div class="bg-light border py-1 px-2 mb-1 rounded">
-                                                    <a href="<?= getUrl() . getEnvPathUpdated() ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml" target="_blank">
-                                                        <?= getUrl() . getEnvPathUpdated() ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml
+                                                    <a href="<?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml" target="_blank">
+                                                        <?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml
                                                     </a>
                                                 </div>
                                             <?php else: ?>
