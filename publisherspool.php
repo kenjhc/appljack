@@ -248,7 +248,7 @@ $nextCronTime = getNextCronTime();
                 <tr>
                 <td>
     <button 
-        class="btn btn-sm <?= ($publisher['pubstatus'] == 'Active') ? 'btn-success' : 'btn-secondary' ?>" 
+        class="btn btn-sm <?= ($publisher['pubstatus'] == 'active') ? 'btn-success' : 'btn-secondary' ?>" 
         onclick="toggleStatus('<?= $publisher['publisherid'] ?>', '<?= $publisher['pubstatus'] ?>')"
     >
         <?= htmlspecialchars($publisher['pubstatus']) ?>
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const interval = setInterval(updateTimer, 1000);
         });
         function toggleStatus(publisherId, currentStatus) {
-        const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'Active';
 
         // Send an AJAX request to update the status
         fetch('update_publisher_status.php', {
