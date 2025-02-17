@@ -31,7 +31,15 @@ function getFeedsData() {
       });
   });
 }
-
+function getPublisherStatus(publisherid) {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT pubstatus FROM applpubs WHERE publisherid = ?`;
+    poolXmlFeeds.query(query, [publisherid], (error, results) => {
+      if (error) reject(error);
+      resolve(results[0]?.pubstatus);  // Returns 'Active' or 'Inactive'
+    });
+  });
+}
 
 // Read and parse an XML file
 function readXMLFile(filePath) {
@@ -131,6 +139,13 @@ async function combineXmlFiles() {
           const { acctnum, publishers } = groupedFeeds[custid];
 
           for (const publisherid in publishers) {
+            const status = await getPublisherStatus(publisherid);  // NEW: Check publisher status
+
+            if (status === 'inactive') {  // NEW: Write empty XML if publisher is inactive
+              console.warn(`Publisher ${publisherid} is inactive. Writing empty XML.`);
+              await writeCombinedXMLFile(custid, publisherid, [], acctnum);  // Write empty XML
+              continue;
+            }
               const jobElements = [];
               const feedids = publishers[publisherid];
 
