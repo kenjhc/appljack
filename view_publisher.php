@@ -65,7 +65,7 @@ try {
         FROM applcustfeeds f
         JOIN applpubs p ON p.publisherid = f.activepubs
         LEFT JOIN applcust c ON c.custid = f.custid
-        WHERE f.activepubs = :publisherid
+        WHERE FIND_IN_SET(:publisherid, f.activepubs) > 0
         ORDER BY f.feedname ASC
     ");
     $stmt->execute(['publisherid' => $_GET['publisherid']]);
