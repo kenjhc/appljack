@@ -51,24 +51,24 @@ $publisher = getPublisherById($_GET['publisherid'], $pdo); // Using your existin
 
 try {
     $stmt = $pdo->prepare("
-    SELECT DISTINCT
-        f.feedid,
-        f.feedname,
-        f.budget,
-        f.status,
-        f.numjobs,
-        f.custid,          
-        f.activepubs,          
-        c.custcompany,
-        c.custtype,
-        p.acctnum
-    FROM applcustfeeds f
-    JOIN applpubs p ON FIND_IN_SET(p.publisherid, f.activepubs)
-    LEFT JOIN applcust c ON c.custid = f.custid
-    WHERE FIND_IN_SET(:publisherid, f.activepubs)
-    ORDER BY f.feedname ASC
-");
-$stmt->execute(['publisherid' => $_GET['publisherid']]);
+        SELECT 
+            f.feedid,
+            f.feedname,
+            f.budget,
+            f.status,
+            f.numjobs,
+            f.custid,          
+            f.activepubs,          
+            c.custcompany,
+            c.custtype,
+            p.acctnum
+        FROM applcustfeeds f
+        JOIN applpubs p ON FIND_IN_SET(p.publisherid, f.activepubs)
+        LEFT JOIN applcust c ON c.custid = f.custid
+        WHERE FIND_IN_SET(:publisherid, f.activepubs)
+        ORDER BY f.feedname ASC
+    ");
+    $stmt->execute(['publisherid' => $_GET['publisherid']]);
 
     $feeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -79,44 +79,35 @@ $stmt->execute(['publisherid' => $_GET['publisherid']]);
 }
 
 foreach ($feeds as &$feed) {
- 
-    
+    $publisherIds = explode(',', $feed['activepubs']); // Convert to array
+    $publisherPlaceholders = implode(',', array_fill(0, count($publisherIds), '?'));
+
+    // Fetch click data
     $clickStmt = $pdo->prepare("
         SELECT 
             COUNT(DISTINCT eventid) AS clicks, 
             SUM(cpc) AS total_cpc
         FROM applevents
-        WHERE publisherid    = :activepubs
-          AND feedid    = :feedid
+        WHERE publisherid IN ($publisherPlaceholders)
+          AND feedid = ?
           AND eventtype = 'cpc'
-          AND timestamp BETWEEN :startdate AND :enddate
+          AND timestamp BETWEEN ? AND ?
     ");
-    $clickStmt->execute([
-        'activepubs' => $feed['activepubs'],
-        'feedid' => $feed['feedid'],
-        'startdate' => $startdate,
-        'enddate'   => $enddate
-    ]);
+    $clickStmt->execute([...$publisherIds, $feed['feedid'], $startdate, $enddate]);
     $clickData = $clickStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-    // GET total applies + sum of CPA
+    // Fetch applies data
     $appliesStmt = $pdo->prepare("
         SELECT 
             COUNT(*) AS applies, 
             SUM(cpa) AS total_cpa
         FROM applevents
-        WHERE publisherid    = :publisherid
-          AND feedid    = :feedid
+        WHERE publisherid IN ($publisherPlaceholders)
+          AND feedid = ?
           AND eventtype = 'cpa'
-          AND timestamp BETWEEN :startdate AND :enddate
+          AND timestamp BETWEEN ? AND ?
     ");
-    
-    $appliesStmt->execute([
-        'publisherid' => $feed['activepubs'],
-        'feedid' => $feed['feedid'],
-        'startdate' => $startdate,
-        'enddate'   => $enddate
-    ]);
+    $appliesStmt->execute([...$publisherIds, $feed['feedid'], $startdate, $enddate]);
     $appliesData = $appliesStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
     // Store in the $feed array
@@ -139,11 +130,10 @@ foreach ($feeds as &$feed) {
         ? number_format(($feed['applies'] / $feed['clicks']) * 100, 2) . '%'
         : '0.00%';
 }
-unset($feed); // break the reference
+unset($feed); // break reference
 
 // 8. Prepare daily spend data for Chart.js
 $feedsData = [];
-
 $colors    = ['#FF5733', '#33C1FF', '#F033FF', '#33FF57', '#FFD733'];
 $colorIndex = 0;
 
@@ -151,23 +141,19 @@ foreach ($feeds as $feed) {
     $color = $colors[$colorIndex % count($colors)];
     $colorIndex++;
 
+    // Fetch daily spend data
     $dailySpendStmt = $pdo->prepare("
-    SELECT 
-    DATE_FORMAT(timestamp, '%Y-%m-%d') AS Date, 
-    SUM(cpc + cpa) AS DailySpend
-FROM applevents
-WHERE custid    = :custid
-  AND feedid    = :feedid
-  AND timestamp BETWEEN :startdate AND :enddate
-GROUP BY DATE_FORMAT(timestamp, '%Y-%m-%d')
-ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
+        SELECT 
+            DATE_FORMAT(timestamp, '%Y-%m-%d') AS Date, 
+            SUM(cpc + cpa) AS DailySpend
+        FROM applevents
+        WHERE custid = ?
+          AND feedid = ?
+          AND timestamp BETWEEN ? AND ?
+        GROUP BY DATE_FORMAT(timestamp, '%Y-%m-%d')
+        ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
     ");
-    $dailySpendStmt->execute([
-        'custid'    => $feed['custid'],
-        'feedid'    => $feed['feedid'],
-        'startdate' => $startdate,
-        'enddate'   => $enddate
-    ]);
+    $dailySpendStmt->execute([$feed['custid'], $feed['feedid'], $startdate, $enddate]);
     $dailySpends = $dailySpendStmt->fetchAll(PDO::FETCH_ASSOC);
 
     $spendsArray = [];
@@ -185,6 +171,7 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
         'fill'        => false
     ];
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
