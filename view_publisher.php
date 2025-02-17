@@ -240,17 +240,11 @@ ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
                                 <p><strong>Contact Name:</strong> <?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></p>
                                 <p><strong>Contact Email:</strong> <?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></p>
                                 <p class="mb-1"><strong>Customer-level Feed URL:</strong>
-                                            <?php
-                                            $filePath = $_SERVER['DOCUMENT_ROOT'] . "/applfeeds/" . $_SESSION['acctnum'] . '-' . $publisher['publisherid'] . ".xml";
-                                            if (file_exists($filePath)): ?>
-                                                <div class="bg-light border py-1 px-2 mb-1 rounded">
-                                                    <a href="<?= getUrl() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml" target="_blank">
-                                                        <?= getUrl() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml
-                                                    </a>
-                                                </div>
-                                            <?php else: ?>
-                                                <p class="text-danger">Feed URL not available yet please wait for the process.</p>
-                                            <?php endif; ?>
+                                            <div class="bg-light border py-1 px-2 mb-1 rounded">
+                                                <a href="<?= getUrl() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml" target="_blank">
+                                                    <?= getUrl() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml
+                                                </a>
+                                            </div>
                                             </p>
                                             <div class="text-center">
                                 <a href="publisherspool.php" class="btn btn-secondary">Back to List</a>
