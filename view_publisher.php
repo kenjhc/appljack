@@ -273,6 +273,9 @@ foreach ($feeds as $feed) {
                                 <p class="mb-1"><strong>Customer-level Feed URL:</strong>
                                             <?php
                                             $filePath = $_SERVER['DOCUMENT_ROOT'] . "/applfeeds/" . $_SESSION['acctnum'] . '-' . $publisher['publisherid'] . ".xml";
+                                            echo "<pre>";
+                                            print_r($filePath);
+                                            echo "</pre>";
                                             if (file_exists($filePath)): ?>
                                                 <div class="bg-light border py-1 px-2 mb-1 rounded">
                                                     <a href="<?= getUrl() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml" target="_blank">
