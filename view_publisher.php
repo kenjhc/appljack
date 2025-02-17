@@ -49,27 +49,37 @@ $publisher = getPublisherById($_GET['publisherid'], $pdo); // Using your existin
 
 
 
+
 try {
+    // 1. Fetch feeds for THIS publisher only,
+    //    ensuring we only get one row per feed
     $stmt = $pdo->prepare("
-        SELECT 
+        SELECT DISTINCT
             f.feedid,
             f.feedname,
             f.budget,
             f.status,
             f.numjobs,
-            f.custid,          
-            f.activepubs,          
+            f.custid,
+            f.activepubs,
             c.custcompany,
             c.custtype,
             p.acctnum
         FROM applcustfeeds f
-        JOIN applpubs p ON FIND_IN_SET(p.publisherid, f.activepubs)
+        -- Join applcust so we can get customer info
         LEFT JOIN applcust c ON c.custid = f.custid
+        
+        -- Join applpubs on the SINGLE publisher ID we want
+        -- (this avoids one row per publisher in activepubs)
+        JOIN applpubs p ON p.publisherid = :publisherid
+        
+        -- Also ensure the feed *actually* contains this publisher
         WHERE FIND_IN_SET(:publisherid, f.activepubs)
+        
         ORDER BY f.feedname ASC
     ");
     $stmt->execute(['publisherid' => $_GET['publisherid']]);
-
+    
     $feeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
@@ -78,60 +88,70 @@ try {
     exit;
 }
 
-$publisherid = $_GET['publisherid'];  // Single publisherid
-
+// 2. For each feed, retrieve the CPC + CPA data
 foreach ($feeds as &$feed) {
-    // Fetch click data using single publisherid
+    
+    // Get total clicks + sum of CPC
     $clickStmt = $pdo->prepare("
         SELECT 
             COUNT(DISTINCT eventid) AS clicks, 
             SUM(cpc) AS total_cpc
         FROM applevents
-        WHERE publisherid = ?
-          AND feedid = ?
-          AND eventtype = 'cpc'
-          AND timestamp BETWEEN ? AND ?
+        WHERE publisherid = :publisherid
+          AND feedid      = :feedid
+          AND eventtype   = 'cpc'
+          AND timestamp BETWEEN :startdate AND :enddate
     ");
-    $clickStmt->execute([$publisherid, $feed['feedid'], $startdate, $enddate]);
+    $clickStmt->execute([
+        'publisherid' => $_GET['publisherid'], // Single pub ID
+        'feedid'      => $feed['feedid'],
+        'startdate'   => $startdate,
+        'enddate'     => $enddate
+    ]);
     $clickData = $clickStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-    // Fetch applies data using single publisherid
+    // Get total applies + sum of CPA
     $appliesStmt = $pdo->prepare("
         SELECT 
             COUNT(*) AS applies, 
             SUM(cpa) AS total_cpa
         FROM applevents
-        WHERE publisherid = ?
-          AND feedid = ?
-          AND eventtype = 'cpa'
-          AND timestamp BETWEEN ? AND ?
+        WHERE publisherid = :publisherid
+          AND feedid      = :feedid
+          AND eventtype   = 'cpa'
+          AND timestamp BETWEEN :startdate AND :enddate
     ");
-    $appliesStmt->execute([$publisherid, $feed['feedid'], $startdate, $enddate]);
+    $appliesStmt->execute([
+        'publisherid' => $_GET['publisherid'], // Single pub ID
+        'feedid'      => $feed['feedid'],
+        'startdate'   => $startdate,
+        'enddate'     => $enddate
+    ]);
     $appliesData = $appliesStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-    // Store data in the $feed array
-    $feed['clicks']      = $clickData['clicks']         ?? 0;
-    $feed['total_cpc']   = $clickData['total_cpc']      ?? 0;
-    $feed['applies']     = $appliesData['applies']      ?? 0;
-    $feed['total_cpa']   = $appliesData['total_cpa']    ?? 0;
-    $total_spend         = $feed['total_cpc'] + $feed['total_cpa'];
+    // Store into $feed
+    $feed['clicks']    = $clickData['clicks']       ?? 0;
+    $feed['total_cpc'] = $clickData['total_cpc']    ?? 0;
+    $feed['applies']   = $appliesData['applies']    ?? 0;
+    $feed['total_cpa'] = $appliesData['total_cpa']  ?? 0;
+
+    // Calculate Spend
+    $total_spend = $feed['total_cpc'] + $feed['total_cpa'];
 
     $feed['formatted_spend'] = '$' . number_format($total_spend, 2, '.', '');
     $feed['spend_per_click'] = $feed['clicks'] > 0 
-        ? '$' . number_format($feed['total_cpc'] / $feed['clicks'], 2, '.', '') 
+        ? '$' . number_format($feed['total_cpc'] / $feed['clicks'], 2, '.', '')
         : '$0.00';
-
     $feed['spend_per_apply'] = $feed['applies'] > 0
         ? '$' . number_format($total_spend / $feed['applies'], 2, '.', '')
         : '$0.00';
-
     $feed['conversion_rate'] = $feed['clicks'] > 0
         ? number_format(($feed['applies'] / $feed['clicks']) * 100, 2) . '%'
         : '0.00%';
 }
-unset($feed); // break reference
+unset($feed); // Important: break reference
 
-// Prepare daily spend data for Chart.js
+// 3. Prepare daily spend data for Chart.js
 $feedsData = [];
 $colors    = ['#FF5733', '#33C1FF', '#F033FF', '#33FF57', '#FFD733'];
 $colorIndex = 0;
@@ -140,21 +160,27 @@ foreach ($feeds as $feed) {
     $color = $colors[$colorIndex % count($colors)];
     $colorIndex++;
 
+    // Query daily spend for the *single* publisher ID
     $dailySpendStmt = $pdo->prepare("
         SELECT 
             DATE_FORMAT(timestamp, '%Y-%m-%d') AS Date, 
             SUM(cpc + cpa) AS DailySpend
         FROM applevents
-        WHERE custid = ?
-          AND feedid = ?
-          AND publisherid = ?
-          AND timestamp BETWEEN ? AND ?
+        WHERE publisherid = :publisherid
+          AND feedid      = :feedid
+          AND timestamp BETWEEN :startdate AND :enddate
         GROUP BY DATE_FORMAT(timestamp, '%Y-%m-%d')
         ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
     ");
-    $dailySpendStmt->execute([$feed['custid'], $feed['feedid'], $publisherid, $startdate, $enddate]);
+    $dailySpendStmt->execute([
+        'publisherid' => $_GET['publisherid'],
+        'feedid'      => $feed['feedid'],
+        'startdate'   => $startdate,
+        'enddate'     => $enddate
+    ]);
     $dailySpends = $dailySpendStmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Convert to Chart.js data
     $spendsArray = [];
     foreach ($dailySpends as $row) {
         $spendsArray[] = [
@@ -170,6 +196,10 @@ foreach ($feeds as $feed) {
         'fill'        => false
     ];
 }
+
+// Now $feeds contains a single row per feed for that publisher
+// and your daily spend data reflects only that single publisher.
+
 
 ?>
 <!DOCTYPE html>
