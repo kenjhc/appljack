@@ -71,8 +71,7 @@ try {
 $stmt->execute(['publisherid' => $_GET['publisherid']]);
 
     $feeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    print_r($feeds);
-    exit();
+
 } catch (PDOException $e) {
     setToastMessage('error', "Database error: " . $e->getMessage());
     header("Location: applmasterview.php");
