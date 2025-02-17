@@ -274,7 +274,7 @@ foreach ($feeds as $feed) {
     <?php
     // Construct file path dynamically using a function or proper server path
     $filePath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . getEnvPathUpdated() . "applfeeds/" . $_SESSION['acctnum'] . '-' . $_GET['publisherid'] . ".xml";
-
+                                            print_r($filePath);
     if (file_exists($filePath)): ?>
         <div class="bg-light border py-1 px-2 mb-1 rounded">
             <a href="<?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $_GET['publisherid']; ?>.xml" target="_blank">
