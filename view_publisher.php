@@ -64,7 +64,6 @@ try {
         p.acctnum
     FROM applcustfeeds f
     LEFT JOIN applcust c ON c.custid = f.custid
-    LEFT JOIN applpubs p ON FIND_IN_SET(p.publisherid, f.activepubs) > 0
     WHERE FIND_IN_SET(:publisherid, f.activepubs) > 0
     ORDER BY f.feedname ASC
 ");
