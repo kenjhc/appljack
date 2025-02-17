@@ -251,7 +251,7 @@ if ($custid) {
                                             </div>
                                             </p>
                                             <!-- Publisher Feed URLs Section -->
-                                            <?php if (!empty($publishers)): ?>
+                                            <!-- <?php if (!empty($publishers)): ?>
                                                 <p class="mb-1"><strong>Publisher Feed URLs:</strong></p>
                                                 <div class="bg-light border py-1 px-2 mb-1 rounded">
                                                     <?php foreach ($publishers as $publisher): ?>
@@ -264,7 +264,7 @@ if ($custid) {
                                                 </div>
                                             <?php else: ?>
                                                 <p class="mb-0">No active publishers associated with this customer.</p>
-                                            <?php endif; ?>
+                                            <?php endif; ?> -->
                                         <?php else: ?>
                                             <p class="mb-0">No customer information available.</p>
                                         <?php endif; ?>
