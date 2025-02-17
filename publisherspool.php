@@ -33,7 +33,7 @@ try {
             GROUP_CONCAT(f.numjobs) AS numjobs
         FROM applpubs p
         LEFT JOIN applcustfeeds f ON FIND_IN_SET(p.publisherid, f.activepubs) > 0
-    WHERE p.acctnum = ? AND p.pubstatus = 'active'   -- Added condition here
+    WHERE p.acctnum = ?   -- Added condition here
         GROUP BY p.publisherid
     ");
     $stmt->execute([$_SESSION['acctnum']]);
