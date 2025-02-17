@@ -274,12 +274,12 @@ foreach ($feeds as $feed) {
                                             <?php
                                             $filePath = $_SERVER['DOCUMENT_ROOT'] . "/applfeeds/" . $_SESSION['acctnum'] . '-' . $publisher['publisherid'] . ".xml";
                                             echo "<pre>";
-                                            print_r($filePath);
+                                            print_r($getEnvPathUpdated);
                                             echo "</pre>";
                                             if (file_exists($filePath)): ?>
                                                 <div class="bg-light border py-1 px-2 mb-1 rounded">
-                                                    <a href="<?= getEnvPath() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml" target="_blank">
-                                                        <?= getEnvPath() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml
+                                                    <a href="<?= getUrl() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml" target="_blank">
+                                                        <?= getUrl() . $envSuffix ?>/applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml
                                                     </a>
                                                 </div>
                                             <?php else: ?>
