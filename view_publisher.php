@@ -51,23 +51,24 @@ $publisher = getPublisherById($_GET['publisherid'], $pdo); // Using your existin
 
 try {
     $stmt = $pdo->prepare("
-        SELECT 
-            f.feedid,
-            f.feedname,
-            f.budget,
-            f.status,
-            f.numjobs,
-            f.custid,          
-            f.activepubs,          
-            c.custcompany,
-            c.custtype,
-            p.acctnum
-        FROM applcustfeeds f
-        JOIN applpubs p ON p.publisherid = f.activepubs
-        LEFT JOIN applcust c ON c.custid = f.custid
-        WHERE FIND_IN_SET(:publisherid, f.activepubs) > 0
-        ORDER BY f.feedname ASC
-    ");
+    SELECT 
+        f.feedid,
+        f.feedname,
+        f.budget,
+        f.status,
+        f.numjobs,
+        f.custid,          
+        f.activepubs,          
+        c.custcompany,
+        c.custtype,
+        p.acctnum
+    FROM applcustfeeds f
+    LEFT JOIN applcust c ON c.custid = f.custid
+    LEFT JOIN applpubs p ON FIND_IN_SET(p.publisherid, f.activepubs) > 0
+    WHERE FIND_IN_SET(:publisherid, f.activepubs) > 0
+    ORDER BY f.feedname ASC
+");
+
     $stmt->execute(['publisherid' => $_GET['publisherid']]);
     $feeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
