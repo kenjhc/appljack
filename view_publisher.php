@@ -66,16 +66,9 @@ try {
             c.custtype,
             p.acctnum
         FROM applcustfeeds f
-        -- Join applcust so we can get customer info
         LEFT JOIN applcust c ON c.custid = f.custid
-        
-        -- Join applpubs on the SINGLE publisher ID we want
-        -- (this avoids one row per publisher in activepubs)
         JOIN applpubs p ON p.publisherid = :publisherid
-        
-        -- Also ensure the feed *actually* contains this publisher
         WHERE FIND_IN_SET(:publisherid, f.activepubs)
-        
         ORDER BY f.feedname ASC
     ");
     $stmt->execute(['publisherid' => $_GET['publisherid']]);
