@@ -271,19 +271,21 @@ foreach ($feeds as $feed) {
                                 <p><strong>Contact Name:</strong> <?= htmlspecialchars($publisher['publisher_contact_name'] ?? 'N/A') ?></p>
                                 <p><strong>Contact Email:</strong> <?= htmlspecialchars($publisher['publisher_contact_email'] ?? 'N/A') ?></p>
                                 <p class="mb-1"><strong>Customer-level Feed URL:</strong>
-                                            <?php
-                                            $filePath = $_SERVER['DOCUMENT_ROOT'] . "/applfeeds/" . $_SESSION['acctnum'] . '-' . $publisher['publisherid'] . ".xml";
-                                        
-                                            if (file_exists($filePath)): ?>
-                                                <div class="bg-light border py-1 px-2 mb-1 rounded">
-                                                    <a href="<?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml" target="_blank">
-                                                        <?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?>.xml
-                                                    </a>
-                                                </div>
-                                            <?php else: ?>
-                                                <p class="text-danger"><?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?></p>
-                                            <?php endif; ?>
-                                            </p>
+    <?php
+    // Construct file path dynamically using a function or proper server path
+    $filePath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . getEnvPathUpdated() . "applfeeds/" . $_SESSION['acctnum'] . '-' . $_GET['publisherid'] . ".xml";
+
+    if (file_exists($filePath)): ?>
+        <div class="bg-light border py-1 px-2 mb-1 rounded">
+            <a href="<?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $_GET['publisherid']; ?>.xml" target="_blank">
+                <?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $_GET['publisherid']; ?>.xml
+            </a>
+        </div>
+    <?php else: ?>
+        <p class="text-danger"><?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $_GET['publisherid']; ?>.xml does not exist.</p>
+    <?php endif; ?>
+</p>
+
                                             <div class="text-center">
                                 <a href="publisherspool.php" class="btn btn-secondary">Back to List</a>
                                 <a href="edit_publisher.php?id=<?= htmlspecialchars($publisher['publisherid']) ?>" class="btn btn-success">Edit Publisher</a>
