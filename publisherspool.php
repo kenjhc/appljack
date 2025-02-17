@@ -221,9 +221,9 @@ $nextCronTime = getNextCronTime();
                                     <table class="campaign-overview-table table-striped">
     <thead>
         <tr>
+            <th>Status</th>
             <th>Publisher Name</th>
             <th>Publisher ID</th>
-            <th>Publisher Status</th>
             <!-- <th>Status</th> -->
             <!-- <th>Budget</th> -->
             <th>Spend</th>
@@ -246,10 +246,10 @@ $nextCronTime = getNextCronTime();
         <?php else: ?>
             <?php foreach ($publishers as $publisher): ?>
                 <tr>
-           
+                <td><?= htmlspecialchars($publisher['pubstatus']) ?></td>
                     <td><?= htmlspecialchars($publisher['publishername']) ?></td>
                     <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
-                    <td><?= htmlspecialchars($publisher['pubstatus']) ?></td>
+            
                     <!-- <td><?= $publisher['status'] ?></td> -->
                     <!-- <td>$<?= number_format($publisher['budget'], 2); ?></td> -->
                     <td>$<?= number_format($publisher['spend'], 2); ?></td>
@@ -341,6 +341,47 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update the timer every second
             const interval = setInterval(updateTimer, 1000);
         });
+        function toggleStatus(publisherId, currentStatus) {
+        const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
 
+        // Send an AJAX request to update the status
+        fetch('update_publisher_status.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                publisherid: publisherId,
+                status: newStatus
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Status Updated',
+                    text: `Publisher status changed to ${newStatus}.`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                location.reload(); // Reload the page to reflect changes
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message,
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to update status.',
+            });
+        });
+    }
 </script>
 </html>
