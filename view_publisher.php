@@ -281,7 +281,7 @@ foreach ($feeds as $feed) {
                                                     </a>
                                                 </div>
                                             <?php else: ?>
-                                                <p class="text-danger">(feed under construction)</p>
+                                                <p class="text-danger"><?= getUrl() . getEnvPathUpdated() ?>applfeeds/<?= $_SESSION['acctnum'] . '-' . $publisher['publisherid']; ?></p>
                                             <?php endif; ?>
                                             </p>
                                             <div class="text-center">
