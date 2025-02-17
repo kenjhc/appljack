@@ -78,8 +78,8 @@ try {
 }
 
 foreach ($feeds as &$feed) {
-    // Prepare queries for each feed
-    // GET total clicks + sum of CPC
+ 
+    
     $clickStmt = $pdo->prepare("
         SELECT 
             COUNT(DISTINCT eventid) AS clicks, 
@@ -142,6 +142,7 @@ unset($feed); // break the reference
 
 // 8. Prepare daily spend data for Chart.js
 $feedsData = [];
+
 $colors    = ['#FF5733', '#33C1FF', '#F033FF', '#33FF57', '#FFD733'];
 $colorIndex = 0;
 
