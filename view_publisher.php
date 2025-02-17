@@ -51,7 +51,7 @@ $publisher = getPublisherById($_GET['publisherid'], $pdo); // Using your existin
 
 try {
     $stmt = $pdo->prepare("
-    SELECT 
+    SELECT DISTINCT
         f.feedid,
         f.feedname,
         f.budget,
