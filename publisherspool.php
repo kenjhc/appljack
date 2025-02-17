@@ -246,7 +246,15 @@ $nextCronTime = getNextCronTime();
         <?php else: ?>
             <?php foreach ($publishers as $publisher): ?>
                 <tr>
-                <td><?= htmlspecialchars($publisher['pubstatus']) ?></td>
+                <td>
+    <button 
+        class="btn btn-sm <?= ($publisher['pubstatus'] == 'Active') ? 'btn-success' : 'btn-secondary' ?>" 
+        onclick="toggleStatus('<?= $publisher['publisherid'] ?>', '<?= $publisher['pubstatus'] ?>')"
+    >
+        <?= htmlspecialchars($publisher['pubstatus']) ?>
+    </button>
+</td>
+
                     <td><?= htmlspecialchars($publisher['publishername']) ?></td>
                     <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
             
