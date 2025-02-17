@@ -48,13 +48,19 @@ function readXMLFile(filePath) {
 
 // Write a combined XML file
 function writeCombinedXMLFile(custid, publisherid, combinedJobs, acctnum) {
-  const combinedXml = builder.buildObject({ jobs: { job: combinedJobs } });
-  const fileName = `${acctnum}-${publisherid}.xml`;
-  const outputFilePath = path.join(outputXmlFolderPath, fileName);
+  return new Promise((resolve, reject) => {
+    const combinedXml = builder.buildObject({ jobs: { job: combinedJobs } });
+    const fileName = `${acctnum}-${publisherid}.xml`;
+    const outputFilePath = path.join(outputXmlFolderPath, fileName);
 
-  fs.writeFile(outputFilePath, combinedXml, (err) => {
-    if (err) throw err;
-    console.log(`Successfully created ${fileName}`);
+    fs.writeFile(outputFilePath, combinedXml, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        console.log(`Successfully created ${fileName}`);
+        resolve();
+      }
+    });
   });
 }
 
@@ -154,11 +160,10 @@ async function combineXmlFiles() {
 
               // If jobs were found, write them to a new combined file
               if (jobElements.length > 0) {
-                  writeCombinedXMLFile(custid, publisherid, jobElements, acctnum);
-
-                  // Update the URL in the combined file
-                  await updateUrlInCombinedXml(custid, publisherid, acctnum);
-              }
+                await writeCombinedXMLFile(custid, publisherid, jobElements, acctnum);
+                await updateUrlInCombinedXml(custid, publisherid, acctnum);
+            }
+            
           }
       }
 
