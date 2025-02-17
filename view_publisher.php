@@ -274,7 +274,7 @@ foreach ($feeds as $feed) {
                                             <?php
                                             $filePath = $_SERVER['DOCUMENT_ROOT'] . "/applfeeds/" . $_SESSION['acctnum'] . '-' . $publisher['publisherid'] . ".xml";
                                             echo "<pre>";
-                                            print_r($getEnvPathUpdated);
+                                            print_r(getEnvPathUpdated());
                                             echo "</pre>";
                                             if (file_exists($filePath)): ?>
                                                 <div class="bg-light border py-1 px-2 mb-1 rounded">
