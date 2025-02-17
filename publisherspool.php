@@ -15,7 +15,7 @@ $startdate = date('Y-m-d', strtotime($startdate)) . " 00:00:00";
 $enddate = date('Y-m-d', strtotime($enddate)) . " 23:59:59";
 $applies = '';
 $clicks  = '';
-
+$customerData = [];
 try {
     // Fetch current publishers 
     $publishers = [];
@@ -25,6 +25,7 @@ try {
             p.publishername, 
             p.publisher_contact_name, 
             p.publisher_contact_email,
+            p.pubstatus,
             GROUP_CONCAT(f.feedid) AS feedids,
             GROUP_CONCAT(f.feedname) AS feednames,
             GROUP_CONCAT(f.budget) AS budgets,
@@ -67,7 +68,7 @@ try {
             'enddate' => $enddate
         ]);
         $eventData = $eventStmt->fetch(PDO::FETCH_ASSOC);
-
+      
         $publisher['spend'] = ($eventData['total_cpc'] ?? 0) + ($eventData['total_cpa'] ?? 0);
         $publisher['clicks'] = $eventData['clicks'] ?? 0;
         $publisher['applies'] = $eventData['applies'] ?? 0;
@@ -126,7 +127,40 @@ try {
     setToastMessage('error', "Error: " . $e->getMessage());
 }
 
+function getNextCronTime()
+{
+    $now = new DateTime('now', new DateTimeZone('UTC')); // Get current UTC time
+    error_log("Current UTC time: " . $now->format('Y-m-d H:i:s'));
 
+    $currentMinutes = (int)$now->format('i');
+    $currentHours = (int)$now->format('H');
+    error_log("Current Hours: $currentHours, Current Minutes: $currentMinutes");
+
+    // Find the next 4-hour interval
+    $nextHours = $currentHours - ($currentHours % 4) + 4;
+    if ($nextHours >= 24) {
+        $nextHours = 0; // Reset to midnight if past 24 hours
+    }
+    error_log("Next 4-hour interval: $nextHours");
+
+    // Set the next CRON job time
+    $nextCron = new DateTime($now->format('Y-m-d') . " $nextHours:12:00", new DateTimeZone('UTC'));
+    error_log("Initial next CRON time: " . $nextCron->format('Y-m-d H:i:s'));
+
+    // If the next CRON time is earlier than now, move to the next day
+    if ($now >= $nextCron) {
+        $nextCron->modify('+1 day');
+        error_log("Adjusted next CRON time to next day: " . $nextCron->format('Y-m-d H:i:s'));
+    }
+
+    $timestamp = $nextCron->getTimestamp();
+    error_log("Next CRON job Unix timestamp: $timestamp");
+
+    return $timestamp; // Return as a Unix timestamp
+}
+
+// Get the next CRON job time
+$nextCronTime = getNextCronTime();
 
 ?>
 
@@ -155,10 +189,28 @@ try {
     <section class="job_section">
         <div class="container-fluid p-0">
             <div class="row w-100 mx-auto xml_mapping_sec py-0">
+            <div class="d-flex justify-content-between card-title mb-3">
+                                    <h5 class="card-title p-0"> Publisher Overview <span>(Next feed update starts in: <span id="countdown">Loading...</span>)</h5>
+                                    <form action="publisherspool.php" method="get" class="d-flex align-items-end gap-3">
+                                        <div>
+                                            <label class="mb-0" for="startdate">Start:</label>
+                                            <input type="date" id="startdate" class="form-control" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
+                                        </div>
+                                        <div>
+                                            <label class="mb-0" for="enddate">End:</label>
+                                            <input type="date" id="enddate" class="form-control" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
+                                        </div>
+                                        <div>
+                                            <button class="btn_green my-0 w-auto py-1 no-wrap">Show Data</button>
+                                        </div>
+                                    </form>
+                                </div>
                 <div class="col-sm-12 col-md-12 px-0">
                     <div class="">
+                        
                         <div class="card ">
                             <div class="card-body">
+                                      
                                 <div class="d-flex justify-content-between">
                                     <h5 class="card-title">Publishers</h5>
                                 </div>
@@ -171,6 +223,7 @@ try {
         <tr>
             <th>Publisher Name</th>
             <th>Publisher ID</th>
+            <th>Publisher Status</th>
             <!-- <th>Status</th> -->
             <!-- <th>Budget</th> -->
             <th>Spend</th>
@@ -193,9 +246,10 @@ try {
         <?php else: ?>
             <?php foreach ($publishers as $publisher): ?>
                 <tr>
-                  
+           
                     <td><?= htmlspecialchars($publisher['publishername']) ?></td>
                     <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
+                    <td><?= htmlspecialchars($publisher['pubstatus']) ?></td>
                     <!-- <td><?= $publisher['status'] ?></td> -->
                     <!-- <td>$<?= number_format($publisher['budget'], 2); ?></td> -->
                     <td>$<?= number_format($publisher['spend'], 2); ?></td>
@@ -251,9 +305,42 @@ if (isset($_GET['message']) && isset($_GET['type'])):
                 timer: 3000
             });
         });
+
+      
     </script>
+
 <?php
 endif;
 ?>
+<script>
 
+document.addEventListener('DOMContentLoaded', function() {
+            // Get the next CRON job time passed from PHP (Unix timestamp)
+            const nextCronTime = <?php echo $nextCronTime * 1000; ?>; // Multiply by 1000 to convert to milliseconds
+
+            function updateTimer() {
+                const now = new Date().getTime();
+                const timeDiff = nextCronTime - now;
+
+                // Calculate hours, minutes, and seconds
+                const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                // Display the result
+                document.getElementById('countdown').innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+
+                // If time is up, reload the page to recalculate the next CRON time
+                if (timeDiff < 0) {
+                    clearInterval(interval);
+                    document.getElementById('countdown').innerHTML = "Updating...";
+                    setTimeout(() => location.reload(), 1000); // Reload after 1 second
+                }
+            }
+
+            // Update the timer every second
+            const interval = setInterval(updateTimer, 1000);
+        });
+
+</script>
 </html>
