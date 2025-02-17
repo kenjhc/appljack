@@ -78,39 +78,38 @@ try {
     exit;
 }
 
-foreach ($feeds as &$feed) {
-    $publisherIds = explode(',', $feed['activepubs']); // Convert to array
-    $publisherPlaceholders = implode(',', array_fill(0, count($publisherIds), '?'));
+$publisherid = $_GET['publisherid'];  // Single publisherid
 
-    // Fetch click data
+foreach ($feeds as &$feed) {
+    // Fetch click data using single publisherid
     $clickStmt = $pdo->prepare("
         SELECT 
             COUNT(DISTINCT eventid) AS clicks, 
             SUM(cpc) AS total_cpc
         FROM applevents
-        WHERE publisherid IN ($publisherPlaceholders)
+        WHERE publisherid = ?
           AND feedid = ?
           AND eventtype = 'cpc'
           AND timestamp BETWEEN ? AND ?
     ");
-    $clickStmt->execute([...$publisherIds, $feed['feedid'], $startdate, $enddate]);
+    $clickStmt->execute([$publisherid, $feed['feedid'], $startdate, $enddate]);
     $clickData = $clickStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-    // Fetch applies data
+    // Fetch applies data using single publisherid
     $appliesStmt = $pdo->prepare("
         SELECT 
             COUNT(*) AS applies, 
             SUM(cpa) AS total_cpa
         FROM applevents
-        WHERE publisherid IN ($publisherPlaceholders)
+        WHERE publisherid = ?
           AND feedid = ?
           AND eventtype = 'cpa'
           AND timestamp BETWEEN ? AND ?
     ");
-    $appliesStmt->execute([...$publisherIds, $feed['feedid'], $startdate, $enddate]);
+    $appliesStmt->execute([$publisherid, $feed['feedid'], $startdate, $enddate]);
     $appliesData = $appliesStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-    // Store in the $feed array
+    // Store data in the $feed array
     $feed['clicks']      = $clickData['clicks']         ?? 0;
     $feed['total_cpc']   = $clickData['total_cpc']      ?? 0;
     $feed['applies']     = $appliesData['applies']      ?? 0;
@@ -132,7 +131,7 @@ foreach ($feeds as &$feed) {
 }
 unset($feed); // break reference
 
-// 8. Prepare daily spend data for Chart.js
+// Prepare daily spend data for Chart.js
 $feedsData = [];
 $colors    = ['#FF5733', '#33C1FF', '#F033FF', '#33FF57', '#FFD733'];
 $colorIndex = 0;
@@ -141,7 +140,6 @@ foreach ($feeds as $feed) {
     $color = $colors[$colorIndex % count($colors)];
     $colorIndex++;
 
-    // Fetch daily spend data
     $dailySpendStmt = $pdo->prepare("
         SELECT 
             DATE_FORMAT(timestamp, '%Y-%m-%d') AS Date, 
@@ -149,11 +147,12 @@ foreach ($feeds as $feed) {
         FROM applevents
         WHERE custid = ?
           AND feedid = ?
+          AND publisherid = ?
           AND timestamp BETWEEN ? AND ?
         GROUP BY DATE_FORMAT(timestamp, '%Y-%m-%d')
         ORDER BY DATE_FORMAT(timestamp, '%Y-%m-%d')
     ");
-    $dailySpendStmt->execute([$feed['custid'], $feed['feedid'], $startdate, $enddate]);
+    $dailySpendStmt->execute([$feed['custid'], $feed['feedid'], $publisherid, $startdate, $enddate]);
     $dailySpends = $dailySpendStmt->fetchAll(PDO::FETCH_ASSOC);
 
     $spendsArray = [];
