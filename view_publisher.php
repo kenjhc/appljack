@@ -59,6 +59,7 @@ try {
             f.feedname,
             f.budget,
             f.status,
+            p.pubstatus,
             f.numjobs,
             f.custid,
             f.activepubs,
@@ -67,15 +68,12 @@ try {
             p.acctnum
         FROM applcustfeeds f
         
-        -- Join on the single publisher
         JOIN applpubs p 
           ON p.publisherid = :pub_join
         
-        -- Join customer table for feed info
         LEFT JOIN applcust c 
           ON c.custid = f.custid
         
-        -- Only fetch feeds that contain this publisher in activepubs
         WHERE FIND_IN_SET(:pub_where, f.activepubs)
         
         ORDER BY f.feedname ASC
@@ -378,6 +376,7 @@ foreach ($feeds as $feed) {
                         <tr>
                             <th>Campaign</th>
                             <th>Campaign ID</th>
+                            <th>Publisher Status</th>
                             <th>Status</th>
                             <th>Mo. Budget</th>
                             <th>Publisher Spend</th>
@@ -395,6 +394,7 @@ foreach ($feeds as $feed) {
                             <tr>
                                 <td><?= htmlspecialchars($feed['feedname']); ?></td>
                                 <td><?= htmlspecialchars($feed['feedid']); ?></td>
+                                <td><?= htmlspecialchars($feed['pubstatus']); ?></td>
                                 <td><?= htmlspecialchars($feed['status']); ?></td>
                                 <td>$<?= htmlspecialchars($feed['budget']); ?></td>
                                 <td><?= htmlspecialchars($feed['formatted_spend']); ?></td>
