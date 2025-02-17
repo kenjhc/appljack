@@ -65,10 +65,10 @@ try {
         FROM applcustfeeds f
         JOIN applpubs p ON p.publisherid = f.activepubs
         LEFT JOIN applcust c ON c.custid = f.custid
-        WHERE f.activepubs = :publisherid
+        WHERE f.acctnum = :acctnum
         ORDER BY f.feedname ASC
     ");
-    $stmt->execute(['publisherid' => $_GET['publisherid']]);
+    $stmt->execute(['acctnum' => $_SESSION['acctnum']]);
     $feeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
