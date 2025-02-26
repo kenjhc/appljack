@@ -130,7 +130,7 @@ try {
                     <div class="rounded-md shadow-md p-3 customer-filter-bar bg-white feed-url h-100 d-flex">
                         <div class="row w-100 m-auto">
                             <div class="col-md-9">
-                                <form action="applportal.php" id="applPortalFilter" class="row w-100 mx-auto">
+                                <form action="viewfeed.php" id="applPortalFilter" class="row w-100 mx-auto">
                                     <div class="col-md-6 px-0 customer-info-dates">
                                         <div class="form-group mb-0">
                                             <label for="startdate">Start</label>
@@ -458,7 +458,18 @@ try {
                         <div id="Referrers" class="tabcontent">
                             <?php
                             // Prepare the SQL query
-                            $queryReferrers = "SELECT refurl AS Domain, SUM(cpc) AS Spend, COUNT(DISTINCT CASE WHEN eventtype = 'cpc' THEN eventid END) AS Clicks, IF(COUNT(DISTINCT eventid) = 0, 0, SUM(cpc)/COUNT(DISTINCT eventid)) AS SpendPerClick FROM applevents WHERE feedid = ? GROUP BY refurl ORDER BY Spend DESC";
+                            // $queryReferrers = "SELECT refurl AS Domain, SUM(cpc) AS Spend, COUNT(DISTINCT CASE WHEN eventtype = 'cpc' THEN eventid END) AS Clicks, IF(COUNT(DISTINCT eventid) = 0, 0, SUM(cpc)/COUNT(DISTINCT eventid)) AS SpendPerClick FROM applevents WHERE feedid = ? GROUP BY refurl ORDER BY Spend DESC";
+
+                            $queryReferrers = "SELECT refurl AS Domain, 
+                          SUM(cpc) AS Spend, 
+                          COUNT(DISTINCT CASE WHEN eventtype = 'cpc' THEN eventid END) AS Clicks, 
+                          IF(COUNT(DISTINCT eventid) = 0, 0, SUM(cpc)/COUNT(DISTINCT eventid)) AS SpendPerClick, 
+                          MAX(timestamp) AS LastEventTime 
+                   FROM applevents 
+                   WHERE feedid = ? 
+                   GROUP BY refurl 
+                   ORDER BY Spend DESC";
+
 
                             $stmt = $pdo->prepare($queryReferrers);
                             $stmt->execute([$feedid]);
