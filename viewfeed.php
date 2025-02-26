@@ -458,17 +458,19 @@ try {
                         <div id="Referrers" class="tabcontent">
                             <?php
                             // Prepare the SQL query
-                            // $queryReferrers = "SELECT refurl AS Domain, SUM(cpc) AS Spend, COUNT(DISTINCT CASE WHEN eventtype = 'cpc' THEN eventid END) AS Clicks, IF(COUNT(DISTINCT eventid) = 0, 0, SUM(cpc)/COUNT(DISTINCT eventid)) AS SpendPerClick FROM applevents WHERE feedid = ? GROUP BY refurl ORDER BY Spend DESC";
-
                             $queryReferrers = "SELECT refurl AS Domain, 
-                          SUM(cpc) AS Spend, 
-                          COUNT(DISTINCT CASE WHEN eventtype = 'cpc' THEN eventid END) AS Clicks, 
-                          IF(COUNT(DISTINCT eventid) = 0, 0, SUM(cpc)/COUNT(DISTINCT eventid)) AS SpendPerClick, 
-                          MAX(timestamp) AS LastEventTime 
-                   FROM applevents 
-                   WHERE feedid = ? 
-                   GROUP BY refurl 
-                   ORDER BY Spend DESC";
+                            SUM(cpc) AS Spend, 
+                            COUNT(DISTINCT eventid) AS Clicks, 
+                            IF(COUNT(DISTINCT eventid) = 0, 0, SUM(cpc)/COUNT(DISTINCT eventid)) AS SpendPerClick, 
+                            MAX(timestamp) AS LastEventTime
+                        FROM applevents 
+                        WHERE feedid = ?
+                        AND MONTH(timestamp) = MONTH(CURRENT_DATE)
+                        AND YEAR(timestamp) = YEAR(CURRENT_DATE)
+                        GROUP BY refurl
+                        ORDER BY Spend DESC;";
+
+                          
 
 
                             $stmt = $pdo->prepare($queryReferrers);
