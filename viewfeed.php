@@ -64,7 +64,7 @@ try {
 
     <?php echo renderHeader(
         "Feeds",
-        "<a href='viewfeed.php?feedid=" . urlencode($_SESSION['feedid']) . "'>
+        "<a href='viewfeed.php?feedid=" . urlencode($feedid) . "'>
             <p class='mb-0 fs-6 text-white'>< Back to your portal</p>
         </a>"
     ); ?>
