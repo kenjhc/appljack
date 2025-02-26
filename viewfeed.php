@@ -64,7 +64,7 @@ try {
 
     <?php echo renderHeader(
         "Feeds",
-        "<a href='applportal.php?custid=" . urlencode($_SESSION['custid']) . "'>
+        "<a href='viewfeed.php?feedid=" . urlencode($_SESSION['feedid']) . "'>
             <p class='mb-0 fs-6 text-white'>< Back to your portal</p>
         </a>"
     ); ?>
