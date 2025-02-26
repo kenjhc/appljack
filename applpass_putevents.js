@@ -46,6 +46,7 @@ async function processEvents() {
         const refurl = eventData.refurl;
         const ipaddress = eventData.ipaddress;
         const userAgent = eventData.userAgent;
+        const publisherid = eventData.publisherid;
 
         // Log each value to see which are undefined
         console.log("job_reference:", job_reference);
@@ -57,6 +58,7 @@ async function processEvents() {
         console.log("refurl:", refurl);
         console.log("ipaddress:", ipaddress);
         console.log("userAgent:", userAgent);
+        console.log("publisherid:", publisherid);
 
         // Fetch cpc, cpa, and status from the database
         const query = `
@@ -93,8 +95,8 @@ async function processEvents() {
 
           // Insert the event data into the correct table
           const insertQuery = `
-                        INSERT INTO ${tableName} (eventid, timestamp, custid, jobid, refurl, ipaddress, cpc, cpa, feedid, useragent, eventtype)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'cpc')
+                        INSERT INTO ${tableName} (eventid, timestamp, custid, jobid, refurl, ipaddress, cpc, cpa, feedid, useragent, eventtype, publisherid)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'cpc', ?)
                     `;
           const values = [
             eventid,
@@ -107,6 +109,7 @@ async function processEvents() {
             cpa,
             feedid,
             userAgent,
+            publisherid
           ];
 
           await connection.execute(insertQuery, values);

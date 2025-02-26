@@ -61,7 +61,7 @@ if (isset($_GET['delete_id'])) {
 
 // Fetch current publishers
 $publishers = [];
-$stmt = $conn->prepare("SELECT publisherid, publishername FROM applpubs WHERE acctnum = ?");
+$stmt = $conn->prepare("SELECT publisherid, publishername FROM applpubs WHERE acctnum = ?  AND pubstatus = 'active'");
 $stmt->execute([$acctnum]);
 $publishers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

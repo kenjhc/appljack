@@ -62,6 +62,9 @@ $NODE "$DIR/dbtoxml_combo.js" >> "$DIR/dbtoxml_combo.log" 2>> "$DIR/dbtoxml_comb
 echo "Running dbtoxml_combo_acct.js" >> "$LOGFILE"
 $NODE "$DIR/dbtoxml_combo_acct.js" >> "$LOGFILE" 2>&1
 
+echo "Running dbtoxml_pubs.js" >> "$LOGFILE"
+$NODE "$DIR/dbtoxml_pubs.js" >> "$LOGFILE" 2>&1
+
 echo "Finished job updates $(date)" >> "$LOGFILE"
 
 # Release lock

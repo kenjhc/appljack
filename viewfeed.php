@@ -18,11 +18,11 @@ $displayStartDate = date('F j, Y', strtotime($startdate));
 $displayEndDate = date('F j, Y', strtotime($enddate));
 
 // Check if feedid is present in the query string
-if (!isset($_GET['feedid'])) {
-    setToastMessage('error', "Feed ID not provided.");
-    header("Location: applmasterview.php");
-    exit;
-}
+// if (!isset($_GET['feedid'])) {
+//     setToastMessage('error', "Feed ID not provided.");
+//     header("Location: applmasterview.php");
+//     exit;
+// }
 
 $feedid = $_GET['feedid'];
 
@@ -64,7 +64,7 @@ try {
 
     <?php echo renderHeader(
         "Feeds",
-        "<a href='applportal.php?custid=" . urlencode($_SESSION['custid']) . "'>
+        "<a href='viewfeed.php?feedid=" . urlencode($_GET['feedid']) . "'>
             <p class='mb-0 fs-6 text-white'>< Back to your portal</p>
         </a>"
     ); ?>
@@ -130,7 +130,9 @@ try {
                     <div class="rounded-md shadow-md p-3 customer-filter-bar bg-white feed-url h-100 d-flex">
                         <div class="row w-100 m-auto">
                             <div class="col-md-9">
-                                <form action="applportal.php" id="applPortalFilter" class="row w-100 mx-auto">
+                                <form action="viewfeed.php?feedid=<?= urlencode($_GET['feedid']) ?>" id="applPortalFilter" class="row w-100 mx-auto">
+                                <input type="hidden" name="feedid" value="<?= htmlspecialchars($_GET['feedid']) ?>">
+
                                     <div class="col-md-6 px-0 customer-info-dates">
                                         <div class="form-group mb-0">
                                             <label for="startdate">Start</label>
@@ -458,10 +460,23 @@ try {
                         <div id="Referrers" class="tabcontent">
                             <?php
                             // Prepare the SQL query
-                            $queryReferrers = "SELECT refurl AS Domain, SUM(cpc) AS Spend, COUNT(DISTINCT CASE WHEN eventtype = 'cpc' THEN eventid END) AS Clicks, IF(COUNT(DISTINCT eventid) = 0, 0, SUM(cpc)/COUNT(DISTINCT eventid)) AS SpendPerClick FROM applevents WHERE feedid = ? GROUP BY refurl ORDER BY Spend DESC";
+                            $queryReferrers = "SELECT refurl AS Domain, 
+                            SUM(cpc) AS Spend, 
+                            COUNT(DISTINCT eventid) AS Clicks, 
+                            IF(COUNT(DISTINCT eventid) = 0, 0, SUM(cpc)/COUNT(DISTINCT eventid)) AS SpendPerClick, 
+                            MAX(timestamp) AS LastEventTime
+                     FROM applevents 
+                     WHERE feedid = ?
+                     AND timestamp BETWEEN ? AND ? + INTERVAL 1 DAY
+                     GROUP BY refurl
+                     ORDER BY Spend DESC;";
+  
+
+                          
+
 
                             $stmt = $pdo->prepare($queryReferrers);
-                            $stmt->execute([$feedid]);
+                            $stmt->execute([$feedid, $startdate, $enddate . ' 23:59:59']);
                             $results = $stmt->fetchAll();
 
                             echo "<table>";

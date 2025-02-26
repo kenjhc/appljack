@@ -2,7 +2,7 @@
 include 'database/db.php';
 
 // Set the default error log file location
-ini_set("error_log", "/chroot/home/appljack/appljack.com/html/applpass7.log");
+ini_set("error_log", "/chroot/home/appljack/appljack.com/html" . getEnvPathUpdated() . "applpass7.log");
 
 error_log("Script started...");
 
@@ -11,6 +11,7 @@ $custid = $_GET['c'] ?? 'default';
 $feedid = $_GET['f'] ?? 'default';
 $job_reference = $_GET['j'] ?? 'default';
 $jobpoolid = $_GET['jpid'] ?? 'default';
+$pubid = $_GET['pub'] ?? 'default';
 $refurl = urldecode($_GET['refurl'] ?? ($_SERVER['HTTP_REFERER'] ?? 'no-referrer'));
 
 // Log extracted parameters
@@ -18,6 +19,7 @@ error_log("custid: " . $custid);
 error_log("feedid: " . $feedid);
 error_log("job_reference: " . $job_reference);
 error_log("jobpoolid: " . $jobpoolid);
+error_log("pubid: " . $pubid);
 
 // Ensure critical parameters are provided
 if ($job_reference === 'default' || $jobpoolid === 'default') {
@@ -55,6 +57,7 @@ $eventData = [
     'eventid' => bin2hex(random_bytes(5)), // Generate random event ID
     'timestamp' => date('Y-m-d H:i:s'),
     'custid' => $custid,
+    'publisherid' => $pubid,
     'job_reference' => $job_reference,
     'jobpoolid' => $jobpoolid,
     'refurl' => $refurl,
@@ -67,7 +70,7 @@ $eventData = [
 error_log("Event data to write: " . json_encode($eventData));
 
 // Attempt to write event data to a JSON file
-$file_path = "/chroot/home/appljack/appljack.com/html" . getEnvPath() . "applpass_queue.json";
+$file_path = "/chroot/home/appljack/appljack.com/html" . getEnvPathUpdated() . "applpass_queue.json";
 $write_result = file_put_contents($file_path, json_encode($eventData) . PHP_EOL, FILE_APPEND | LOCK_EX);
 
 // Log the result of the file write operation
