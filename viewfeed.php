@@ -25,8 +25,7 @@ $displayEndDate = date('F j, Y', strtotime($enddate));
 // }
 
 $feedid = $_GET['feedid'];
-var_dump($_GET);
-die();
+
 try {
     $stmt = $pdo->prepare("SELECT * FROM applcustfeeds WHERE feedid = ? AND custid = ?");
     $stmt->execute([$feedid, $_SESSION['custid']]);
