@@ -465,18 +465,18 @@ try {
                             COUNT(DISTINCT eventid) AS Clicks, 
                             IF(COUNT(DISTINCT eventid) = 0, 0, SUM(cpc)/COUNT(DISTINCT eventid)) AS SpendPerClick, 
                             MAX(timestamp) AS LastEventTime
-                        FROM applevents 
-                        WHERE feedid = ?
-                        AND MONTH(timestamp) = MONTH(CURRENT_DATE)
-                        AND YEAR(timestamp) = YEAR(CURRENT_DATE)
-                        GROUP BY refurl
-                        ORDER BY Spend DESC;";
+                     FROM applevents 
+                     WHERE feedid = ?
+                     AND timestamp BETWEEN ? AND ? + INTERVAL 1 DAY
+                     GROUP BY refurl
+                     ORDER BY Spend DESC;";
+  
 
                           
 
 
                             $stmt = $pdo->prepare($queryReferrers);
-                            $stmt->execute([$feedid]);
+                            $stmt->execute([$feedid, $startdate, $enddate . ' 23:59:59']);
                             $results = $stmt->fetchAll();
 
                             echo "<table>";
