@@ -25,7 +25,8 @@ $displayEndDate = date('F j, Y', strtotime($enddate));
 // }
 
 $feedid = $_GET['feedid'];
-
+var_dump($_GET);
+die();
 try {
     $stmt = $pdo->prepare("SELECT * FROM applcustfeeds WHERE feedid = ? AND custid = ?");
     $stmt->execute([$feedid, $_SESSION['custid']]);
@@ -131,6 +132,8 @@ try {
                         <div class="row w-100 m-auto">
                             <div class="col-md-9">
                                 <form action="viewfeed.php?feedid=<?= urlencode($_GET['feedid']) ?>" id="applPortalFilter" class="row w-100 mx-auto">
+                                <input type="hidden" name="feedid" value="<?= htmlspecialchars($_GET['feedid']) ?>">
+
                                     <div class="col-md-6 px-0 customer-info-dates">
                                         <div class="form-group mb-0">
                                             <label for="startdate">Start</label>
