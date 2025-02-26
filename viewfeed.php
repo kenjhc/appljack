@@ -64,7 +64,7 @@ try {
 
     <?php echo renderHeader(
         "Feeds",
-        "<a href='viewfeed.php?feedid=" . urlencode($feedid) . "'>
+        "<a href='viewfeed.php?feedid=" . urlencode($_SESSION['feedid']) . "'>
             <p class='mb-0 fs-6 text-white'>< Back to your portal</p>
         </a>"
     ); ?>
@@ -130,7 +130,7 @@ try {
                     <div class="rounded-md shadow-md p-3 customer-filter-bar bg-white feed-url h-100 d-flex">
                         <div class="row w-100 m-auto">
                             <div class="col-md-9">
-                                <form action="viewfeed.php" id="applPortalFilter" class="row w-100 mx-auto">
+                                <form action="viewfeed.php?feedid=<?= urlencode($_GET['feedid']) ?>" id="applPortalFilter" class="row w-100 mx-auto">
                                     <div class="col-md-6 px-0 customer-info-dates">
                                         <div class="form-group mb-0">
                                             <label for="startdate">Start</label>
