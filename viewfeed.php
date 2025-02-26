@@ -470,11 +470,6 @@ try {
                      AND timestamp BETWEEN ? AND ? + INTERVAL 1 DAY
                      GROUP BY refurl
                      ORDER BY Spend DESC;";
-  
-
-                          
-
-
                             $stmt = $pdo->prepare($queryReferrers);
                             $stmt->execute([$feedid, $startdate, $enddate . ' 23:59:59']);
                             $results = $stmt->fetchAll();
