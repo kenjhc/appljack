@@ -18,11 +18,11 @@ $displayStartDate = date('F j, Y', strtotime($startdate));
 $displayEndDate = date('F j, Y', strtotime($enddate));
 
 // Check if feedid is present in the query string
-if (!isset($_GET['feedid'])) {
-    setToastMessage('error', "Feed ID not provided.");
-    header("Location: applmasterview.php");
-    exit;
-}
+// if (!isset($_GET['feedid'])) {
+//     setToastMessage('error', "Feed ID not provided.");
+//     header("Location: applmasterview.php");
+//     exit;
+// }
 
 $feedid = $_GET['feedid'];
 
