@@ -68,10 +68,14 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
       console.log('feedRows[0].cpc', feedRows[0].cpc);
 
     // If a result is found and cpc is not 0.0, return this cpc value
-    if (feedRows.length > 0 && feedRows[0][0].cpc !== 0.0 && feedRows[0][0].cpc !== undefined) {
-      console.log('inside if block of feedRows', feedRows[0].cpc);
-      return feedRows[0].cpc;
+    if (feedRows.length > 0 && Array.isArray(feedRows[0]) && feedRows[0].length > 0) {
+      const cpcValue = parseFloat(feedRows[0][0].cpc);
+      if (cpcValue !== 0.0) {
+        console.log('inside if block of feedRows', cpcValue);
+        return cpcValue;
+      }
     }
+    
     // Fallback Query: Check appljobs for job_reference and jobpoolid
     const [jobRows] = await connection.execute(
       "SELECT cpc FROM appljobs WHERE job_reference = ? AND jobpoolid = ?",
