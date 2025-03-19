@@ -54,7 +54,7 @@ function checkForRequiredFields(eventData) {
 
 // Function to get cpc value from applcustfeeds and appljobs tables
 async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
-  // console.log(`Fetching CPC for feedid: ${feedid}, job_reference: ${job_reference}, jobpoolid: ${jobpoolid}`); // Log input parameters
+   console.log(`Fetching CPC for feedid: ${feedid}, job_reference: ${job_reference}, jobpoolid: ${jobpoolid}`); // Log input parameters
 
   try {
     // First Query: Check applcustfeeds for active feedid
@@ -67,6 +67,7 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
 
     // If a result is found and cpc is not 0.0, return this cpc value
     if (feedRows.length > 0 && feedRows[0].cpc !== 0.0 && feedRows[0].cpc !== undefined) {
+      console.log('inside if block of feedRows', feedRows[0].cpc);
       return feedRows[0].cpc;
     }
     // Fallback Query: Check appljobs for job_reference and jobpoolid
