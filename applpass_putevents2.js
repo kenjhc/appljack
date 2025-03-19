@@ -52,6 +52,34 @@ function checkForRequiredFields(eventData) {
   return missingFields;
 }
 
+async function fetchAllFeedsWithCriteria() {
+  return new Promise((resolve, reject) => {
+    poolXmlFeeds.query(
+      `SELECT 
+         acf.*, 
+         ac.jobpoolid, 
+         ac.arbcustcpc, 
+         ac.arbcustcpa, 
+         acf.cpc AS feed_cpc, 
+         acf.cpa AS feed_cpa, 
+         acf.arbcampcpc, 
+         acf.arbcampcpa 
+       FROM 
+         applcustfeeds acf FORCE INDEX (idx_status) 
+       JOIN 
+         applcust ac ON ac.custid = acf.custid;`,
+      (error, results) => {
+        if (error) {
+          console.error("Error fetching feed criteria:", error);
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      }
+    );
+  });
+}
+
 // Function to get cpc value from applcustfeeds and appljobs tables
 async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
    console.log(`Fetching CPC for feedid: ${feedid}, job_reference: ${job_reference}, jobpoolid: ${jobpoolid}`); // Log input parameters
@@ -187,7 +215,13 @@ async function processEvents() {
             eventData.jobpoolid
           );
           console.log(`Fetched CPC value: ${cpcValue}`); // Log fetched CPC value
-
+          const getAdjustmentValues = "SELECT arbcampcpc FROM applcustfeeds WHERE feedid = ?";
+          const [adjustmentValues] = await connection.execute(getAdjustmentValues, [eventData.feedid]);
+          console.log('adustmentvalues:', adjustmentValues);
+          const arbcampcpc = adjustmentValues.length > 0 ? parseFloat(adjustmentValues[0]?.arbcampcpc) : NaN;
+          console.log('arbcampcpc:', arbcampcpc);
+          const adjustedValue = !isNaN(arbcampcpc) && arbcampcpc !== null ? applyArbitrageAdjustment(cpcValue, arbcampcpc) : cpcValue;
+          console.log('adjustedValue:', adjustedValue);
           // Insert data into applevents table
           const query = `
                         INSERT INTO applevents (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, publisherid)
@@ -204,7 +238,7 @@ async function processEvents() {
             eventData.userAgent, // Using userAgent from JSON
             eventData.ipaddress,
             cpcValue, // Use fetched cpc value
-            eventData.cpa ?? null,
+            adjustedValue ?? null,
             eventData.feedid,
             eventData.publisherid,
           ];
@@ -279,6 +313,10 @@ async function processEvents() {
     }
   }
 }
-
+function applyArbitrageAdjustment(value, adjustmentPercentage) {
+  if (!adjustmentPercentage) return value;
+  const adjustment = 1 - (parseFloat(adjustmentPercentage) / 100);
+  return (parseFloat(value) * adjustment).toFixed(2);
+}
 // Call the function to process events
 processEvents();
