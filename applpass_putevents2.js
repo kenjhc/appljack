@@ -70,7 +70,8 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
     // If a result is found and cpc is not 0.0, return this cpc value
     if (feedRows.length > 0 && Array.isArray(feedRows[0]) && feedRows[0].length > 0) {
       const cpcValue = parseFloat(feedRows[0][0].cpc);
-      if (cpcValue !== 0.0) {
+      
+      if (!isNan(cpcValue) && cpcValue > 0.0) {
         console.log('inside if block of feedRows', cpcValue);
         return cpcValue;
       }
