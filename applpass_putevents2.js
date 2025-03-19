@@ -54,7 +54,7 @@ function checkForRequiredFields(eventData) {
 
 // Function to get cpc value from applcustfeeds and appljobs tables
 async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
-  // console.log(`Fetching CPC for feedid: ${feedid}, job_reference: ${job_reference}, jobpoolid: ${jobpoolid}`); // Log input parameters
+   console.log(`Fetching CPC for feedid: ${feedid}, job_reference: ${job_reference}, jobpoolid: ${jobpoolid}`); // Log input parameters
 
   try {
     // First Query: Check applcustfeeds for active feedid
@@ -64,18 +64,37 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
     );
 
      console.log("Feed rows result:", feedRows); // Log query result for applcustfeeds
-
+      console.log('feedRows.length:', feedRows.length);
+      console.log('feedRows[0].cpc', feedRows[0].cpc);
     // If a result is found and cpc is not 0.0, return this cpc value
-    if (feedRows.length > 0 && feedRows[0].cpc !== 0.0 && feedRows[0].cpc !== undefined) {
-      return feedRows[0].cpc;
+    if (feedRows.length > 0 && Array.isArray(feedRows[0]) && feedRows[0].length > 0) {
+      const cpcValue = parseFloat(feedRows[0][0]?.cpc); // Correctly accessing cpc
+    
+      console.log("inside if block of feedRows", cpcValue);
+    
+      if (!isNaN(cpcValue) && cpcValue > 0.0) {
+        return cpcValue; // Return if valid
+      }
     }
+    
     // Fallback Query: Check appljobs for job_reference and jobpoolid
+    console.log("Fallback Query triggered...");
+    
     const [jobRows] = await connection.execute(
       "SELECT cpc FROM appljobs WHERE job_reference = ? AND jobpoolid = ?",
       [job_reference, jobpoolid]
     );
-    console.log(`jobRows: ${jobRows}`);
-    // console.log("Job rows result:", jobRows); // Log query result for appljobs
+    
+    console.log("jobRows:", jobRows);
+    
+    // Check if jobRows contains a valid CPC value
+    if (jobRows.length > 0 && jobRows[0]?.cpc !== undefined) {
+      const fallbackCpcValue = parseFloat(jobRows[0].cpc);
+      if (!isNaN(fallbackCpcValue)) {
+        return fallbackCpcValue;
+      }
+    }
+     console.log("Job rows result:", jobRows); // Log query result for appljobs
 
     // If a result is found, return this cpc value
     if (jobRows.length > 0) {
