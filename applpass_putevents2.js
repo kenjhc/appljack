@@ -94,7 +94,7 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
         return fallbackCpcValue;
       }
     }
-    // console.log("Job rows result:", jobRows); // Log query result for appljobs
+     console.log("Job rows result:", jobRows); // Log query result for appljobs
 
     // If a result is found, return this cpc value
     if (jobRows.length > 0) {
