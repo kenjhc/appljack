@@ -68,7 +68,7 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
       console.log('feedRows[0].cpc', feedRows[0].cpc);
 
     // If a result is found and cpc is not 0.0, return this cpc value
-    if (feedRows.length > 0 && feedRows[0].cpc !== 0.0 && feedRows[0].cpc !== undefined) {
+    if (feedRows.length > 0 && feedRows[0][0].cpc !== 0.0 && feedRows[0][0].cpc !== undefined) {
       console.log('inside if block of feedRows', feedRows[0].cpc);
       return feedRows[0].cpc;
     }
