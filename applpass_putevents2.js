@@ -237,8 +237,8 @@ async function processEvents() {
             eventData.refurl,
             eventData.userAgent, // Using userAgent from JSON
             eventData.ipaddress,
-            cpcValue, // Use fetched cpc value
             adjustedValue ?? null,
+            eventData.cpa ?? null,
             eventData.feedid,
             eventData.publisherid,
           ];
