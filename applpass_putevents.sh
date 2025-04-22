@@ -11,7 +11,7 @@ fi
 # Paths
 DIR="/chroot/home/appljack/appljack.com/html/admin"
 LOGFILE="$DIR/applpass_putevents.log"
-NODE="/usr/bin/node" # Ensure this is the correct path to the node executable
+NODE="/usr/bin/node" # Ensure thiss is the correct path to the node executable
 PYTHON="/usr/bin/python3" # Updated path to the Python 3 executable
 
 echo "Current user: $(whoami)" >> "$LOGFILE"
