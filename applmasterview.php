@@ -6,18 +6,22 @@ if (!isset($_SESSION['acctnum'])) {
     exit();
 }
 
+// Define date range options
+$dateRanges = [
+    'thismonth' => 'This Month',
+    'lastmonth' => 'Last Month',
+    'last7days' => 'Last 7 Days',
+    'yesterday' => 'Yesterday',
+    'today' => 'Today'
+];
 
-// Default date range to the current month
-$defaultStartDate = date('Y-m-01');
-$defaultEndDate = date('Y-m-t');
-$startdate = isset($_GET['startdate']) ? $_GET['startdate'] : $defaultStartDate;
-$enddate = isset($_GET['enddate']) ? $_GET['enddate'] : $defaultEndDate;
-$startdate = date('Y-m-d', strtotime($startdate)) . " 00:00:00";
-$enddate = date('Y-m-d', strtotime($enddate)) . " 23:59:59";
-$customerData = [];
+// Get selected date range (default to thismonth)
+$selectedRange = 'thismonth'; // Set default value first
+if (isset($_GET['daterange']) && array_key_exists($_GET['daterange'], $dateRanges)) {
+    $selectedRange = $_GET['daterange'];
+}
 
 try {
-
     // Fetch customers
     $stmt = $conn->prepare("SELECT custid, custcompany FROM applcust WHERE acctnum = :acctnum ORDER BY custcompany ASC");
     $stmt->execute(['acctnum' => $_SESSION['acctnum']]);
@@ -33,65 +37,117 @@ try {
     $stmt3->execute();
     $publishers = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
-    // Data processing for the new table
-    foreach ($customers as $customer) {
-        $custid = $customer['custid'];
+    // Get customer performance data from pre-calculated stats
+    $stmt = $conn->prepare("
+        SELECT cs.*, c.custcompany
+        FROM applcust_stats cs
+        JOIN applcust c ON cs.custid = c.custid
+        WHERE c.acctnum = :acctnum
+        AND cs.date_period = :date_period
+        ORDER BY c.custcompany ASC
+    ");
 
-        // Status
-        $statusStmt = $conn->prepare("SELECT COUNT(*) FROM applcustfeeds WHERE custid = :custid AND status = 'active'");
-        $statusStmt->execute(['custid' => $custid]);
-        $status = $statusStmt->fetchColumn() > 0 ? 'Active' : 'Inactive';
+    $stmt->execute([
+        'acctnum' => $_SESSION['acctnum'],
+        'date_period' => $selectedRange
+    ]);
 
-        // Budget
-        $budgetStmt = $conn->prepare("SELECT SUM(budget) FROM applcustfeeds WHERE custid = :custid");
-        $budgetStmt->execute(['custid' => $custid]);
-        $budget = $budgetStmt->fetchColumn() ?? 0;
+    $customerData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Spend, Clicks, and Applies
-        $eventStmt = $conn->prepare("
-            SELECT
-                SUM(CASE WHEN eventtype = 'cpc' THEN cpc ELSE 0 END) AS total_cpc,
-                SUM(CASE WHEN eventtype = 'cpa' THEN cpa ELSE 0 END) AS total_cpa,
-                COUNT(CASE WHEN eventtype = 'cpc' THEN 1 ELSE NULL END) AS clicks,
-                COUNT(CASE WHEN eventtype = 'cpa' THEN 1 ELSE NULL END) AS applies
-            FROM applevents
-            WHERE custid = :custid AND timestamp BETWEEN :startdate AND :enddate
-        ");
-        $eventStmt->execute(['custid' => $custid, 'startdate' => $startdate, 'enddate' => $enddate]);
-        $eventData = $eventStmt->fetch(PDO::FETCH_ASSOC);
-        $total_cpc = $eventData['total_cpc'] ?? 0;
-        $total_cpa = $eventData['total_cpa'] ?? 0;
-        $clicks = $eventData['clicks'] ?? 0;
-        $applies = $eventData['applies'] ?? 0;
-        $spend = $total_cpc + $total_cpa;
+    // If no data found, fall back to calculating on the fly
+    if (empty($customerData)) {
+        echo "<div style='background: #fff3cd; padding: 10px; margin-bottom: 15px;'>
+            <p><strong>Notice:</strong> Using calculated data - pre-aggregated stats not available yet for this date range.</p>
+        </div>";
 
-        // CPA and CPC
-        $cpa = $applies > 0 ? $spend / $applies : 0;
-        $cpc = $clicks > 0 ? $spend / $clicks : 0;
+        $customerData = [];
 
-        // Conversion Rate
-        $conversion_rate = $clicks > 0 ? ($applies / $clicks) * 100 : 0;
+        // Set date range based on selection
+        switch ($selectedRange) {
+            case 'today':
+                $startdate = date('Y-m-d') . " 00:00:00";
+                $enddate = date('Y-m-d') . " 23:59:59";
+                break;
+            case 'yesterday':
+                $startdate = date('Y-m-d', strtotime('-1 day')) . " 00:00:00";
+                $enddate = date('Y-m-d', strtotime('-1 day')) . " 23:59:59";
+                break;
+            case 'last7days':
+                $startdate = date('Y-m-d', strtotime('-6 days')) . " 00:00:00";
+                $enddate = date('Y-m-d') . " 23:59:59";
+                break;
+            case 'lastmonth':
+                $startdate = date('Y-m-01', strtotime('-1 month')) . " 00:00:00";
+                $enddate = date('Y-m-t', strtotime('-1 month')) . " 23:59:59";
+                break;
+            case 'thismonth':
+            default:
+                $startdate = date('Y-m-01') . " 00:00:00";
+                $enddate = date('Y-m-t') . " 23:59:59";
+                break;
+        }
 
-        // Num Jobs
-        $numJobsStmt = $conn->prepare("SELECT SUM(numjobs) FROM applcustfeeds WHERE custid = :custid");
-        $numJobsStmt->execute(['custid' => $custid]);
-        $numJobs = $numJobsStmt->fetchColumn() ?? 0;
+        // Original calculation logic
+        foreach ($customers as $customer) {
+            $custid = $customer['custid'];
 
-        $customerData[] = [
-            'custid' => $custid,
-            'custcompany' => $customer['custcompany'],
-            'status' => $status,
-            'budget' => $budget,
-            'spend' => $spend,
-            'clicks' => $clicks,
-            'applies' => $applies,
-            'cpa' => $cpa,
-            'cpc' => $cpc,
-            'conversion_rate' => $conversion_rate,
-            'numjobs' => $numJobs,
-        ];
+            // Status
+            $statusStmt = $conn->prepare("SELECT COUNT(*) FROM applcustfeeds WHERE custid = :custid AND status = 'active'");
+            $statusStmt->execute(['custid' => $custid]);
+            $status = $statusStmt->fetchColumn() > 0 ? 'Active' : 'Inactive';
+
+            // Budget
+            $budgetStmt = $conn->prepare("SELECT SUM(budget) FROM applcustfeeds WHERE custid = :custid");
+            $budgetStmt->execute(['custid' => $custid]);
+            $budget = $budgetStmt->fetchColumn() ?? 0;
+
+            // Spend, Clicks, and Applies
+            $eventStmt = $conn->prepare("
+                SELECT
+                    SUM(CASE WHEN eventtype = 'cpc' THEN cpc ELSE 0 END) AS total_cpc,
+                    SUM(CASE WHEN eventtype = 'cpa' THEN cpa ELSE 0 END) AS total_cpa,
+                    COUNT(CASE WHEN eventtype = 'cpc' THEN 1 ELSE NULL END) AS clicks,
+                    COUNT(CASE WHEN eventtype = 'cpa' THEN 1 ELSE NULL END) AS applies
+                FROM applevents
+                WHERE custid = :custid AND timestamp BETWEEN :startdate AND :enddate
+            ");
+            $eventStmt->execute(['custid' => $custid, 'startdate' => $startdate, 'enddate' => $enddate]);
+            $eventData = $eventStmt->fetch(PDO::FETCH_ASSOC);
+            $total_cpc = $eventData['total_cpc'] ?? 0;
+            $total_cpa = $eventData['total_cpa'] ?? 0;
+            $clicks = $eventData['clicks'] ?? 0;
+            $applies = $eventData['applies'] ?? 0;
+            $spend = $total_cpc + $total_cpa;
+
+            // CPA and CPC
+            $cpa = $applies > 0 ? $spend / $applies : 0;
+            $cpc = $clicks > 0 ? $spend / $clicks : 0;
+
+            // Conversion Rate
+            $conversion_rate = $clicks > 0 ? ($applies / $clicks) * 100 : 0;
+
+            // Num Jobs
+            $numJobsStmt = $conn->prepare("SELECT SUM(numjobs) FROM applcustfeeds WHERE custid = :custid");
+            $numJobsStmt->execute(['custid' => $custid]);
+            $numJobs = $numJobsStmt->fetchColumn() ?? 0;
+
+            $customerData[] = [
+                'custid' => $custid,
+                'custcompany' => $customer['custcompany'],
+                'status' => $status,
+                'budget' => $budget,
+                'spend' => $spend,
+                'clicks' => $clicks,
+                'applies' => $applies,
+                'cpa' => $cpa,
+                'cpc' => $cpc,
+                'conversion_rate' => $conversion_rate,
+                'numjobs' => $numJobs,
+            ];
+        }
     }
 
+    // Rest of your code handling POST requests, etc.
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Handle job pool deletion
         if (isset($_POST['delete_jobpoolid'])) {
@@ -126,20 +182,18 @@ try {
     }
 } catch (PDOException $e) {
     setToastMessage('error', "Error: " . $e->getMessage());
-    setToastMessage('error', "Error: " . $e->getMessage());
 }
 
 // Function to calculate the next CRON job time
-function getNextCronTime()
-{
-    $now = new DateTime('now', new DateTimeZone('UTC')); // Get current UTC time
+function getNextCronTime() {
+    $now = new DateTime('now', new DateTimeZone('UTC'));
     $currentMinutes = (int)$now->format('i');
     $currentHours = (int)$now->format('H');
 
     // Find the next 4-hour interval
     $nextHours = $currentHours - ($currentHours % 4) + 4;
     if ($nextHours >= 24) {
-        $nextHours = 0; // Reset to midnight if past 24 hours
+        $nextHours = 0;
     }
 
     // Set the next CRON job time
@@ -150,12 +204,11 @@ function getNextCronTime()
         $nextCron->modify('+1 day');
     }
 
-    return $nextCron->getTimestamp(); // Return as a Unix timestamp
+    return $nextCron->getTimestamp();
 }
 
 // Get the next CRON job time
 $nextCronTime = getNextCronTime();
-
 ?>
 
 <!DOCTYPE html>
@@ -183,15 +236,12 @@ $nextCronTime = getNextCronTime();
         "Account Master View"
     ); ?>
 
-
-
     <section class="account_master_view_sec">
         <?php
         // Create the XML URL using the current session's account number
         $acctnum = $_SESSION['acctnum'];
         $xmlUrl = getUrl() . "/applfeeds/{$acctnum}.xml";
         ?>
-
 
         <div class="container-fluid">
 
@@ -200,120 +250,20 @@ $nextCronTime = getNextCronTime();
             </p>
 
             <div class="row w-100 mx-auto xml_mapping_sec pt-0">
-                <div class="col-sm-12 col-md-12 px-0 d-none ">
-                    <div class="card ">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between ">
-                                <h5 class="card-title">Customer Accounts</h5>
-                            </div>
-
-                            <a href="applcreatecustomer.php" class="add-customer-button"><i class="fa fa-plus"></i> Add Customer</a>
-
-                            <?php if (empty($customers)): ?>
-                                <p>No customer accounts found.</p>
-                            <?php else: ?>
-                                <div class=" table-responsive">
-                                    <div class="custom_padding">
-                                        <table class="customers-table table-striped ">
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>ID</th>
-                                                    <th>Edit</th>
-                                                    <th>Remove</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($customers as $customer): ?>
-                                                    <tr>
-                                                        <td><a href="applportal.php?custid=<?= htmlspecialchars($customer['custid']) ?>"><?= htmlspecialchars($customer['custcompany']) ?></a></td>
-                                                        <td><?= htmlspecialchars($customer['custid']) ?></td>
-                                                        <td class="edit-button-cell">
-                                                            <a href="appleditcust.php?custid=<?= $customer['custid'] ?>" class=" edit_btn">Edit</a>
-                                                        </td>
-                                                        <td class="delete-button-cell">
-                                                            <form method="POST" class="delete-form" onsubmit="return confirmDeleteCustomer('<?= addslashes(htmlspecialchars($customer['custcompany'])) ?>');">
-                                                                <input type="hidden" name="delete_custid" value="<?= $customer['custid'] ?>">
-                                                                <button type="submit" class="delete_btn">Delete</button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-12 col-md-12 px-0 d-none">
-                    <div class="">
-                        <div class="card ">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between ">
-                                    <h5 class="card-title">Job Inventory Pools</h5>
-                                </div>
-                                <a href="applcreatepool.php" class="add-customer-button"><i class="fa fa-plus"></i> Add Job Pool</a>
-                                <?php if (empty($jobPools)): ?>
-                                    <p>No job pools found.</p>
-                                <?php else: ?>
-                                    <div class="table-responsive">
-                                        <div class="custom_padding">
-
-                                            <table class="job-pools-table table-striped ">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Job Pool Name</th>
-                                                        <th>Arbitrage %</th>
-                                                        <th>URL</th>
-                                                        <th>Edit</th>
-                                                        <th>Delete</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach ($jobPools as $jobPool): ?>
-                                                        <tr>
-                                                            <td><?= htmlspecialchars($jobPool['jobpoolname']) ?></td>
-                                                            <td><?= htmlspecialchars(number_format($jobPool['arbitrage'], 2)) ?></td>
-                                                            <td><a href="<?= htmlspecialchars($jobPool['jobpoolurl']) ?>"><?= htmlspecialchars($jobPool['jobpoolurl']) ?></a></td>
-                                                            <td class="edit-button-cell">
-                                                                <a href="appleditjobpool.php?jobpoolid=<?= $jobPool['jobpoolid'] ?>" class="edit_btn">Edit</a>
-                                                            </td>
-                                                            <td class="delete-button-cell">
-                                                                <form method="POST" class="delete-form" onsubmit="return confirmDelete('<?= addslashes(htmlspecialchars($jobPool['jobpoolname'])) ?>');">
-                                                                    <input type="hidden" name="delete_jobpoolid" value="<?= $jobPool['jobpoolid'] ?>">
-                                                                    <button type="submit" class="delete_btn">Delete</button>
-                                                                </form>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="col-sm-12 col-md-12 px-0">
                     <div class="">
                         <div class="card ">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between card-title">
                                     <h5 class="card-title p-0">Customer Campaign Overview <span>(Next feed update starts in: <span id="countdown">Loading...</span>)</h5>
-                                    <form action="applmasterview.php" method="get" class="d-flex align-items-end gap-3">
+                                    <form action="<?= $_SERVER['PHP_SELF'] ?>" method="get" class="d-flex align-items-end gap-3">
                                         <div>
-                                            <label class="mb-0" for="startdate">Start:</label>
-                                            <input type="date" id="startdate" class="form-control" name="startdate" value="<?= htmlspecialchars(substr($startdate, 0, 10)) ?>" required>
-                                        </div>
-                                        <div>
-                                            <label class="mb-0" for="enddate">End:</label>
-                                            <input type="date" id="enddate" class="form-control" name="enddate" value="<?= htmlspecialchars(substr($enddate, 0, 10)) ?>" required>
-                                        </div>
-                                        <div>
-                                            <button class="btn_green my-0 w-auto py-1 no-wrap">Show Data</button>
+                                            <label class="mb-0" for="daterange">Date Range:</label>
+                                            <select id="daterange" name="daterange" class="form-control" onchange="this.form.submit()">
+                                                <?php foreach ($dateRanges as $value => $label): ?>
+                                                    <option value="<?= $value ?>" <?= $selectedRange === $value ? 'selected' : '' ?>><?= $label ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
                                         </div>
                                     </form>
                                 </div>
@@ -350,45 +300,6 @@ $nextCronTime = getNextCronTime();
                                                         <td><?= number_format($data['numjobs']); ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-12 col-md-12 px-0 d-none">
-                    <div class="">
-                        <div class="card ">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between ">
-                                    <h5 class="card-title">Publishers</h5>
-                                </div>
-                                <a href="applcreatepool.php" class="add-customer-button"><i class="fa fa-plus"></i> Add Publisher</a>
-
-                                <div class="table-responsive">
-                                    <div class="custom_padding">
-                                        <table class="campaign-overview-table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Publisher Name</th>
-                                                    <th>Publisher ID</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if (empty($publishers)): ?>
-                                                    <p>No publishers found.</p>
-                                                <?php else: ?>
-                                                    <?php foreach ($publishers as $publisher): ?>
-                                                        <tr>
-                                                            <td><?= htmlspecialchars($publisher['publishername']) ?></td>
-                                                            <td><?= htmlspecialchars($publisher['publisherid']) ?></td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
                                             </tbody>
                                         </table>
                                     </div>
