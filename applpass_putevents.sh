@@ -32,5 +32,8 @@ echo "Running applpass_putevents2.js $(date)" >> "$LOGFILE"
 echo "Running applpass_cpa_putevent.js $(date)" >> "$LOGFILE"
 "$NODE" "$DIR/applpass_cpa_putevent.js" >> "$LOGFILE" 2>&1
 
+echo "Running stats_updater.js $(date)" >> "$LOGFILE"
+"$NODE" "$DIR/stats_updater.js" >> "$LOGFILE" 2>&1
+
 # Release lock
 rmdir "$LOCKFILE"
