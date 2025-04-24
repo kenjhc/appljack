@@ -23,7 +23,7 @@ const pool = mysql.createPool({
 
   try {
     connection = await pool.getConnection();
-    const windowStart = dayjs().subtract(30, 'day');
+    const windowStart = dayjs().subtract(360, 'day');
     const windowEnd = dayjs().subtract(1, 'day'); // exclude today
 
     const [customers] = await connection.execute("SELECT DISTINCT custid FROM applcust");
