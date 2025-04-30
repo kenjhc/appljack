@@ -7,6 +7,7 @@ const dayjs = require('dayjs');
 const config = require('./config');
 const { logMessage } = require('./utils/helpers');
 
+
 const pool = mysql.createPool({
   host: config.host,
   user: config.username,
