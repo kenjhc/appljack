@@ -35,5 +35,8 @@ echo "Running applpass_cpa_putevent.js $(date)" >> "$LOGFILE"
 echo "Running stats_updater.js $(date)" >> "$LOGFILE"
 "$NODE" "$DIR/stats_updater.js" >> "$LOGFILE" 2>&1
 
+echo "Running applstats_cron.js $(date)" >> "$LOGFILE"
+"$NODE" "$DIR/applstats_cron.js" >> "$LOGFILE" 2>&1
+
 # Release lock
 rmdir "$LOCKFILE"
