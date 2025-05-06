@@ -25,7 +25,7 @@ const pool = mysql.createPool({
   try {
     connection = await pool.getConnection();
     const today = dayjs();
-    const startDate = today.subtract(7, 'day');
+    const startDate = today.subtract(1, 'day');
     const endDate = today;
 
     const [customers] = await connection.execute("SELECT DISTINCT custid FROM applcust");
