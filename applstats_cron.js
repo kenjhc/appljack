@@ -36,14 +36,7 @@ const pool = mysql.createPool({
       for (const { feedid, numjobs } of feeds) {
         for (let date = startDate; date.isBefore(endDate) || date.isSame(endDate); date = date.add(1, 'day')) {
           const dateStr = date.format('YYYY-MM-DD');
-          const [existing] = await connection.execute(`
-            SELECT 1 FROM appl_feed_stats WHERE custid = ? AND feedid = ? AND date = ? LIMIT 1
-          `, [custid, feedid, dateStr]);
-      
-          if (existing.length > 0) {
-            console.log(`⏩ Skipping ${custid} - ${feedid} - ${dateStr} (already exists)`);
-            continue;
-          }
+          
           const [clickStats] = await connection.execute(`
             SELECT COUNT(DISTINCT eventid) AS clicks, SUM(cpc) AS total_cpc
             FROM applevents
