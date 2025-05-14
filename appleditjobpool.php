@@ -1,6 +1,7 @@
 <?php
 ini_set('memory_limit', '512M'); 
-
+error_reporting(0);
+ini_set('display_errors', 0);
 include 'database/db.php'; 
 
 if (!isset($_SESSION['acctnum'])) {
