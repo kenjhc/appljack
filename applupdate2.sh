@@ -59,8 +59,8 @@ $NODE "$DIR/dbtoxml_appl2.js" >> "$LOGFILE" 2>&1
 echo "Running dbtoxml_combo.js" >> "$LOGFILE"
 $NODE "$DIR/dbtoxml_combo.js" >> "$DIR/dbtoxml_combo.log" 2>> "$DIR/dbtoxml_combo_error.log"
 
-echo "Running dbtoxml_combo_acct.js" >> "$LOGFILE"
-$NODE "$DIR/dbtoxml_combo_acct.js" >> "$LOGFILE" 2>&1
+# echo "Running dbtoxml_combo_acct.js" >> "$LOGFILE"
+# $NODE "$DIR/dbtoxml_combo_acct.js" >> "$LOGFILE" 2>&1
 
 echo "Running dbtoxml_pubs.js" >> "$LOGFILE"
 $NODE "$DIR/dbtoxml_pubs.js" >> "$LOGFILE" 2>&1
