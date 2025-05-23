@@ -2,6 +2,7 @@ on:
   push:
     branches:
       development
+      
 name: 🚀 Deploy Appljack on development server
 jobs:
   web-deploy:
