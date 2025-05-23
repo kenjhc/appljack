@@ -24,13 +24,9 @@ env >> "$LOGFILE"
 # Start new log file
 echo "Running XML file updates $(date)" > "$LOGFILE"
 
-# Run the script to empty xml files if the feeds are capped or stopped
-echo "Running applonoffxmls.js $(date)" >> "$LOGFILE"
-"$NODE" "$DIR/applonoffxmls.js" >> "$LOGFILE" 2>&1
-
 # Run the script to check the count of jobs in the appljobs table based on query in campaign
-# echo "Running applcountjobs2.js $(date)" >> "$LOGFILE"
-# "$NODE" "$DIR/applcountjobs2.js" >> "$LOGFILE" 2>&1
+echo "Running applcountjobs3.js $(date)" >> "$LOGFILE"
+"$NODE" "$DIR/applcountjobs3.js" >> "$LOGFILE" 2>&1
 
 # Release lock
 rmdir "$LOCKFILE"
