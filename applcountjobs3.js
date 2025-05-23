@@ -13,8 +13,8 @@ const {
 } = require('./applecronqueuesystem');
 
 // Define the folder where XML files are stored
-// const xmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
-const xmlFolderPath = "C:/laragon/www/applfeeds";
+const xmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+// const xmlFolderPath = "C:/laragon/www/applfeeds";
 
 const pool = mysql.createPool({
   connectionLimit: 10,
