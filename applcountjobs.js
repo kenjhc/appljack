@@ -149,13 +149,13 @@ async function processQueriesSequentially() {
     );
 
     // Check the status of the feed, if it's 'capped' or 'stopped', update numjobs to 0 in the database
-    if (criteria.status === "capped" || criteria.status === "stopped") {
-      await updateNumJobs(criteria.feedid, 0);
-      console.log(
-        `Feed ${criteria.feedid} status is '${criteria.status}', setting numjobs to 0.`
-      );
-      continue; // Skip further processing for this feed
-    }
+    // if (criteria.status === "capped" || criteria.status === "stopped") {
+    //   await updateNumJobs(criteria.feedid, 0);
+    //   console.log(
+    //     `Feed ${criteria.feedid} status is '${criteria.status}', setting numjobs to 0.`
+    //   );
+    //   continue; // Skip further processing for this feed
+    // }
     console.log("Input criteria: ", criteria);
 
     // Construct SQL query based on feed criteria

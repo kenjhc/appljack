@@ -1,0 +1,21 @@
+on: 
+  push:
+    branches:
+      master
+      
+name: 🚀 Deploy Appljack on production server
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+ 
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: 67.225.189.14
+          username: proddeploy@appljack.com
+          password: App1j@ck_dev01$
+          timeout: 120000

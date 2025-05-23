@@ -4,7 +4,6 @@ const nodemailer = require("nodemailer");
 const emailTemplates = require("./emailTemplates");
 const { logToDatabase } = require("./utils/helpers");
 // const emailTemplates = require("./emailTemplates");
-
 // Configure your database connection here
 const pool = mysql.createPool({
   host: config.host,
