@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/update_xml_files_log.lock"
+LOCKFILE="/chroot/home/appljack/appljack.com/html/dev/locks/update_xml_files_log.lock"
 
 # Acquire lock
 if ! mkdir "$LOCKFILE" 2>/dev/null; then
