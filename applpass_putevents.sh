@@ -38,5 +38,8 @@ echo "Running stats_updater.js $(date)" >> "$LOGFILE"
 echo "Running applstats_cron.js $(date)" >> "$LOGFILE"
 "$NODE" "$DIR/applstats_cron.js" >> "$LOGFILE" 2>&1
 
+echo "Running applcountjobs4.js $(date)" >> "$LOGFILE"
+"$NODE" "$DIR/applcountjobs4.js" >> "$LOGFILE" 2>&1
+
 # Release lock
 rmdir "$LOCKFILE"
