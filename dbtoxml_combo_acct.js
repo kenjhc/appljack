@@ -284,9 +284,11 @@ async function streamResultsToXml(fileStream, query, criteria, customFields) {
           config.envPath
         }applpass.php?c=${encodeURIComponent(
           criteria.custid
-        )}&f=${encodeURIComponent(criteria.feedid)}&j=${encodeURIComponent(
+        )}&f=${encodeURIComponent(criteria.feedid)}
+        &j=${encodeURIComponent(
           job.job_reference
-        )}&jpid=${encodeURIComponent(criteria.jobpoolid)}`;
+        )}
+        &jpid=${encodeURIComponent(criteria.jobpoolid)}`;
         customUrl = customUrl.replace(/&/g, "&amp;");
         fileStream.write(`    <url>${customUrl}</url>\n`);
 
