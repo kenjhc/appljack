@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/update_xml_files_log.lock"
+LOCKFILE="/chroot/home/appljack/appljack.com/html/admin/locks/applpass_put_events_log.lock"
 
 # Acquire lock
 if ! mkdir "$LOCKFILE" 2>/dev/null; then
@@ -25,8 +25,8 @@ env >> "$LOGFILE"
 echo "Running XML file updates $(date)" > "$LOGFILE"
 
 # Run the script to empty xml files if the feeds are capped or stopped
-echo "Running applonoffxmls.js $(date)" >> "$LOGFILE"
-"$NODE" "$DIR/applonoffxmls.js" >> "$LOGFILE" 2>&1
+# echo "Running applonoffxmls.js $(date)" >> "$LOGFILE"
+# "$NODE" "$DIR/applonoffxmls.js" >> "$LOGFILE" 2>&1
 
 # Run the script to check the count of jobs in the appljobs table based on query in campaign
 echo "Running applcountjobs4.js $(date)" >> "$LOGFILE"
