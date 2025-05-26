@@ -13,8 +13,8 @@ const {
 } = require('./applecronqueuesystem');
 
 // Define the folder where XML files are stored
-const xmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
-// const xmlFolderPath = "C:/laragon/www/applfeeds";
+// const xmlFolderPath = "/chroot/home/appljack/appljack.com/html/applfeeds";
+const xmlFolderPath = "C:/laragon/www/applfeeds";
 
 const pool = mysql.createPool({
   connectionLimit: 10,
@@ -52,7 +52,8 @@ async function processXmlFiles() {
     // await cronQueueLog(pool, file?.id, { process: numJobs });
 
     // Update the numjobs field in the applcustfeeds table
-    await updateNumJobs(feedid, numJobs);
+    // await updateNumJobs(feedid, numJobs);
+    await cronQueueLog(pool, file?.id, { process: numJobs });
 
     // queue has been ended
     await cronQueueLog(pool, file?.id, { status: '2' });
