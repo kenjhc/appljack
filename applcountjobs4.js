@@ -49,7 +49,7 @@ async function processXmlFiles() {
     // Use a SAX parser to count <job> nodes in the stream
     const numJobs = await countJobNodesSax(path.join(xmlFolderPath, file?.data));
 
-    // await cronQueueLog(pool, file?.id, { process: numJobs });
+    await cronQueueLog(pool, file?.id, { process: numJobs });
 
     // Update the numjobs field in the applcustfeeds table
     // await updateNumJobs(feedid, numJobs);
