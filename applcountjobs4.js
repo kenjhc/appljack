@@ -52,7 +52,8 @@ async function processXmlFiles() {
     await cronQueueLog(pool, file?.id, { process: numJobs });
 
     // Update the numjobs field in the applcustfeeds table
-    // await updateNumJobs(feedid, numJobs);
+    await updateNumJobs(feedid, numJobs);
+    
     await cronQueueLog(pool, file?.id, { process: numJobs });
 
     // queue has been ended
