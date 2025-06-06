@@ -9,7 +9,20 @@ if (isset($_POST['login'])) {
     $custpw = $_POST['acctpw'];
 
     // Query the database for user
-    $query = $db->prepare("SELECT acctfname, acctlname, acctnum, acctpw, acctrole FROM applacct WHERE acctemail = ?");
+    // $query = $db->prepare("SELECT acctfname, acctlname, acctnum, acctpw, acctrole FROM applacct WHERE acctemail = ?");
+    $query = $db->prepare("
+        SELECT 
+            ac.acctfname, 
+            ac.acctlname, 
+            ac.acctnum, 
+            ac.acctpw, 
+            ac.acctrole, 
+            c.custid 
+        FROM applacct ac 
+        LEFT JOIN applcust c ON ac.acctnum = c.acctnum 
+        WHERE ac.acctemail = ?
+    ");
+
     if (!$query) {
         handleDbError("Prepare failed: " . $db->error);
     }
@@ -27,6 +40,7 @@ if (isset($_POST['login'])) {
             $_SESSION['acctfname'] = $user['acctfname']; // Store acctnum in session
             $_SESSION['acctlname'] = $user['acctlname']; // Store acctnum in session
             $_SESSION['acctname'] = $user['acctfname'] . " " . $user['acctlname']; // Store acctnum in session
+            $_SESSION['custid'] = $user['custid'];
             setToastMessage('success', "Login successfully.");
             header("Location: applmasterview.php"); // Redirect to portal.php
             exit();
