@@ -408,7 +408,7 @@ foreach ($feeds as $feed) {
                                     <a href="viewfeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-info btn-sm" title="View">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="editfeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-success btn-sm" title="Edit">
+                                    <a href="editfeed.php?feedid=<?= urlencode($feed['feedid']); ?>&custid=<?= urlencode($feed['custid']); ?>" class="btn btn-success btn-sm" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="deletepub.php?publisherid=<?= urlencode($_GET['publisherid']); ?>&feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-danger btn-sm"
