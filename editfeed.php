@@ -20,6 +20,8 @@ if (isset($_GET["_t"]) && $_GET["_t"] == "m") {
 }
 
 $feedid = $_GET['feedid'] ?? $_POST['feedid'] ?? '';
+$custid = $_GET['custid'] ?? $_POST['custid'] ?? '';
+$_SESSION['custid'] = $custid;
 
 // Fetch the activepubs field value from the database for the current feed
 $activePubs = [];
