@@ -80,8 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $startdate = filter_input(INPUT_POST, 'startdate', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $enddate = filter_input(INPUT_POST, 'enddate', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-$startdate = !empty($startdate) ? date('Y-m-d H:i:s', strtotime($startdate)) : null;
-$enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
+    $startdate = !empty($startdate) ? date('Y-m-d H:i:s', strtotime($startdate)) : null;
+    $enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
 
 
     if (empty($feedbudget)) {
@@ -203,8 +203,6 @@ $enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
 
     // Update the applcustfeeds table with the new data
     try {
-
-
         if (!empty($startdate)) {
             $actualStartDate = (new DateTime($startdate))->format('Y-m-d H:i:s');
             $startdate = (new DateTime($startdate))->modify('-4 hours')->format('Y-m-d H:i:s');
@@ -280,7 +278,7 @@ $enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
         
         // Redirect back to the page with the feedid
         setToastMessage('success', "Updated Successfully.");
-        header("Location: editfeed.php?feedid=" . urlencode($feedid));
+        header("Location: editfeed.php?feedid=" . urlencode($feedid) . "&custid=" . urlencode($_SESSION['custid']));
         exit();
         
     } catch (PDOException $e) {
@@ -355,7 +353,7 @@ $enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
         if (isset($feed[$customFieldKey]) && !empty($feed[$customFieldKey])) {
             // If the field exists and is not empty, process it with extractIncludeExclude
             list($includeCustom, $excludeCustom) = extractIncludeExclude($feed[$customFieldKey]);
-            $customFields[$i] = ['include' => $includeCustom, 'exclude' => $excludeCustom];
+            $customFields[$i] = ['include' => $includeCustom[0], 'exclude' => $excludeCustom[0]];
         } else {
             // Set default empty values if the field is missing or empty
             $customFields[$i] = ['include' => [], 'exclude' => []];
@@ -428,7 +426,7 @@ $enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
                             <div class="card-body">
                                 <div class="card styled m-4 p-4">
                                     <div class="card-body p-0">
-                                        <form action="editfeed.php?feedid=<?= htmlspecialchars($feedid); ?>" method="post">
+                                        <form action="editfeed.php?feedid=<?= htmlspecialchars($feedid); ?>&custid=<?= urlencode($feed['custid']); ?>" method="post">
                                             <input type="hidden" name="feedid" value="<?= htmlspecialchars($feedid); ?>">
                                             <h4 class="mt-2">Title & Budget</h4>
 
@@ -525,11 +523,11 @@ $enddate = !empty($enddate) ? date('Y-m-d H:i:s', strtotime($enddate)) : null;
                                             <?php for ($i = 1; $i <= 5; $i++): ?>
                                                 <div>
                                                     <label for="custom_field_<?= $i ?>_include">Custom Field <?= $i ?> Include</label>
-                                                    <input type="text" id="custom_field_<?= $i ?>_include" name="custom_field_<?= $i ?>_include" class="light-input">
+                                                    <input type="text" id="custom_field_<?= $i ?>_include" name="custom_field_<?= $i ?>_include" class="light-input" value="<?= $customFields[$i]['include'] ?>">
                                                 </div>
                                                 <div>
                                                     <label for="custom_field_<?= $i ?>_exclude">Custom Field <?= $i ?> Exclude</label>
-                                                    <input type="text" id="custom_field_<?= $i ?>_exclude" name="custom_field_<?= $i ?>_exclude" class="light-input">
+                                                    <input type="text" id="custom_field_<?= $i ?>_exclude" name="custom_field_<?= $i ?>_exclude" class="light-input" value="<?= $customFields[$i]['exclude'] ?>">
                                                 </div>
                                             <?php endfor; ?>
                                             <h4 class="mb-4">Assign to Publishers</h4>
