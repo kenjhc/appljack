@@ -60,7 +60,7 @@ try {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT feedid, feedname, budget, status FROM applcustfeeds WHERE custid = ? ORDER BY feedname ASC");
+    $stmt = $pdo->prepare("SELECT custid, feedid, feedname, budget, status FROM applcustfeeds WHERE custid = ? ORDER BY feedname ASC");
     $stmt->execute([$custid]);
     $feeds = $stmt->fetchAll();
 
