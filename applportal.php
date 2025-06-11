@@ -331,13 +331,13 @@ foreach ($feeds as $feed) {
                                 <td><?= $feed['conversion_rate']; ?></td>
                                 <td><?= number_format($feed['numjobs'] ?? 0); ?></td>
                                 <td>
-                                    <a href="viewfeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-info btn-sm" title="View">
+                                    <a href="viewfeed.php?feedid=<?= urlencode($feed['feedid']); ?>&custid=<?= urlencode($feed['custid']); ?>" class="btn btn-info btn-sm" title="View">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="editfeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-success btn-sm" title="Edit">
+                                    <a href="editfeed.php?feedid=<?= urlencode($feed['feedid']); ?>&custid=<?= urlencode($feed['custid']); ?>" class="btn btn-success btn-sm" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="deletefeed.php?feedid=<?= urlencode($feed['feedid']); ?>" class="btn btn-danger btn-sm"
+                                    <a href="deletefeed.php?feedid=<?= urlencode($feed['feedid']); ?>&custid=<?= urlencode($feed['custid']); ?>" class="btn btn-danger btn-sm"
                                         onclick="return confirm('Are you sure you want to delete this feed?');" title="Delete">
                                         <i class="fas fa-trash"></i>
                                     </a>
