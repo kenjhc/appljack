@@ -16,14 +16,8 @@ let tempConnection = null;
 let isProcessingBatch = false;
 const logFilePath = "applupload8.log";
 
-// Add the missing jobQueue variable
-let jobQueue = [];
-
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 5000; // 5 seconds
-
-// Add maximum field length to prevent string overflow
-const MAX_FIELD_LENGTH = 1000000; // 1MB limit per field
 
 const cleanDecimalValue = (value) => {
   if (typeof value === "string") {
@@ -31,48 +25,6 @@ const cleanDecimalValue = (value) => {
     return cleanedValue === "" ? null : cleanedValue;
   }
   return value;
-};
-
-// Track which fields have been truncated for each job to avoid spam logging
-const truncatedFields = new Map();
-
-// Helper function to safely concatenate strings with length limit
-const safeConcatenate = (existing, newText, maxLength = MAX_FIELD_LENGTH, fieldName = 'unknown', jobRef = 'unknown') => {
-  const current = existing || "";
-  const fieldKey = `${jobRef}_${fieldName}`;
-
-  if (current.length >= maxLength) {
-    // Only log once per field per job when it first hits the limit
-    if (!truncatedFields.has(fieldKey)) {
-      console.warn(`Field '${fieldName}' hit max length (${maxLength}) for job ${jobRef}, further content will be ignored`);
-      logMessage(`Field '${fieldName}' hit max length (${maxLength}) for job ${jobRef}, further content will be ignored`, logFilePath);
-      logToDatabase(
-        "warning",
-        "applupload8.js",
-        `Field '${fieldName}' hit max length for job ${jobRef}: content exceeded ${maxLength} character limit`
-      );
-      truncatedFields.set(fieldKey, true);
-    }
-    return current; // Already at max length, don't add more
-  }
-
-  const remaining = maxLength - current.length;
-  if (newText.length > remaining) {
-    // Log the truncation event (only once per field per job)
-    if (!truncatedFields.has(fieldKey)) {
-      console.warn(`Field '${fieldName}' truncated for job ${jobRef}: attempted to add ${newText.length} chars, only ${remaining} remaining. Final size: ${maxLength} chars.`);
-      logMessage(`Field '${fieldName}' truncated for job ${jobRef}: attempted to add ${newText.length} chars, only ${remaining} remaining. Final size: ${maxLength} chars.`, logFilePath);
-      logToDatabase(
-        "warning",
-        "applupload8.js",
-        `Field '${fieldName}' truncated for job ${jobRef}: content exceeded ${maxLength} character limit`
-      );
-      truncatedFields.set(fieldKey, true);
-    }
-  }
-
-  const textToAdd = newText.length > remaining ? newText.substring(0, remaining) : newText;
-  return current + textToAdd;
 };
 
 logMessage("Starting applupload8.js script...", logFilePath);
@@ -542,14 +494,13 @@ const parseXmlFile = async (filePath) => {
     parser.on("text", (text) => {
       if (currentItem && currentTag) {
         let trimmedText = text.trim();
-        if (trimmedText.length > 0) {
-          const jobRef = currentItem.job_reference || currentItem.jobreference || 'processing';
-          if (tagToPropertyMap[currentTag]) {
-            let propertyName = tagToPropertyMap[currentTag];
-            currentItem[propertyName] = safeConcatenate(currentItem[propertyName], trimmedText, MAX_FIELD_LENGTH, propertyName, jobRef);
-          } else {
-            currentItem[currentTag] = safeConcatenate(currentItem[currentTag], trimmedText, MAX_FIELD_LENGTH, currentTag, jobRef);
-          }
+        if (tagToPropertyMap[currentTag]) {
+          let propertyName = tagToPropertyMap[currentTag];
+          currentItem[propertyName] =
+            (currentItem[propertyName] || "") + trimmedText;
+        } else {
+          currentItem[currentTag] =
+            (currentItem[currentTag] || "") + trimmedText;
         }
       }
     });
@@ -557,74 +508,62 @@ const parseXmlFile = async (filePath) => {
     parser.on("cdata", (cdata) => {
       if (currentItem && currentTag) {
         let trimmedCdata = cdata.trim();
-        if (trimmedCdata.length > 0) {
-          const jobRef = currentItem.job_reference || currentItem.jobreference || 'processing';
-          if (tagToPropertyMap[currentTag]) {
-            let propertyName = tagToPropertyMap[currentTag];
-            currentItem[propertyName] = safeConcatenate(currentItem[propertyName], trimmedCdata, MAX_FIELD_LENGTH, propertyName, jobRef);
-          } else {
-            currentItem[currentTag] = safeConcatenate(currentItem[currentTag], trimmedCdata, MAX_FIELD_LENGTH, currentTag, jobRef);
-          }
+        if (tagToPropertyMap[currentTag]) {
+          let propertyName = tagToPropertyMap[currentTag];
+          currentItem[propertyName] =
+            (currentItem[propertyName] || "") + trimmedCdata;
+        } else {
+          currentItem[currentTag] =
+            (currentItem[currentTag] || "") + trimmedCdata;
         }
       }
     });
 
     parser.on("closetag", async (nodeName) => {
       if (nodeName === currentJobElement) {
-        try {
-          processedTags++;
+        processedTags++;
 
-          currentItem.jobpoolid = jobpoolid;
-          currentItem.acctnum = acctnum;
+        currentItem.jobpoolid = jobpoolid;
+        currentItem.acctnum = acctnum;
 
-          if (currentItem.posted_at) {
-            const dateFormats = [
-              "YYYY-MM-DD HH:mm:ss.SSS [UTC]",
-              "YYYY-MM-DDTHH:mm:ss.SSS[Z]",
-              "ddd, DD MMM YYYY HH:mm:ss [UTC]",
-              "YYYY-MM-DD",
-              "YYYY-MM-DDTHH:mm:ss.S",
-              "YYYY-MM-DDTHH:mm:ss.SSS",
-              "YYYY-MM-DDTHH:mm:ss.SS",
-              "YYYY-MM-DDTHH:mm:ss",
-            ];
-            const date = moment(currentItem.posted_at, dateFormats, true);
-            if (date.isValid()) {
-              currentItem.posted_at = date.format("YYYY-MM-DD");
-            } else {
-              console.warn(`Invalid date format found: ${currentItem.posted_at}`);
-              logMessage(
-                `Invalid date format found: ${currentItem.posted_at}`,
-                logFilePath
-              );
-              logToDatabase(
-                "warning",
-                "applupload8.js",
-                `Invalid date format found: ${currentItem.posted_at}`
-              );
-              currentItem.posted_at = null;
-            }
+        if (currentItem.posted_at) {
+          const dateFormats = [
+            "YYYY-MM-DD HH:mm:ss.SSS [UTC]",
+            "YYYY-MM-DDTHH:mm:ss.SSS[Z]",
+            "ddd, DD MMM YYYY HH:mm:ss [UTC]",
+            "YYYY-MM-DD",
+            "YYYY-MM-DDTHH:mm:ss.S",
+            "YYYY-MM-DDTHH:mm:ss.SSS",
+            "YYYY-MM-DDTHH:mm:ss.SS",
+            "YYYY-MM-DDTHH:mm:ss",
+          ];
+          const date = moment(currentItem.posted_at, dateFormats, true);
+          if (date.isValid()) {
+            currentItem.posted_at = date.format("YYYY-MM-DD");
+          } else {
+            console.warn(`Invalid date format found: ${currentItem.posted_at}`);
+            logMessage(
+              `Invalid date format found: ${currentItem.posted_at}`,
+              logFilePath
+            );
+            logToDatabase(
+              "warning",
+              "applupload8.js",
+              `Invalid date format found: ${currentItem.posted_at}`
+            );
+            currentItem.posted_at = null;
           }
+        }
 
-          jobs.push(currentItem);
-          if (jobs.length === CHUNK_SIZE || processedTags === totalTags) {
-            try {
-              await insertIntoTempTable(jobs);
-              totalProcessedJobs += jobs.length;
-              jobs = [];
-            } catch (err) {
-              console.error(`Error inserting batch into temp table: ${err}`);
-              logMessage(`Error inserting batch into temp table: ${err}`, logFilePath);
-              logToDatabase("error", "applupload8.js", `Error inserting batch into temp table: ${err}`);
-              // Clear the problematic batch and continue
-              jobs = [];
-            }
+        jobs.push(currentItem);
+        if (jobs.length === CHUNK_SIZE || processedTags === totalTags) {
+          try {
+            insertIntoTempTable(jobs);
+            totalProcessedJobs += jobs.length;
+            jobs = [];
+          } catch (err) {
+            parser.emit("error", err);
           }
-        } catch (err) {
-          console.error(`Error processing job in closetag event: ${err}`);
-          logMessage(`Error processing job in closetag event: ${err}`, logFilePath);
-          logToDatabase("error", "applupload8.js", `Error processing job in closetag event: ${err}`);
-          // Continue processing, skip this problematic job
         }
       }
     });
@@ -636,24 +575,10 @@ const parseXmlFile = async (filePath) => {
           totalProcessedJobs += jobs.length;
         }
         console.log(`Total jobs processed: ${totalProcessedJobs}`);
-
-        // Clear all truncation tracking for this file
-        truncatedFields.clear();
-
         await transferToApplJobsTable();
         resolve();
       } catch (err) {
-        console.error(`Error in parser end event: ${err}`);
-        logMessage(`Error in parser end event: ${err}`, logFilePath);
-        logToDatabase("error", "applupload8.js", `Error in parser end event: ${err}`);
-
-        // Clear truncation tracking even on error
-        truncatedFields.clear();
-
-        // Don't reject - this would stop processing other files
-        // Instead, resolve with partial success
-        console.log(`Partial processing completed. Total jobs processed: ${totalProcessedJobs}`);
-        resolve();
+        reject(err);
       }
     });
 
@@ -665,11 +590,7 @@ const parseXmlFile = async (filePath) => {
         "applupload8.js",
         `Error parsing XML file ${filePath}: ${err}`
       );
-      // Don't reject here - this would stop all file processing
-      // Instead, resolve with an error indication so the main loop can continue
-      console.log(`Skipping file ${filePath} due to parsing error, continuing with next file...`);
-      logMessage(`Skipping file ${filePath} due to parsing error, continuing with next file...`, logFilePath);
-      resolve({ error: true, message: err.message });
+      reject(err);
     });
 
     stream.pipe(parser);
@@ -698,32 +619,10 @@ const processFiles = async () => {
       );
     }
 
-    // Get all XML files with their sizes and sort by size (smallest first)
-    const xmlFiles = fs
+    const filePaths = fs
       .readdirSync(directoryPath)
       .filter((file) => path.extname(file) === ".xml")
-      .map((file) => {
-        const fullPath = path.join(directoryPath, file);
-        const stats = fs.statSync(fullPath);
-        return {
-          path: fullPath,
-          name: file,
-          size: stats.size
-        };
-      })
-      .sort((a, b) => a.size - b.size); // Sort by size, smallest first
-
-    console.log(`Found ${xmlFiles.length} XML files to process, sorted by size:`);
-    logMessage(`Found ${xmlFiles.length} XML files to process, sorted by size:`, logFilePath);
-
-    // Log the file order with sizes for visibility
-    xmlFiles.forEach((file, index) => {
-      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      console.log(`  ${index + 1}. ${file.name} (${sizeMB} MB)`);
-      logMessage(`  ${index + 1}. ${file.name} (${sizeMB} MB)`, logFilePath);
-    });
-
-    const filePaths = xmlFiles.map(file => file.path);
+      .map((file) => path.join(directoryPath, file));
 
     for (const filePath of filePaths) {
       try {
@@ -733,25 +632,13 @@ const processFiles = async () => {
         const parseResult = await retryOperation(() => parseXmlFile(filePath));
         if (parseResult === null) {
           console.log(
-            `Failed to process file ${filePath} after all retries, moving to next file...`
+            `Failed to process file ${filePath}, moving to next file...`
           );
           logMessage(
-            `Failed to process file ${filePath} after all retries, moving to next file...`,
+            `Failed to process file ${filePath}, moving to next file...`,
             logFilePath
           );
           continue;
-        } else if (parseResult && parseResult.error) {
-          console.log(
-            `File ${filePath} had parsing errors but processing continued. Error: ${parseResult.message}`
-          );
-          logMessage(
-            `File ${filePath} had parsing errors but processing continued. Error: ${parseResult.message}`,
-            logFilePath
-          );
-          // Continue to next file even with parsing errors
-        } else {
-          console.log(`Successfully processed file ${filePath}`);
-          logMessage(`Successfully processed file ${filePath}`, logFilePath);
         }
 
         logProgress();
