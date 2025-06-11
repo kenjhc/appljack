@@ -525,11 +525,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <?php for ($i = 1; $i <= 5; $i++): ?>
                                                 <div>
                                                     <label for="custom_field_<?= $i ?>_include">Custom Field <?= $i ?> Include</label>
-                                                    <input type="text" id="custom_field_<?= $i ?>_include" name="custom_field_<?= $i ?>_include" class="light-input" value="<?= ($customFields[$i]['include']) ?>">
+                                                    <input 
+                                                        type="text" 
+                                                        id="custom_field_<?= $i ?>_include" name="custom_field_<?= $i ?>_include" class="light-input" 
+                                                        value="<?= htmlspecialchars(is_array($customFields[$i]['include']) ? implode(', ', $customFields[$i]['include']) : $customFields[$i]['include']) ?>"
+                                                    >
                                                 </div>
                                                 <div>
                                                     <label for="custom_field_<?= $i ?>_exclude">Custom Field <?= $i ?> Exclude</label>
-                                                    <input type="text" id="custom_field_<?= $i ?>_exclude" name="custom_field_<?= $i ?>_exclude" class="light-input" value="<?= ($customFields[$i]['exclude']) ?>">
+                                                    <input type="text" id="custom_field_<?= $i ?>_exclude" name="custom_field_<?= $i ?>_exclude" class="light-input" value="<?= htmlspecialchars(is_array($customFields[$i]['exclude']) ? implode(', ', $customFields[$i]['exclude']) : $customFields[$i]['exclude']) ?>">
                                                 </div>
                                             <?php endfor; ?>
                                             <h4 class="mb-4">Assign to Publishers</h4>
