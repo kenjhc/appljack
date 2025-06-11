@@ -347,18 +347,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $customFields = [];
 
     for ($i = 1; $i <= 5; $i++) {
-        // Check if the custom field exists in the $feed array and is not empty
         $customFieldKey = "custquerycustom{$i}";
 
         if (isset($feed[$customFieldKey]) && !empty($feed[$customFieldKey])) {
-            // If the field exists and is not empty, process it with extractIncludeExclude
             list($includeCustom, $excludeCustom) = extractIncludeExclude($feed[$customFieldKey]);
-            $customFields[$i] = ['include' => $includeCustom[0], 'exclude' => $excludeCustom[0]];
+
+            $customFields[$i] = [
+                'include' => isset($includeCustom[0]) ? $includeCustom[0] : [],
+                'exclude' => isset($excludeCustom[0]) ? $excludeCustom[0] : [],
+            ];
         } else {
-            // Set default empty values if the field is missing or empty
             $customFields[$i] = ['include' => [], 'exclude' => []];
         }
     }
+
 }
 ?>
 
