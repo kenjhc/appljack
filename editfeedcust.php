@@ -60,16 +60,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Fetch companies
 try {
+    // Prepare the SQL statement
     $stmt = $pdo->prepare("
         SELECT DISTINCT appljobs.company
         FROM applcust
         LEFT JOIN appljobs ON appljobs.jobpoolid = applcust.jobpoolid
         WHERE applcust.custid = :custid
     ");
+    
+    // Execute the query with the provided custid
     $stmt->execute([':custid' => $custid]);
+    
+    // Fetch all companies for the given custid
     $companies = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'company');
+    
+    // Check if any companies were found, indicating the jobpoolid exists
+    if (empty($companies)) {
+        throw new Exception("No jobpoolid exists for the given custid: $custid");
+    }
 } catch (PDOException $e) {
+    // Handle database-related errors
     setToastMessage('error', "Database error: " . $e->getMessage());
+    $companies = [];
+} catch (Exception $e) {
+    // Handle the case when no jobpoolid exists for the custid
+    setToastMessage('error', $e->getMessage());
     $companies = [];
 }
 
