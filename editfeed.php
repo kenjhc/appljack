@@ -313,7 +313,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $allCompanies = explode(', ', $feed['custqueryco'] ?? '');
+    $allCompanies = explode(',', $feed['custqueryco'] ?? '');
+    
     $includeCompanies = [];
     $excludeCompanies = [];
 
@@ -395,13 +396,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $defaultIncludeCompanies = implode(', ', $includeCompanies);
         $defaultExcludeCompanies = implode(', ', $excludeCompanies);
 
-        // Check for user selections stored in session
-        $sessionIncludeCompanies = isset($_SESSION['includedCompanies']) ? implode(', ', $_SESSION['includedCompanies']) : null;
-        $sessionExcludeCompanies = isset($_SESSION['excludedCompanies']) ? implode(', ', $_SESSION['excludedCompanies']) : null;
+        // // Check for user selections stored in session
+        // $sessionIncludeCompanies = isset($_SESSION['includedCompanies']) ? implode(', ', $_SESSION['includedCompanies']) : null;
+        // $sessionExcludeCompanies = isset($_SESSION['excludedCompanies']) ? implode(', ', $_SESSION['excludedCompanies']) : null;
 
-        // Determine which values to display in the form fields
-        $displayIncludeCompanies = $sessionIncludeCompanies ?: $defaultIncludeCompanies;
-        $displayExcludeCompanies = $sessionExcludeCompanies ?: $defaultExcludeCompanies;
+        // // Determine which values to display in the form fields
+        // $displayIncludeCompanies = $sessionIncludeCompanies ?: $defaultIncludeCompanies;
+        // $displayExcludeCompanies = $sessionExcludeCompanies ?: $defaultExcludeCompanies;
+
+        $displayIncludeCompanies = $defaultIncludeCompanies;
+        $displayExcludeCompanies = $defaultExcludeCompanies;
 
         // Clear session variables to ensure they don't override database defaults on subsequent visits
         unset($_SESSION['includedCompanies'], $_SESSION['excludedCompanies']);
@@ -517,6 +521,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <label for="company_include">Company Include (<a target="_blank" href="<?= getUrl(1) ?>editfeedcust.php?feedid=<?= htmlspecialchars($feedid); ?>">View all companies</a>)</label>
                                                 <input type="text" id="company_include" name="company_include" class="light-input" value="<?= htmlspecialchars($displayIncludeCompanies); ?>">
                                             </div>
+
                                             <div>
                                                 <label for="company_exclude">Company Exclude (<a target="_blank" href="<?= getUrl(1) ?>editfeedcust.php?feedid=<?= htmlspecialchars($feedid); ?>">View all companies</a>)</label>
                                                 <input type="text" id="company_exclude" name="company_exclude" class="light-input" value="<?= htmlspecialchars($displayExcludeCompanies); ?>">

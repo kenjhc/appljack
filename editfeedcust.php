@@ -1,136 +1,156 @@
 <?php
 include 'database/db.php';
 
-if (!isset($_SESSION['acctnum']) || !isset($_SESSION['custid'])) {
+if (!isset($_SESSION['acctnum'], $_SESSION['custid'])) {
     header("Location: appllogin.php");
     exit();
 }
 
-
+$custid = $_SESSION['custid'];
 $feedid = $_GET['feedid'] ?? $_SESSION['feedid'] ?? '';
+$_SESSION['feedid'] = $feedid;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['reset'])) {
-        // Reset session variables related to selections
-        $_SESSION['includedCompanies'] = [];
-        $_SESSION['excludedCompanies'] = [];
-        $feedid = $_POST['feedid'] ?? 'default';  // Ensure there's a fallback or default if not set
+        $_SESSION['includedCompanies'][$feedid] = [];
+        $_SESSION['excludedCompanies'][$feedid] = [];
+
+        // Clear from DB
+        try {
+            $stmt = $pdo->prepare("UPDATE applcustfeeds SET custqueryco = '' WHERE feedid = :feedid AND custid = :custid");
+            $stmt->execute([
+                ':feedid' => $feedid,
+                ':custid' => $custid
+            ]);
+        } catch (PDOException $e) {
+            setToastMessage('error', "Database error: " . $e->getMessage());
+        }
+
         header("Location: " . $_SERVER['PHP_SELF'] . "?feedid=" . urlencode($feedid));
         exit();
     }
 
-    setToastMessage('error', "Submitted feedid: " . htmlspecialchars($_POST['feedid'] ?? 'Not set'));
+    // Save new selections from form
+    $includedCompanies = $_POST['include'] ?? [];
+    $excludedCompanies = $_POST['exclude'] ?? [];
 
-    $includedCompanies = [];
-    $excludedCompanies = [];
+    $_SESSION['includedCompanies'][$feedid] = $includedCompanies;
+    $_SESSION['excludedCompanies'][$feedid] = $excludedCompanies;
 
-    // Process 'include' selections
-    foreach ($_POST as $key => $value) {
-        if (strpos($key, 'include_') === 0 && $value == 'on') {
-            $companyName = substr($key, 8); // Extracts the company name part
-            $companyName = str_replace('_', ' ', $companyName); // Replace underscores with spaces
-            $includedCompanies[] = $companyName;
-        } else if (strpos($key, 'exclude_') === 0 && $value == 'on') {
-            $companyName = substr($key, 8); // Extracts the company name part
-            $companyName = str_replace('_', ' ', $companyName); // Replace underscores with spaces
-            $excludedCompanies[] = $companyName;
-        }
+    // Build the string for DB like: "CompanyA,CompanyB,NOT CompanyC"
+    $allCompanies = array_merge($includedCompanies, array_map(fn($c) => 'NOT ' . $c, $excludedCompanies));
+    $custqueryco = implode(',', $allCompanies);
+
+    try {
+        $stmt = $pdo->prepare("UPDATE applcustfeeds SET custqueryco = :custqueryco WHERE feedid = :feedid AND custid = :custid");
+        $stmt->execute([
+            ':custqueryco' => $custqueryco,
+            ':feedid' => $feedid,
+            ':custid' => $custid
+        ]);
+    } catch (PDOException $e) {
+        setToastMessage('error', "Database error: " . $e->getMessage());
     }
 
-    // Store the company inclusion and exclusion lists in the session
-    $_SESSION['includedCompanies'] = $includedCompanies;
-    $_SESSION['excludedCompanies'] = $excludedCompanies;
-
-    // Redirect back to the edit feed page with the current feed ID
-    $feedid = $_POST['feedid'] ?? 'FallbackID';
-    header("Location: editfeed.php?feedid=$feedid");
+    header("Location: editfeed.php?feedid=" . urlencode($feedid) . "&custid=" . urlencode($custid));
     exit();
 }
 
-
-// Fetch jobpoolid using custid
-$jobpoolid = null;
+// Fetch companies
 try {
-    $stmt = $pdo->prepare("SELECT jobpoolid FROM applcust WHERE custid = :custid");
-    $stmt->execute([':custid' => $_SESSION['custid']]);
-    $jobpoolResult = $stmt->fetch(PDO::FETCH_ASSOC);
-    $jobpoolid = $jobpoolResult['jobpoolid'] ?? null;
+    $stmt = $pdo->prepare("
+        SELECT DISTINCT appljobs.company
+        FROM applcust
+        LEFT JOIN appljobs ON appljobs.jobpoolid = applcust.jobpoolid
+        WHERE applcust.custid = :custid
+    ");
+    $stmt->execute([':custid' => $custid]);
+    $companies = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'company');
+} catch (PDOException $e) {
+    setToastMessage('error', "Database error: " . $e->getMessage());
+    $companies = [];
+}
 
-    if (!$jobpoolid) {
-        setToastMessage('warning', "No jobpoolid found for the given custid.");
-        header("Location: applmasterview.php");
-
-        exit();  // or handle differently depending on your application flow
+// Load already selected companies from DB (if any)
+$included = [];
+$excluded = [];
+try {
+    $stmt = $pdo->prepare("SELECT custqueryco FROM applcustfeeds WHERE feedid = ? AND custid = ?");
+    $stmt->execute([$feedid, $custid]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($result && !empty($result['custqueryco'])) {
+        $companyList = explode(',', $result['custqueryco']);
+        foreach ($companyList as $company) {
+            $company = trim($company);
+            if (stripos($company, 'NOT ') === 0) {
+                $excluded[] = substr($company, 4);
+            } else {
+                $included[] = $company;
+            }
+        }
     }
 } catch (PDOException $e) {
     setToastMessage('error', "Database error: " . $e->getMessage());
 }
-
-// Use jobpoolid to fetch companies
-if ($jobpoolid) {
-    try {
-        $stmt = $pdo->prepare("SELECT DISTINCT company FROM appljobs WHERE jobpoolid = ?");
-        $stmt->execute([$jobpoolid]);
-        $companies = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-        if (empty($companies)) {
-            setToastMessage('error', "No companies found for jobpoolid: " . $jobpoolid);
-        } else {
-            setToastMessage('error', "Companies loaded successfully.");
-        }
-    } catch (PDOException $e) {
-        setToastMessage('error', "Database error: " . $e->getMessage());
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Edit Customer List | Appljack</title>
+    <title>Edit Company List | Appljack</title>
     <?php include 'header.php'; ?>
     <script>
         function toggleCheckbox(element, companyName, otherType) {
-            // Get the other checkbox by constructing its name and check if it should be unchecked
-            var otherCheckbox = document.getElementsByName(otherType + '_' + companyName)[0];
-            if (element.checked) {
-                otherCheckbox.checked = false;
+            const other = document.querySelector(`[name="${otherType}[]"][value="${companyName}"]`);
+            if (element.checked && other) {
+                other.checked = false;
             }
         }
     </script>
 </head>
-
 <body>
-    <?php include 'appltopnav.php'; ?>
-    <?php echo renderHeader(
-        "Edit Customer List"
-    ); ?>
-    <section class="job_section">
-        <h3>Feed: <?php echo htmlspecialchars($feedid); ?></h3>
-        <form action="editfeedcust.php" method="post" id="customerForm">
-            <table>
-                <tr>
-                    <th>Customer Name</th>
-                    <th>Include</th>
-                    <th>Exclude</th>
-                </tr>
-                <?php foreach ($companies as $company): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($company); ?></td>
-                        <td><input type="checkbox" name="include_<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>" class="include" onclick="toggleCheckbox(this, '<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>', 'exclude');"></td>
-                        <td><input type="checkbox" name="exclude_<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>" class="exclude" onclick="toggleCheckbox(this, '<?php echo htmlspecialchars(str_replace(' ', '_', $company)); ?>', 'include');"></td>
-                    </tr> 
-                <?php endforeach; ?>
-            </table>
-            <br>
-            <input type="hidden" name="feedid" value="<?php echo htmlspecialchars($feedid); ?>">
-            <input type="submit" value="Submit"> <input type="submit" name="reset" value="Reset All">
-        </form>
-    </section>
-    <?php include 'footer.php'; ?>
-</body>
+<?php include 'appltopnav.php'; ?>
+<?php echo renderHeader("Edit Customer List"); ?>
 
+<section class="job_section">
+    <h3>Feed: <?php echo htmlspecialchars($feedid); ?></h3>
+
+    <form method="post" action="editfeedcust.php?feedid=<?php echo urlencode($feedid); ?>">
+        <table>
+            <tr>
+                <th>Company</th>
+                <th>Include</th>
+                <th>Exclude</th>
+            </tr>
+            <?php foreach ($companies as $company): 
+                $companyEscaped = htmlspecialchars($company);
+                $isIncluded = in_array($company, $included);
+                $isExcluded = in_array($company, $excluded);
+            ?>
+                <tr>
+                    <td><?php echo $companyEscaped; ?></td>
+                    <td>
+                        <input type="checkbox" name="include[]" value="<?php echo $companyEscaped; ?>"
+                               <?php echo $isIncluded ? 'checked' : ''; ?>
+                               onclick="toggleCheckbox(this, '<?php echo $companyEscaped; ?>', 'exclude')">
+                    </td>
+                    <td>
+                        <input type="checkbox" name="exclude[]" value="<?php echo $companyEscaped; ?>"
+                               <?php echo $isExcluded ? 'checked' : ''; ?>
+                               onclick="toggleCheckbox(this, '<?php echo $companyEscaped; ?>', 'include')">
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+
+        <input type="hidden" name="feedid" value="<?php echo htmlspecialchars($feedid); ?>">
+        <br>
+        <input type="submit" value="Submit">
+        <input type="submit" name="reset" value="Reset All">
+    </form>
+</section>
+
+<?php include 'footer.php'; ?>
+</body>
 </html>
