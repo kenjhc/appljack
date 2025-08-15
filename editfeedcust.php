@@ -10,6 +10,8 @@ $custid = $_SESSION['custid'];
 $feedid = $_GET['feedid'] ?? $_SESSION['feedid'] ?? '';
 $_SESSION['feedid'] = $feedid;
 
+echo "<p style='display:none;'>".$custid."</p>";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['reset'])) {
         $_SESSION['includedCompanies'][$feedid] = [];
