@@ -521,6 +521,27 @@ const parseXmlFile = async (filePath) => {
   const totalTags = await countTags(filePath);
   let processedTags = 0;
   let totalProcessedJobs = 0;
+  let filteredJobsCount = 0;
+
+  // Fetch min_cpc filter for this job pool
+  let minCpcFilter = null;
+  try {
+    await ensureValidConnection();
+    const [minCpcResult] = await tempConnection.query(
+      "SELECT min_cpc FROM appljobseed WHERE jobpoolid = ?",
+      [jobpoolid]
+    );
+    if (minCpcResult.length > 0 && minCpcResult[0].min_cpc !== null) {
+      minCpcFilter = parseFloat(minCpcResult[0].min_cpc);
+      console.log(`Job pool ${jobpoolid}: Minimum CPC filter enabled - $${minCpcFilter}`);
+      logMessage(`Job pool ${jobpoolid}: Minimum CPC filter enabled - $${minCpcFilter}`, logFilePath);
+    } else {
+      console.log(`Job pool ${jobpoolid}: No minimum CPC filter set`);
+    }
+  } catch (err) {
+    console.warn(`Could not fetch min_cpc for jobpoolid ${jobpoolid}: ${err}`);
+    logMessage(`Could not fetch min_cpc for jobpoolid ${jobpoolid}: ${err}`, logFilePath);
+  }
 
   return new Promise((resolve, reject) => {
     const stream = fs.createReadStream(filePath);
@@ -606,6 +627,18 @@ const parseXmlFile = async (filePath) => {
             }
           }
 
+          // Apply minimum CPC filter if configured
+          if (minCpcFilter !== null) {
+            const jobCpc = parseFloat(currentItem.cpc);
+            // If CPC is empty/null/NaN, import the job (skip filter check)
+            // Otherwise, check if it meets the minimum threshold
+            if (!isNaN(jobCpc) && jobCpc < minCpcFilter) {
+              filteredJobsCount++;
+              currentItem = {}; // Clear current item and skip this job
+              return; // Don't add to jobs array
+            }
+          }
+
           jobs.push(currentItem);
           if (jobs.length === CHUNK_SIZE || processedTags === totalTags) {
             try {
@@ -636,6 +669,17 @@ const parseXmlFile = async (filePath) => {
           totalProcessedJobs += jobs.length;
         }
         console.log(`Total jobs processed: ${totalProcessedJobs}`);
+        
+        // Log CPC filtering results
+        if (minCpcFilter !== null && filteredJobsCount > 0) {
+          console.log(`Jobs filtered out due to CPC < $${minCpcFilter}: ${filteredJobsCount}`);
+          logMessage(`Jobs filtered out due to CPC < $${minCpcFilter}: ${filteredJobsCount}`, logFilePath);
+          logToDatabase(
+            "info",
+            "applupload8.js",
+            `Job pool ${jobpoolid}: Filtered ${filteredJobsCount} jobs below minimum CPC of $${minCpcFilter}`
+          );
+        }
 
         // Clear all truncation tracking for this file
         truncatedFields.clear();
