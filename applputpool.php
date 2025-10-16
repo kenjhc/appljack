@@ -15,6 +15,7 @@ try {
         $jobpoolfiletype = $_POST['jobpoolfiletype'] ?? ''; // Retrieve file type from the form
         // $arbitrage = floatval($_POST['arbitrage']);
         $arbitrage = $_POST['arbitrage'] ?? 0;
+        $min_cpc = !empty($_POST['min_cpc']) ? floatval($_POST['min_cpc']) : null;
 
         if ($arbitrage > 100) {
             $_SESSION['error'] = "Arbitrage percentage cannot be more than 100.";
@@ -23,8 +24,8 @@ try {
         }
 
         // Assume all fields are properly validated before insertion
-        $stmt = $conn->prepare("INSERT INTO appljobseed (jobpoolid, acctnum, jobpoolname, jobpoolurl, jobpoolfiletype, arbitrage) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$jobpoolid, $acctnum, $jobpoolname, $jobpoolurl, $jobpoolfiletype, $arbitrage]);
+        $stmt = $conn->prepare("INSERT INTO appljobseed (jobpoolid, acctnum, jobpoolname, jobpoolurl, jobpoolfiletype, arbitrage, min_cpc) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$jobpoolid, $acctnum, $jobpoolname, $jobpoolurl, $jobpoolfiletype, $arbitrage, $min_cpc]);
 
         setToastMessage('success', 'Job Pool added successfully.');
         // Redirect to the master view page after successful insertion

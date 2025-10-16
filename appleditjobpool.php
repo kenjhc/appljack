@@ -98,6 +98,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    if (isset($_POST['min_cpc'])) {
+        $min_cpc = !empty($_POST['min_cpc']) ? floatval($_POST['min_cpc']) : null;
+        // Update the minimum CPC filter in the database
+        $stmt = $conn->prepare("UPDATE appljobseed SET min_cpc = ? WHERE jobpoolid = ?");
+        if (!$stmt->execute([$min_cpc, $jobpoolid])) {
+            error_log("Database update error: " . implode(", ", $stmt->errorInfo()));
+        }
+        $error = 'Minimum CPC Filter updated successfully.';
+        // Redirect back to the same page to show updated value
+        header("Location: {$_SERVER['PHP_SELF']}?jobpoolid=$jobpoolid");
+        exit();
+    }
+
     if (isset($_POST['reset_mappings']) && $_POST['reset_mappings'] === '1') {
         // Delete all mappings for the current jobpoolid
         $stmt = $conn->prepare("DELETE FROM appldbmapping WHERE jobpoolid = ?");
@@ -213,13 +226,14 @@ if (!file_exists($filepath)) {
     }
 }
 
-// Fetch current arbitrage value, job pool name, and job pool URL
-$stmt = $conn->prepare("SELECT arbitrage, jobpoolname, jobpoolurl FROM appljobseed WHERE jobpoolid = ?");
+// Fetch current arbitrage value, job pool name, job pool URL, and min_cpc
+$stmt = $conn->prepare("SELECT arbitrage, jobpoolname, jobpoolurl, min_cpc FROM appljobseed WHERE jobpoolid = ?");
 $stmt->execute([$jobpoolid]);
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 $currentArbitrage = $row['arbitrage'] ?? '';
 $currentJobPoolName = $row['jobpoolname'] ?? '';
 $currentJobPoolURL = $row['jobpoolurl'] ?? '';
+$currentMinCpc = $row['min_cpc'] ?? '';
 
 // Fetch custom fields for the current jobpoolid
 $stmt = $conn->prepare("SELECT id, fieldname, staticvalue, appljobsmap FROM applcustomfields WHERE jobpoolid = ?");
@@ -288,6 +302,17 @@ $customFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <p class="job_title">Edit Job Pool URL</p>
                             <input type="text" class="job_input" name="jobpoolurl" placeholder="Enter Job Pool URL" value="<?= htmlspecialchars($currentJobPoolURL) ?>" required>
                             <button class="update_btn" type="submit">Update Job Pool URL </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-md-6">
+                    <div class="job_card">
+                        <form action="" method="post">
+                            <p class="job_title">Edit Minimum CPC Filter</p>
+                            <input type="number" class="job_input" name="min_cpc" placeholder="e.g., 2.50" step="0.01" min="0" value="<?= htmlspecialchars($currentMinCpc) ?>">
+                            <small class="form-text text-muted" style="display: block; margin-top: 5px; font-size: 0.85em;">Jobs with CPC below this value will not be imported. Leave blank to import all jobs.</small>
+                            <button class="update_btn" type="submit">Update Minimum CPC Filter </button>
                         </form>
                     </div>
                 </div>
