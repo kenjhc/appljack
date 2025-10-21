@@ -523,24 +523,24 @@ const parseXmlFile = async (filePath) => {
   let totalProcessedJobs = 0;
   let filteredJobsCount = 0;
 
-  // Fetch min_cpc filter for this job pool
-  let minCpcFilter = null;
+  // Fetch min_cpa filter for this job pool
+  let minCpaFilter = null;
   try {
     await ensureValidConnection();
-    const [minCpcResult] = await tempConnection.query(
-      "SELECT min_cpc FROM appljobseed WHERE jobpoolid = ?",
+    const [minCpaResult] = await tempConnection.query(
+      "SELECT min_cpa FROM appljobseed WHERE jobpoolid = ?",
       [jobpoolid]
     );
-    if (minCpcResult.length > 0 && minCpcResult[0].min_cpc !== null) {
-      minCpcFilter = parseFloat(minCpcResult[0].min_cpc);
-      console.log(`Job pool ${jobpoolid}: Minimum CPC filter enabled - $${minCpcFilter}`);
-      logMessage(`Job pool ${jobpoolid}: Minimum CPC filter enabled - $${minCpcFilter}`, logFilePath);
+    if (minCpaResult.length > 0 && minCpaResult[0].min_cpa !== null) {
+      minCpaFilter = parseFloat(minCpaResult[0].min_cpa);
+      console.log(`Job pool ${jobpoolid}: Minimum CPA filter enabled - $${minCpaFilter}`);
+      logMessage(`Job pool ${jobpoolid}: Minimum CPA filter enabled - $${minCpaFilter}`, logFilePath);
     } else {
-      console.log(`Job pool ${jobpoolid}: No minimum CPC filter set`);
+      console.log(`Job pool ${jobpoolid}: No minimum CPA filter set`);
     }
   } catch (err) {
-    console.warn(`Could not fetch min_cpc for jobpoolid ${jobpoolid}: ${err}`);
-    logMessage(`Could not fetch min_cpc for jobpoolid ${jobpoolid}: ${err}`, logFilePath);
+    console.warn(`Could not fetch min_cpa for jobpoolid ${jobpoolid}: ${err}`);
+    logMessage(`Could not fetch min_cpa for jobpoolid ${jobpoolid}: ${err}`, logFilePath);
   }
 
   return new Promise((resolve, reject) => {
@@ -627,12 +627,12 @@ const parseXmlFile = async (filePath) => {
             }
           }
 
-          // Apply minimum CPC filter if configured
-          if (minCpcFilter !== null) {
-            const jobCpc = parseFloat(currentItem.cpc);
-            // If CPC is empty/null/NaN, import the job (skip filter check)
+          // Apply minimum CPA filter if configured
+          if (minCpaFilter !== null) {
+            const jobCpa = parseFloat(currentItem.cpa);
+            // If CPA is empty/null/NaN, import the job (skip filter check)
             // Otherwise, check if it meets the minimum threshold
-            if (!isNaN(jobCpc) && jobCpc < minCpcFilter) {
+            if (!isNaN(jobCpa) && jobCpa < minCpaFilter) {
               filteredJobsCount++;
               currentItem = {}; // Clear current item and skip this job
               return; // Don't add to jobs array
@@ -670,14 +670,14 @@ const parseXmlFile = async (filePath) => {
         }
         console.log(`Total jobs processed: ${totalProcessedJobs}`);
         
-        // Log CPC filtering results
-        if (minCpcFilter !== null && filteredJobsCount > 0) {
-          console.log(`Jobs filtered out due to CPC < $${minCpcFilter}: ${filteredJobsCount}`);
-          logMessage(`Jobs filtered out due to CPC < $${minCpcFilter}: ${filteredJobsCount}`, logFilePath);
+        // Log CPA filtering results
+        if (minCpaFilter !== null && filteredJobsCount > 0) {
+          console.log(`Jobs filtered out due to CPA < $${minCpaFilter}: ${filteredJobsCount}`);
+          logMessage(`Jobs filtered out due to CPA < $${minCpaFilter}: ${filteredJobsCount}`, logFilePath);
           logToDatabase(
             "info",
             "applupload8.js",
-            `Job pool ${jobpoolid}: Filtered ${filteredJobsCount} jobs below minimum CPC of $${minCpcFilter}`
+            `Job pool ${jobpoolid}: Filtered ${filteredJobsCount} jobs below minimum CPA of $${minCpaFilter}`
           );
         }
 
