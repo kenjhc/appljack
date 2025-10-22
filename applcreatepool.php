@@ -79,9 +79,9 @@ $jobpoolid = mt_rand(1000000000, 9999999999);
                                                 <input type="text" id="jobpoolurl" name="jobpoolurl" maxlength="200" class="light-input" required>
                                             </div>
                                             <div class="mt-3">
-                                                <label for="min_cpc">Minimum CPC Filter (optional)</label>
-                                                <input type="number" id="min_cpc" name="min_cpc" step="0.01" min="0" placeholder="e.g., 2.50" class="light-input">
-                                                <small class="form-text text-muted">Jobs with CPC below this value will not be imported. Leave blank to import all jobs.</small>
+                                                <label for="min_cpa">Minimum CPA Filter (optional)</label>
+                                                <input type="number" id="min_cpa" name="min_cpa" step="0.01" min="0" placeholder="e.g., 2.50" class="light-input">
+                                                <small class="form-text text-muted">Jobs with CPA below this value will not be imported. Leave blank to import all jobs.</small>
                                             </div>
                                             <!-- <div class="mt-3"> 
                                                 <label for="arbitrage">Arbitrage %</label>
