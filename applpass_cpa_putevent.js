@@ -175,7 +175,7 @@ async function processCPAEvents() {
           // Insert CPA event into applevents table
           await connection.execute(
             `INSERT INTO applevents (eventid, timestamp, eventtype, custid, jobid, refurl, ipaddress, cpc, cpa, feedid, useragent, publisherid)
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,  // Now 12 placeholders
             [
               eventData.eventid,
               eventData.timestamp,
