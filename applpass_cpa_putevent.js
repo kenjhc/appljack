@@ -162,14 +162,14 @@ async function processCPAEvents() {
             [data.feedid]
           );
 
-          let cpa = feedRows.length > 0 ? feedRows[0].cpa : 0.0;
+          let cpa = (feedRows.length > 0 && feedRows[0].cpa > 0) ? feedRows[0].cpa : 0.0;
 
           if (cpa === 0.0) {
             const [jobRows] = await connection.execute(
               `SELECT cpa FROM appljobs WHERE job_reference = ? AND jobpoolid = ?`,
               [data.jobid, jobpoolid]
             );
-            cpa = jobRows.length > 0 ? jobRows[0].cpa : 0.0;
+            cpa = (jobRows.length > 0 && jobRows[0].cpa > 0) ? jobRows[0].cpa : 0.0;
           }
 
           // Insert CPA event into applevents table
