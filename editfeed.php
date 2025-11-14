@@ -210,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $actualStartDate = null;
             $startdate = null;
         }
-        
+
         if (!empty($enddate)) {
             $actualEndDate = (new DateTime($enddate))->format('Y-m-d H:i:s');
             $enddate = (new DateTime($enddate))->modify('-4 hours')->format('Y-m-d H:i:s');
@@ -218,12 +218,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $actualEndDate = null;
             $enddate = null;
         }
-              
+
         // Fetch current status from the database
         $stmt = $pdo->prepare("SELECT status FROM applcustfeeds WHERE feedid = ? AND custid = ?");
         $stmt->execute([$feedid, $_SESSION['custid']]);
         $currentStatus = $stmt->fetchColumn();
-        
+
         // Determine new status only if it's not "capped" or "stopped"
         if ($currentStatus !== 'capped' && $currentStatus !== 'stopped') {
             $currentDate = new DateTime(); // Current date/time
@@ -237,7 +237,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $newStatus = $currentStatus; // Preserve current status
         }
-        
+
+
+        $budgetType = filter_input(INPUT_POST, 'campaignType', FILTER_SANITIZE_STRING);
+        $budgetType = ($budgetType === 'CPA') ? 'CPA' : 'CPC'; // Default to CPC if not CPA
+
         // Update the campaign
         $stmt = $pdo->prepare("UPDATE applcustfeeds
                                SET feedname = ?, budget = ?, budgetdaily = ?, cpc = ?, cpa = ?,
@@ -246,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    custquerycustom2 = ?, custquerycustom3 = ?, custquerycustom4 = ?,
                                    custquerycustom5 = ?, activepubs = ?,
                                    arbcampcpc = ?, arbcampcpa = ?, date_start = ?, date_end = ?, 
-                                   actual_startdate = ?, actual_enddate = ?, status = ?
+                                   actual_startdate = ?, actual_enddate = ?, status = ?,budget_type=?
                                WHERE feedid = ? AND custid = ?");
         $stmt->execute([
             $feedname,
@@ -272,15 +276,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $actualStartDate,   // Original start date
             $actualEndDate,     // Original end date
             $newStatus,
+            $budgetType,
             $feedid,
             $_SESSION['custid']
         ]);
-        
+
         // Redirect back to the page with the feedid
         setToastMessage('success', "Updated Successfully.");
         header("Location: editfeed.php?feedid=" . urlencode($feedid) . "&custid=" . urlencode($_SESSION['custid']));
         exit();
-        
     } catch (PDOException $e) {
         setToastMessage('error', "Database error: " . $e->getMessage());
         exit();
@@ -314,7 +318,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $allCompanies = explode(',', $feed['custqueryco'] ?? '');
-    
+
     $includeCompanies = [];
     $excludeCompanies = [];
 
@@ -361,7 +365,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $customFields[$i] = ['include' => [], 'exclude' => []];
         }
     }
-
 }
 ?>
 
@@ -417,16 +420,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="card rounded-md shadow-md">
                             <div class="card-header card-title p-0 d-flex justify-content-between">
                                 <h5 class="card-title">Edit Campaign </h5>
-                                                <form action="changecampaignstatus.php" method="post" class="text-center">
-                    <input type="hidden" name="feedid" value="<?= htmlspecialchars($feedid); ?>">
-                    <?php if (isset($feed['status']) && ($feed['status'] === 'active' || $feed['status'] === 'date stopped')): ?>
-                        <button name="action" value="stop" class="btn btn-danger mx-4 my-2 no-wrap">Stop Campaign</button>
-                    <?php elseif (isset($feed['status']) && $feed['status'] === 'stopped'): ?>
-                        <button name="action" value="start" class="btn btn-success mx-4 my-2 no-wrap">Start Campaign</button>
-                    <?php else: ?>
-                        <button name="action" value="start" class="btn btn-success mx-4 my-2 no-wrap">Start Campaign</button>
-                    <?php endif; ?>
-                </form>
+                                <form action="changecampaignstatus.php" method="post" class="text-center">
+                                    <input type="hidden" name="feedid" value="<?= htmlspecialchars($feedid); ?>">
+                                    <?php if (isset($feed['status']) && ($feed['status'] === 'active' || $feed['status'] === 'date stopped')): ?>
+                                        <button name="action" value="stop" class="btn btn-danger mx-4 my-2 no-wrap">Stop Campaign</button>
+                                    <?php elseif (isset($feed['status']) && $feed['status'] === 'stopped'): ?>
+                                        <button name="action" value="start" class="btn btn-success mx-4 my-2 no-wrap">Start Campaign</button>
+                                    <?php else: ?>
+                                        <button name="action" value="start" class="btn btn-success mx-4 my-2 no-wrap">Start Campaign</button>
+                                    <?php endif; ?>
+                                </form>
 
                             </div>
                             <div class="card-body">
@@ -467,18 +470,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 </div>
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between gap-3">
-                                                 <div class="w-100 my-3">
+                                                <div class="w-100 my-3">
                                                     <label class="healthy-text text-dark-green mb-0" for="start_date">Start Date</label>
-                                                    <input type="date" id="startdate" name="startdate" class="form-control" value="<?= htmlspecialchars(substr($feed['actual_startdate'], 0, 10)) ?>" >
+                                                    <input type="date" id="startdate" name="startdate" class="form-control" value="<?= htmlspecialchars(substr($feed['actual_startdate'], 0, 10)) ?>">
 
                                                 </div>
 
-                                         
+
                                                 <div class="w-100 my-3">
                                                     <label class="healthy-text text-dark-green mb-0" for="end_date">End Date</label>
-                                                    <input type="date" id="enddate" name="enddate" class="form-control" value="<?= htmlspecialchars(substr($feed['actual_enddate'], 0, 10)) ?>" >
+                                                    <input type="date" id="enddate" name="enddate" class="form-control" value="<?= htmlspecialchars(substr($feed['actual_enddate'], 0, 10)) ?>">
                                                 </div>
+                                            </div>
+
+                                            <?php
+                                            // Assume $campaign contains existing campaign info when editing
+                                            $selectedType = isset($feed['budget_type']) ? $feed['budget_type'] : 'CPC';
+
+                                            ?>
+
+
+                                            <div class="mt-3">
+                                                <label class="healthy-text text-dark-green" for="campaignType">Campaign Type (required)</label>
+                                                <div id="campaignType">
+                                                    <label class="healthy-text text-dark-green">
+                                                        <input type="radio" name="campaignType" value="CPC" <?php echo ($selectedType === 'CPC') ? 'checked' : ''; ?>>
+                                                        CPC
+                                                    </label>
+
+                                                    <label class="healthy-text text-dark-green ml-3">
+                                                        <input type="radio" name="campaignType" value="CPA" <?php echo ($selectedType === 'CPA') ? 'checked' : ''; ?>>
+                                                        CPA
+                                                    </label>
                                                 </div>
+                                            </div>
                                             <h4>Keywords</h4>
                                             <div>
                                                 <label for="keywords_include">Keywords Include</label>
@@ -530,11 +555,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <?php for ($i = 1; $i <= 5; $i++): ?>
                                                 <div>
                                                     <label for="custom_field_<?= $i ?>_include">Custom Field <?= $i ?> Include</label>
-                                                    <input 
-                                                        type="text" 
-                                                        id="custom_field_<?= $i ?>_include" name="custom_field_<?= $i ?>_include" class="light-input" 
-                                                        value="<?= htmlspecialchars(is_array($customFields[$i]['include']) ? implode(', ', $customFields[$i]['include']) : $customFields[$i]['include']) ?>"
-                                                    >
+                                                    <input
+                                                        type="text"
+                                                        id="custom_field_<?= $i ?>_include" name="custom_field_<?= $i ?>_include" class="light-input"
+                                                        value="<?= htmlspecialchars(is_array($customFields[$i]['include']) ? implode(', ', $customFields[$i]['include']) : $customFields[$i]['include']) ?>">
                                                 </div>
                                                 <div>
                                                     <label for="custom_field_<?= $i ?>_exclude">Custom Field <?= $i ?> Exclude</label>
