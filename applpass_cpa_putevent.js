@@ -58,6 +58,14 @@ async function processCPAEvents() {
     console.log(`Reading file`);
     console.log(`Length of applpass_cpa_processing.json: ${rl.length}`);
 
+
+    //  const backupFilePath = path.join(__dirname, "applpass_queue_backup.json");
+    //     const fileStream = fs.createReadStream(backupFilePath);
+    //     const rl = readline.createInterface({
+    //       input: fileStream,
+    //       crlfDelay: Infinity,
+    //     });
+
     for await (const line of rl) {
       console.log(`line: ${line}`);
 
@@ -82,6 +90,7 @@ async function processCPAEvents() {
         }
 
         try {
+  
           // Query and process the CPA event
           const [rows] = await connection.execute(
             `SELECT custid, jobid, feedid, timestamp, publisherid FROM applevents
@@ -125,9 +134,7 @@ async function processCPAEvents() {
             );
             continue;
           }
-
-         
-
+  
           // Retrieve jobpoolid using custid from the applcust table
           const [custRows] = await connection.execute(
             `SELECT jobpoolid FROM applcust WHERE custid = ?`,
@@ -146,7 +153,7 @@ async function processCPAEvents() {
             );
             continue;
           }
-
+    
           const jobpoolid = custRows[0].jobpoolid;
 
           // Check if the event is within 48 hours
@@ -158,24 +165,55 @@ async function processCPAEvents() {
 
           // Get CPA value from applcustfeeds or appljobs tables and insert CPA event
           const [feedRows] = await connection.execute(
-            `SELECT cpa FROM applcustfeeds WHERE feedid = ? AND status = 'active'`,
+            `SELECT * FROM applcustfeeds WHERE feedid = ? AND status = 'active'`,
             [data.feedid]
           );
 
-          let cpa = (feedRows.length > 0 && feedRows[0].cpa > 0) ? feedRows[0].cpa : 0.0;
+          
 
-          if (cpa === 0.0) {
-            const [jobRows] = await connection.execute(
-              `SELECT cpa FROM appljobs WHERE job_reference = ? AND jobpoolid = ?`,
-              [data.jobid, jobpoolid]
+          let budgetType = feedRows[0].budget_type;
+
+          let cpa = 0;
+
+  
+
+          if (budgetType == "CPA") {
+            // console.log("Asdasdasd");
+            // Get the cpc value from applcustfeeds and appljobs tables
+            cpa = await getJobWiseCPAValue(
+              connection,
+              eventData.feedid,
+              eventData.job_reference,
+              eventData.jobpoolid
             );
-            cpa = (jobRows.length > 0 && jobRows[0].cpa > 0) ? jobRows[0].cpa : 0.0;
+          } else {
+            cpa = await getCPAValue(
+              connection,
+              eventData.feedid,
+              eventData.job_reference,
+              eventData.jobpoolid
+            );
           }
+
+          console.log(cpa);
+          console.log(budgetType);
+
+          // process.exit(0);
+
+          // let cpa = (feedRows.length > 0 && feedRows[0].cpa > 0) ? feedRows[0].cpa : 0.0;
+
+          // if (cpa === 0.0) {
+          //   const [jobRows] = await connection.execute(
+          //     `SELECT cpa FROM appljobs WHERE job_reference = ? AND jobpoolid = ?`,
+          //     [data.jobid, jobpoolid]
+          //   );
+          //   cpa = (jobRows.length > 0 && jobRows[0].cpa > 0) ? jobRows[0].cpa : 0.0;
+          // }
 
           // Insert CPA event into applevents table
           await connection.execute(
             `INSERT INTO applevents (eventid, timestamp, eventtype, custid, jobid, refurl, ipaddress, cpc, cpa, feedid, useragent, publisherid)
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,  // Now 12 placeholders
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, // Now 12 placeholders
             [
               eventData.eventid,
               eventData.timestamp,
@@ -239,6 +277,86 @@ function check48Hours(dbTimestamp) {
   const timeDiffHours = (currentUnixTimestamp - dbUnixTimestamp) / 3600 / 1000;
 
   return timeDiffHours <= 48;
+}
+
+async function getJobWiseCPAValue(
+  connection,
+  feedid,
+  job_reference,
+  jobpoolid
+) {
+  try {
+    // Fallback Query: Check appljobs for job_reference and jobpoolid
+    const [jobRows] = await connection.execute(
+      "SELECT cpa FROM appljobs WHERE job_reference = ? AND jobpoolid = ?",
+      [job_reference, jobpoolid]
+    );
+    // console.log(job_reference);
+
+
+    // If a result is found, return this cpa value
+
+    if (jobRows && jobRows.length > 0 && jobRows[0].cpa != null) {
+      return jobRows[0].cpa;
+    }
+
+    // If both queries fail, return 0.0
+    logError(
+      `CPA not found for job_reference: ${job_reference} and jobpoolid: ${jobpoolid}, defaulting to 0.0`
+    );
+    return 0.0;
+  } catch (err) {
+    logError(`Error fetching CPA value: ${err.message}`);
+    return 0.0; // Return default CPA if an error occurs
+  }
+}
+
+// Function to get cpc value from applcustfeeds and appljobs tables
+async function getCPAValue(connection, feedid, job_reference, jobpoolid) {
+  console.log(
+    `Fetching CPC for feedid: ${feedid}, job_reference: ${job_reference}, jobpoolid: ${jobpoolid}`
+  ); // Log input parameters
+
+  try {
+    // First Query: Check applcustfeeds for active feedid
+    const feedRows = await connection.execute(
+      "SELECT cpa FROM applcustfeeds WHERE feedid = ? AND status = 'active'",
+      [feedid]
+    );
+
+    console.log("Feed rows result:", feedRows); // Log query result for applcustfeeds
+    console.log("feedRows.length:", feedRows.length);
+    console.log("feedRows[0].cpa", feedRows[0].cpa);
+    // If a result is found and cpa is not 0.0, return this cpa value
+    if (
+      feedRows.length > 0 &&
+      Array.isArray(feedRows[0]) &&
+      feedRows[0].length > 0
+    ) {
+      const cpaValue = parseFloat(feedRows[0][0]?.cpa); // Correctly accessing cpa
+
+      console.log("inside if block of feedRows", cpaValue);
+
+      if (!isNaN(cpaValue) && cpaValue > 0.0) {
+        return cpaValue; // Return if valid
+      } else {
+        return 0.0;
+      }
+    }
+  } catch (err) {
+    logMessage(`Error fetching CPA value: ${err.message}`, logFilePath);
+    logToDatabase(
+      "error",
+      "applpass_putevents2.js",
+      `Error fetching CPA value: ${err.message}`
+    );
+    return 0.0;
+  }
+}
+
+function logError(error) {
+  const errorMessage = `${new Date().toISOString()} - Error: ${error}\n`;
+  fs.appendFileSync(logFilePath, errorMessage, "utf8");
 }
 
 // Run the CPA event processing function
