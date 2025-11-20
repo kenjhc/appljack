@@ -192,7 +192,6 @@ async function processEvents() {
 
     // Create a write stream for the backup file
     const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" });
-    console.log("Length of file:", rl.length); // Log current line being processed
 
     // const backupFilePath = path.join(__dirname, "applpass_queue_backup.json");
     // const fileStream = fs.createReadStream(backupFilePath);

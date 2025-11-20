@@ -56,8 +56,6 @@ async function processCPAEvents() {
     // Create a write stream for the backup file
     const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" });
     console.log(`Reading file`);
-    console.log(`Length of applpass_cpa_processing.json: ${rl.length}`);
-
 
     //  const backupFilePath = path.join(__dirname, "applpass_queue_backup.json");
     //     const fileStream = fs.createReadStream(backupFilePath);
