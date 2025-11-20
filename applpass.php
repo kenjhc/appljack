@@ -44,8 +44,16 @@ if (!$result) {
     exit;
 }
 $data = $result->fetch_assoc();
-$jobUrl = $data['url'] ?? '/fallback-url';
 
+// Check if job was found
+if (!$data || empty($data['url'])) {
+    error_log("ERROR: Job not found for job_reference: $job_reference, jobpoolid: $jobpoolid");
+    error_log("This URL is invalid. Please check if the job exists in the database.");
+    echo "Error: Job not found. The job may have expired or been removed.";
+    exit;
+}
+
+$jobUrl = $data['url'];
 error_log("Fetched URL: " . $jobUrl);
 
 // Close the database connection

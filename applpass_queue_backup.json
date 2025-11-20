@@ -1,2 +1,5 @@
 {"eventid":"evt_001","timestamp":"2025-11-18 12:00:00","eventtype":"click","custid":101,"job_reference":"job_001","refurl":"https://example.com/ref1","userAgent":"Mozilla/5.0","ipaddress":"192.168.1.1","feedid":"3563ef1a14","jobpoolid":301,"cpa":0.5}
 
+{"eventid":"4de8bcaba3","timestamp":"2025-11-20 14:22:01","custid":"9706023615","publisherid":"testpub","job_reference":"10103","jobpoolid":"4561237890","refurl":"http:\/\/test-referrer.com","ipaddress":"127.0.0.1","feedid":"559c46798d","userAgent":"Mozilla\/5.0 (Test Agent)"}
+{"eventid":"test_cpc_c186e3","timestamp":"2025-11-20 14:24:04","custid":"9706023615","publisherid":"testpub","job_reference":"0069b2e14a36-30632-36374384","jobpoolid":"4759038692","refurl":"http:\/\/test-cpc.com","ipaddress":"127.0.0.10","feedid":"559c46798d","userAgent":"Test CPC Agent"}
+{"eventid":"test_cpa_a2afe2","timestamp":"2025-11-20 14:24:04","custid":"9706023615","publisherid":"testpub","job_reference":"0069b2e14a36-30632-36374384","jobpoolid":"4759038692","refurl":"http:\/\/test-cpa.com","ipaddress":"127.0.0.11","feedid":"559c46798d","userAgent":"Test CPA Agent"}

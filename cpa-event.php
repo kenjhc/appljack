@@ -10,7 +10,7 @@ function logMessage($message)
 {
     $timestamp = date('Y-m-d H:i:s');
     $logEntry = "[$timestamp] $message\n";
-    $logFilePath = "/chroot/home/appljack/appljack.com/html/admin/applpass_cpa.log";
+    $logFilePath = __DIR__ . DIRECTORY_SEPARATOR . "applpass_cpa.log";
     error_log($logEntry, 3, $logFilePath);
 }
 
@@ -33,10 +33,14 @@ $eventData = [
 logMessage("Generated event data: " . json_encode($eventData));
 
 // Append the event data to the JSON file
-$jsonFilePath = "/chroot/home/appljack/appljack.com/html/admin/applpass_cpa_queue.json";
-file_put_contents($jsonFilePath, json_encode($eventData) . "\n", FILE_APPEND | LOCK_EX);
+$jsonFilePath = __DIR__ . DIRECTORY_SEPARATOR . "applpass_cpa_queue.json";
+$write_result = file_put_contents($jsonFilePath, json_encode($eventData) . "\n", FILE_APPEND | LOCK_EX);
 
-logMessage("Event data written to JSON file");
+if ($write_result === false) {
+    logMessage("ERROR: Failed to write event data to file: $jsonFilePath");
+} else {
+    logMessage("Event data written to JSON file: $jsonFilePath ($write_result bytes)");
+}
 
 // Function to get the base domain from the current URL
 function getCurrentUrlBaseDomain()

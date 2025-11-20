@@ -1,7 +1,22 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(cat:*)",
+      "Bash(php test_applpass.php:*)",
+      "Bash(php check_jobs.php:*)",
+      "Bash(php test_full_workflow.php:*)",
+      "Bash(php verify_event.php:*)",
+      "Bash(php test_cpa_campaign.php:*)",
+      "Bash(php final_comprehensive_test.php:*)",
+      "Bash(php verify_final_tests.php:*)",
+      "Bash(php -r:*)",
+      "Bash(php test_both_events.php:*)",
+      "Bash(php simple_test_events.php:*)",
+      "Bash(php:*)",
+      "Bash(applpass_queue.json)",
+      "Bash(applpass_cpa_queue.json)",
+      "Bash(truncate:*)"
     ],
     "deny": [],
     "ask": []
