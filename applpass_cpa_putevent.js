@@ -167,25 +167,17 @@ async function processCPAEvents() {
             [data.feedid]
           );
 
-          
-
-          let budgetType = feedRows[0].budget_type;
+          // Default to CPC if budget_type is not set or invalid
+          let budgetType = feedRows[0]?.budget_type || 'CPC';
 
           let cpa = 0;
 
-  
-
-          if (budgetType == "CPA") {
-            // console.log("Asdasdasd");
-            // Get the cpc value from applcustfeeds and appljobs tables
-            cpa = await getJobWiseCPAValue(
-              connection,
-              eventData.feedid,
-              eventData.job_reference,
-              eventData.jobpoolid
-            );
+          if (budgetType === "CPC") {
+            // CPC campaigns don't charge for conversions - set CPA to $0.00
+            cpa = 0.0;
           } else {
-            cpa = await getCPAValue(
+            // CPA campaigns - get the CPA value from appljobs table
+            cpa = await getJobWiseCPAValue(
               connection,
               eventData.feedid,
               eventData.job_reference,

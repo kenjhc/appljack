@@ -239,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
 
-        $budgetType = filter_input(INPUT_POST, 'campaignType', FILTER_SANITIZE_STRING);
+        $budgetType = filter_input(INPUT_POST, 'budget_type', FILTER_SANITIZE_STRING);
         $budgetType = ($budgetType === 'CPA') ? 'CPA' : 'CPC'; // Default to CPC if not CPA
 
         // Update the campaign
@@ -491,15 +491,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
                                             <div class="mt-3">
-                                                <label class="healthy-text text-dark-green" for="campaignType">Campaign Type (required)</label>
-                                                <div id="campaignType">
+                                                <label class="healthy-text text-dark-green" for="budget_type">Campaign Type (required)</label>
+                                                <div id="budget_type">
                                                     <label class="healthy-text text-dark-green">
-                                                        <input type="radio" name="campaignType" value="CPC" <?php echo ($selectedType === 'CPC') ? 'checked' : ''; ?>>
+                                                        <input type="radio" name="budget_type" value="CPC" <?php echo ($selectedType === 'CPC') ? 'checked' : ''; ?>>
                                                         CPC
                                                     </label>
 
                                                     <label class="healthy-text text-dark-green ml-3">
-                                                        <input type="radio" name="campaignType" value="CPA" <?php echo ($selectedType === 'CPA') ? 'checked' : ''; ?>>
+                                                        <input type="radio" name="budget_type" value="CPA" <?php echo ($selectedType === 'CPA') ? 'checked' : ''; ?>>
                                                         CPA
                                                     </label>
                                                 </div>
