@@ -237,8 +237,8 @@ async function processEvents() {
             // CPA campaigns don't charge for clicks - set CPC to $0.00
             cpcValue = 0.0;
           } else {
-            // CPC campaigns - get the CPC value from appljobs table
-            cpcValue = await getJobWiseCPCValue(
+            // CPC campaigns - get the CPC value from applcustfeeds table
+            cpcValue = await getCPCValue(
               connection,
               eventData.feedid,
               eventData.job_reference,

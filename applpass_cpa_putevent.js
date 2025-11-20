@@ -176,12 +176,12 @@ async function processCPAEvents() {
             // CPC campaigns don't charge for conversions - set CPA to $0.00
             cpa = 0.0;
           } else {
-            // CPA campaigns - get the CPA value from appljobs table
-            cpa = await getJobWiseCPAValue(
+            // CPA campaigns - get the CPA value from applcustfeeds table
+            cpa = await getCPAValue(
               connection,
-              eventData.feedid,
-              eventData.job_reference,
-              eventData.jobpoolid
+              data.feedid,  // Note: using data.feedid from the matched event
+              data.jobid,   // Note: using data.jobid from the matched event
+              jobpoolid
             );
           }
 
