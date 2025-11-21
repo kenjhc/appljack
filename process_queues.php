@@ -66,21 +66,24 @@ if (file_exists($cpcQueue) && filesize($cpcQueue) > 0) {
                 $ipaddress = $db->real_escape_string($event['ipaddress'] ?? '127.0.0.1');
                 $eventid = $db->real_escape_string($event['eventid'] ?? uniqid('evt_'));
                 $timestamp = $db->real_escape_string($event['timestamp'] ?? date('Y-m-d H:i:s'));
+                $refurl = $db->real_escape_string($event['refurl'] ?? 'https://click');
+                $useragent = $db->real_escape_string($event['userAgent'] ?? 'Test User Agent');
 
-                // Insert into database
+                // Insert into database (with all required fields)
                 $insertQuery = "INSERT INTO applevents (
-                    eventid, eventtype, custid, feedid, job_reference,
-                    jobpoolid, cpc, cpa, ipaddress, timestamp
+                    eventid, eventtype, custid, feedid, jobid, refurl, useragent,
+                    ipaddress, cpc, cpa, timestamp
                 ) VALUES (
                     '$eventid',
-                    'click',
+                    'cpc',
                     '$custid',
                     '$feedId',
                     '$jobRef',
-                    '$jobPoolId',
+                    '$refurl',
+                    '$useragent',
+                    '$ipaddress',
                     $cpcValue,
                     0.00,
-                    '$ipaddress',
                     '$timestamp'
                 )";
 
@@ -134,15 +137,22 @@ if (file_exists($cpaQueue) && filesize($cpaQueue) > 0) {
             $ipaddress = $db->real_escape_string($event['ipaddress'] ?? '127.0.0.1');
             $timestamp = $db->real_escape_string($event['timestamp'] ?? date('Y-m-d H:i:s'));
             $custid = $db->real_escape_string($event['custid'] ?? 'test');
+            $jobid = $db->real_escape_string($event['job_reference'] ?? 'cpa_event');
+            $refurl = $db->real_escape_string($event['refurl'] ?? $event['domain'] ?? 'https://conversion');
+            $useragent = $db->real_escape_string($event['userAgent'] ?? 'CPA Conversion Event');
 
-            // Insert into database (CPA events need custid field)
+            // Insert into database (with all required fields)
             $insertQuery = "INSERT INTO applevents (
-                eventid, eventtype, custid, feedid, cpc, cpa, ipaddress, timestamp
+                eventid, eventtype, custid, feedid, jobid, refurl, useragent,
+                cpc, cpa, ipaddress, timestamp
             ) VALUES (
                 '$eventid',
-                'conversion',
+                'cpa',
                 '$custid',
                 '$feedId',
+                '$jobid',
+                '$refurl',
+                '$useragent',
                 0.00,
                 $cpaValue,
                 '$ipaddress',
