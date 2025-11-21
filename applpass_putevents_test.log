@@ -12,3 +12,16 @@
 2025-11-20T14:23:22.745Z - Discrepancy found: 1 records were not processed.
 2025-11-20T14:24:11.835Z - Total successful inserts: 2
 2025-11-20T14:24:11.836Z - All records processed successfully.
+2025-11-21T09:25:04.232Z - Missing or null required fields [publisherid] for eventID: cpc_02fe1e2aa2 - Skipped
+2025-11-21T09:25:04.234Z - Missing or null required fields [publisherid] for eventID: cpc_02fe1e2c1e - Skipped
+2025-11-21T09:25:04.236Z - Missing or null required fields [publisherid] for eventID: cpc_02fe1e2cda - Skipped
+2025-11-21T09:25:04.238Z - Total successful inserts: 0
+2025-11-21T09:25:04.238Z - Discrepancy found: 3 records were not processed.
+2025-11-21T09:26:12.692Z - Total successful inserts: 3
+2025-11-21T09:26:12.693Z - All records processed successfully.
+2025-11-21T09:31:40.166Z - Total successful inserts: 3
+2025-11-21T09:31:40.167Z - All records processed successfully.
+2025-11-21T09:35:38.978Z - Total successful inserts: 3
+2025-11-21T09:35:38.979Z - All records processed successfully.
+2025-11-21T09:37:08.980Z - Total successful inserts: 3
+2025-11-21T09:37:08.981Z - All records processed successfully.

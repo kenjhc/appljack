@@ -14,6 +14,13 @@ include 'database/db.php';
 $currentPath = __DIR__;
 $httpHost = $_SERVER['HTTP_HOST'] ?? '';
 
+// Initialize logging
+function logToFile($message, $basePath) {
+    $logFile = $basePath . "process_queues_debug.log";
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
+}
+
 if (strpos($httpHost, 'dev.appljack.com') !== false) {
     $basePath = "/chroot/home/appljack/appljack.com/html/dev/";
 } elseif (strpos($httpHost, 'appljack.com') !== false && strpos($httpHost, 'dev.') === false) {
@@ -27,6 +34,9 @@ if (strpos($httpHost, 'dev.appljack.com') !== false) {
 } else {
     $basePath = __DIR__ . DIRECTORY_SEPARATOR;
 }
+
+logToFile("========== PROCESS QUEUES START ==========", $basePath);
+logToFile("Environment: $basePath", $basePath);
 
 $response = [
     'cpc' => ['processed' => 0, 'errors' => []],
@@ -60,7 +70,8 @@ if (file_exists($cpcQueue) && filesize($cpcQueue) > 0) {
                 }
 
                 // Ensure all required fields have values
-                $custid = $db->real_escape_string($event['custid'] ?? 'test');
+                // custid is bigint - must be numeric (default to 0 for test events)
+                $custid = intval($event['custid'] ?? 0);
                 $jobRef = $db->real_escape_string($event['job_reference'] ?? 'test');
                 $jobPoolId = $db->real_escape_string($event['jobpoolid'] ?? 'test');
                 $ipaddress = $db->real_escape_string($event['ipaddress'] ?? '127.0.0.1');
@@ -107,17 +118,30 @@ if (file_exists($cpcQueue) && filesize($cpcQueue) > 0) {
 $cpaQueue = $basePath . "applpass_cpa_queue.json";
 $cpaBackup = $basePath . "applpass_cpa_backup.json";
 
+logToFile("Checking CPA queue: $cpaQueue", $basePath);
+
 if (file_exists($cpaQueue) && filesize($cpaQueue) > 0) {
     $content = file_get_contents($cpaQueue);
     $lines = array_filter(explode("\n", $content));
 
-    foreach ($lines as $line) {
+    logToFile("CPA Queue has " . count($lines) . " events to process", $basePath);
+
+    foreach ($lines as $lineNum => $line) {
+        logToFile("Processing CPA event #" . ($lineNum + 1), $basePath);
+
         $event = json_decode($line, true);
-        if (!$event) continue;
+        if (!$event) {
+            logToFile("ERROR: Failed to decode JSON: $line", $basePath);
+            continue;
+        }
+
+        logToFile("Event data: " . json_encode($event), $basePath);
 
         // For CPA events, we need to find the related feed
         // This is a simplified version - you might need to adjust based on your logic
         $domain = $event['domain'] ?? '';
+
+        logToFile("Looking for active feed...", $basePath);
 
         // Get a default feed for testing (you might want to improve this logic)
         $result = $db->query("SELECT feedid, budget_type, cpc, cpa FROM applcustfeeds WHERE status = 'active' LIMIT 1");
@@ -125,21 +149,36 @@ if (file_exists($cpaQueue) && filesize($cpaQueue) > 0) {
             $budgetType = $feed['budget_type'] ?? 'CPC';
             $feedId = $feed['feedid'];
 
+            logToFile("Found feed: $feedId, budget_type: $budgetType", $basePath);
+
             // Calculate CPA value based on budget type
             if ($budgetType === 'CPC') {
                 $cpaValue = 0.00; // CPC campaigns don't charge for conversions
+                logToFile("CPC campaign - CPA value set to 0.00", $basePath);
             } else {
                 $cpaValue = $feed['cpa']; // Use feed's CPA value
+                logToFile("CPA campaign - CPA value set to $cpaValue", $basePath);
             }
 
             // Ensure all required fields have values
-            $eventid = $db->real_escape_string($event['eventid'] ?? uniqid('evt_'));
+            // IMPORTANT: eventid max length is 20 chars (char(20) column)
+            $rawEventId = $event['eventid'] ?? uniqid('evt_');
+            if (strlen($rawEventId) > 20) {
+                $rawEventId = substr($rawEventId, 0, 20); // Truncate to 20 chars
+                logToFile("⚠️ Event ID truncated to 20 chars: $rawEventId", $basePath);
+            }
+            $eventid = $db->real_escape_string($rawEventId);
             $ipaddress = $db->real_escape_string($event['ipaddress'] ?? '127.0.0.1');
             $timestamp = $db->real_escape_string($event['timestamp'] ?? date('Y-m-d H:i:s'));
-            $custid = $db->real_escape_string($event['custid'] ?? 'test');
+
+            // custid is bigint - must be numeric (default to 0 for test events)
+            $custid = intval($event['custid'] ?? 0);
+
             $jobid = $db->real_escape_string($event['job_reference'] ?? 'cpa_event');
             $refurl = $db->real_escape_string($event['refurl'] ?? $event['domain'] ?? 'https://conversion');
             $useragent = $db->real_escape_string($event['userAgent'] ?? 'CPA Conversion Event');
+
+            logToFile("Prepared fields: eventid=$eventid, custid=$custid, jobid=$jobid, ipaddress=$ipaddress", $basePath);
 
             // Insert into database (with all required fields)
             $insertQuery = "INSERT INTO applevents (
@@ -159,21 +198,41 @@ if (file_exists($cpaQueue) && filesize($cpaQueue) > 0) {
                 '$timestamp'
             )";
 
+            logToFile("Executing query: $insertQuery", $basePath);
+
             if ($db->query($insertQuery)) {
                 $response['cpa']['processed']++;
+                logToFile("✅ SUCCESS: Event inserted into database", $basePath);
             } else {
-                $response['cpa']['errors'][] = $db->error;
+                $error = $db->error;
+                $response['cpa']['errors'][] = $error;
+                logToFile("❌ FAILED: " . $error, $basePath);
             }
+        } else {
+            logToFile("❌ ERROR: No active feed found in database", $basePath);
         }
     }
 
     // Move processed events to backup
     if ($response['cpa']['processed'] > 0) {
+        logToFile("Moving processed events to backup", $basePath);
         file_put_contents($cpaBackup, $content, FILE_APPEND | LOCK_EX);
         file_put_contents($cpaQueue, ''); // Clear the queue
+        logToFile("Queue cleared", $basePath);
+    } else {
+        logToFile("No events were successfully processed - queue NOT cleared", $basePath);
     }
+} else {
+    logToFile("CPA queue is empty or doesn't exist", $basePath);
 }
 
+logToFile("========== PROCESS COMPLETE ==========", $basePath);
+logToFile("CPC processed: " . $response['cpc']['processed'], $basePath);
+logToFile("CPA processed: " . $response['cpa']['processed'], $basePath);
+logToFile("CPC errors: " . count($response['cpc']['errors']), $basePath);
+logToFile("CPA errors: " . count($response['cpa']['errors']), $basePath);
+
 $response['timestamp'] = date('Y-m-d H:i:s');
+$response['log_file'] = $basePath . "process_queues_debug.log";
 
 echo json_encode($response, JSON_PRETTY_PRINT);

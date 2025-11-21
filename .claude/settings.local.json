@@ -17,7 +17,8 @@
       "Bash(applpass_queue.json)",
       "Bash(applpass_cpa_queue.json)",
       "Bash(truncate:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []
