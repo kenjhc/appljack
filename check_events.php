@@ -13,6 +13,8 @@ $query = "SELECT eventid, eventtype, cpc, cpa, feedid, timestamp
 $result = $db->query($query);
 
 $events = [];
+$error = null;
+
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $events[] = [
@@ -24,6 +26,16 @@ if ($result) {
             'timestamp' => $row['timestamp']
         ];
     }
+} else {
+    $error = $db->error;
+}
+
+// Get total count
+$countResult = $db->query("SELECT COUNT(*) as total FROM applevents");
+$totalCount = 0;
+if ($countResult) {
+    $countRow = $countResult->fetch_assoc();
+    $totalCount = $countRow['total'];
 }
 
 // Get statistics
@@ -43,9 +55,17 @@ if ($statsResult) {
 }
 
 $response = [
+    'success' => $error === null,
     'events' => $events,
+    'total_count' => $totalCount,
     'stats' => $stats,
     'query' => $query,
+    'error' => $error,
+    'debug' => [
+        'event_count' => count($events),
+        'database_connected' => $db->ping(),
+        'query_executed' => $result !== false
+    ],
     'timestamp' => date('Y-m-d H:i:s')
 ];
 
