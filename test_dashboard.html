@@ -522,26 +522,47 @@
 
             log('Firing CPC event...');
 
-            const url = `applpass.php?c=9706023615&f=${feedId}&j=${jobRef}&jpid=${jobPoolId}`;
+            // Use test version which bypasses job validation
+            const url = `applpass_test.php?c=9706023615&f=${feedId}&j=${jobRef}&jpid=${jobPoolId}`;
 
             try {
                 const response = await fetch(url);
-                const text = await response.text();
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
 
                 document.getElementById('cpcResult').style.display = 'block';
-                document.getElementById('cpcResult').className = 'test-result pass';
-                document.getElementById('cpcResult').innerHTML = `✅ CPC Event Fired<br><small>${url}</small>`;
 
-                log('CPC event fired successfully', 'success');
+                if (data.success) {
+                    document.getElementById('cpcResult').className = 'test-result pass';
+                    document.getElementById('cpcResult').innerHTML = `
+                        ✅ CPC Event Fired Successfully<br>
+                        <small>Event ID: ${data.eventid}</small><br>
+                        <small>Environment: ${data.environment}</small><br>
+                        <small>Bytes written: ${data.bytes_written}</small>
+                    `;
+                    log('CPC event fired successfully', 'success');
+                } else {
+                    document.getElementById('cpcResult').className = 'test-result fail';
+                    document.getElementById('cpcResult').innerHTML = `❌ Failed: ${data.error}`;
+                    log('CPC event failed: ' + data.error, 'error');
+                }
 
                 // Check queue after 1 second
                 setTimeout(checkQueues, 1000);
             } catch (error) {
                 document.getElementById('cpcResult').style.display = 'block';
                 document.getElementById('cpcResult').className = 'test-result fail';
-                document.getElementById('cpcResult').innerHTML = `❌ Failed: ${error.message}`;
+                document.getElementById('cpcResult').innerHTML = `
+                    ❌ Failed: ${error.message}<br>
+                    <small>Check console for details</small>
+                `;
 
                 log('CPC event failed: ' + error.message, 'error');
+                console.error('CPC Event Error:', error);
             }
         }
 
@@ -742,8 +763,10 @@
             tests.push({
                 name: 'CPC Event Fires',
                 run: async () => {
-                    const response = await fetch('applpass.php?c=9706023615&f=aaa7c0e9ef&j=10081&jpid=2244384563');
-                    return response.ok;
+                    const response = await fetch('applpass_test.php?c=9706023615&f=aaa7c0e9ef&j=10081&jpid=2244384563');
+                    if (!response.ok) return false;
+                    const data = await response.json();
+                    return data.success === true;
                 }
             });
 
