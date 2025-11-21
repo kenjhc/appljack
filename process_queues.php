@@ -59,21 +59,29 @@ if (file_exists($cpcQueue) && filesize($cpcQueue) > 0) {
                     $cpcValue = $feed['cpc']; // Use feed's CPC value
                 }
 
+                // Ensure all required fields have values
+                $custid = $db->real_escape_string($event['custid'] ?? 'test');
+                $jobRef = $db->real_escape_string($event['job_reference'] ?? 'test');
+                $jobPoolId = $db->real_escape_string($event['jobpoolid'] ?? 'test');
+                $ipaddress = $db->real_escape_string($event['ipaddress'] ?? '127.0.0.1');
+                $eventid = $db->real_escape_string($event['eventid'] ?? uniqid('evt_'));
+                $timestamp = $db->real_escape_string($event['timestamp'] ?? date('Y-m-d H:i:s'));
+
                 // Insert into database
                 $insertQuery = "INSERT INTO applevents (
                     eventid, eventtype, custid, feedid, job_reference,
                     jobpoolid, cpc, cpa, ipaddress, timestamp
                 ) VALUES (
-                    '" . $event['eventid'] . "',
+                    '$eventid',
                     'click',
-                    '" . $event['custid'] . "',
-                    '" . $event['feedid'] . "',
-                    '" . $event['job_reference'] . "',
-                    '" . $event['jobpoolid'] . "',
+                    '$custid',
+                    '$feedId',
+                    '$jobRef',
+                    '$jobPoolId',
                     $cpcValue,
                     0.00,
-                    '" . $event['ipaddress'] . "',
-                    '" . $event['timestamp'] . "'
+                    '$ipaddress',
+                    '$timestamp'
                 )";
 
                 if ($db->query($insertQuery)) {
@@ -121,17 +129,24 @@ if (file_exists($cpaQueue) && filesize($cpaQueue) > 0) {
                 $cpaValue = $feed['cpa']; // Use feed's CPA value
             }
 
-            // Insert into database
+            // Ensure all required fields have values
+            $eventid = $db->real_escape_string($event['eventid'] ?? uniqid('evt_'));
+            $ipaddress = $db->real_escape_string($event['ipaddress'] ?? '127.0.0.1');
+            $timestamp = $db->real_escape_string($event['timestamp'] ?? date('Y-m-d H:i:s'));
+            $custid = $db->real_escape_string($event['custid'] ?? 'test');
+
+            // Insert into database (CPA events need custid field)
             $insertQuery = "INSERT INTO applevents (
-                eventid, eventtype, feedid, cpc, cpa, ipaddress, timestamp
+                eventid, eventtype, custid, feedid, cpc, cpa, ipaddress, timestamp
             ) VALUES (
-                '" . $event['eventid'] . "',
+                '$eventid',
                 'conversion',
+                '$custid',
                 '$feedId',
                 0.00,
                 $cpaValue,
-                '" . $event['ipaddress'] . "',
-                '" . $event['timestamp'] . "'
+                '$ipaddress',
+                '$timestamp'
             )";
 
             if ($db->query($insertQuery)) {
