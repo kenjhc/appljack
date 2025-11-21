@@ -16,7 +16,8 @@
       "Bash(php:*)",
       "Bash(applpass_queue.json)",
       "Bash(applpass_cpa_queue.json)",
-      "Bash(truncate:*)"
+      "Bash(truncate:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

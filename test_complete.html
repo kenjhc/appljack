@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CPC/CPA Complete Testing Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #1a73e8;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1557b0;
+        }
+        .btn-success {
+            background: #34a853;
+            color: white;
+        }
+        .btn-danger {
+            background: #ea4335;
+            color: white;
+        }
+        .btn-warning {
+            background: #fbbc04;
+            color: #333;
+        }
+        .log-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .success { color: #4ec9b0; font-weight: bold; }
+        .error { color: #f48771; font-weight: bold; }
+        .warning { color: #dcdcaa; font-weight: bold; }
+        .info { color: #9cdcfe; }
+        .timestamp { color: #858585; }
+        .input-group {
+            margin: 10px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-success { background: #34a853; }
+        .status-error { background: #ea4335; }
+        .status-pending { background: #fbbc04; }
+        .full-width { grid-column: 1 / -1; }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: #1a73e8;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 CPC/CPA Budget Toggle - Complete Testing Dashboard</h1>
+
+        <div class="grid">
+            <!-- Configuration Section -->
+            <div class="card">
+                <h2>⚙️ Configuration</h2>
+                <div class="input-group">
+                    <label>Environment:</label>
+                    <select id="environment">
+                        <option value="http://localhost/appljack">Local Development</option>
+                        <option value="http://dev.appljack.com" selected>Dev Server</option>
+                        <option value="https://appljack.com">Production</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Feed ID:</label>
+                    <input type="text" id="feedId" value="aaa7c0e9ef" />
+                </div>
+                <div class="input-group">
+                    <label>Customer ID:</label>
+                    <input type="text" id="custId" value="9706023615" />
+                </div>
+                <div class="input-group">
+                    <label>Job Reference:</label>
+                    <input type="text" id="jobRef" value="10081" />
+                </div>
+                <div class="input-group">
+                    <label>Job Pool ID:</label>
+                    <input type="text" id="jobPoolId" value="2244384563" />
+                </div>
+                <div class="input-group">
+                    <label>Publisher ID:</label>
+                    <input type="text" id="pubId" value="test" />
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <h2>🚀 Quick Actions</h2>
+
+                <h3 style="margin: 15px 0 10px 0; font-size: 16px;">Test Events:</h3>
+                <button class="btn btn-primary" onclick="testCPCEvent()">
+                    🖱️ Fire CPC Event (Click)
+                </button>
+                <button class="btn btn-success" onclick="testCPAEvent()">
+                    🎯 Fire CPA Event (Conversion)
+                </button>
+
+                <h3 style="margin: 15px 0 10px 0; font-size: 16px;">Check Status:</h3>
+                <button class="btn btn-warning" onclick="checkQueues()">
+                    📊 Check Queue Files
+                </button>
+                <button class="btn btn-warning" onclick="checkLogs()">
+                    📝 Check Error Logs
+                </button>
+                <button class="btn btn-warning" onclick="checkDatabase()">
+                    🗄️ Check Database
+                </button>
+
+                <h3 style="margin: 15px 0 10px 0; font-size: 16px;">Clear:</h3>
+                <button class="btn btn-danger" onclick="clearLog('all')">
+                    🗑️ Clear All Logs
+                </button>
+            </div>
+
+            <!-- CPC Testing -->
+            <div class="card">
+                <h2>💰 CPC Event Testing</h2>
+                <p style="margin-bottom: 10px; color: #666;">
+                    Tests click tracking (applpass.php)
+                </p>
+                <div id="cpcStatus" style="margin: 10px 0;">
+                    <span class="status-indicator status-pending"></span>
+                    <span>Ready to test</span>
+                </div>
+                <div class="log-box" id="cpcLog">
+                    <div class="info">Ready to test CPC events...</div>
+                </div>
+            </div>
+
+            <!-- CPA Testing -->
+            <div class="card">
+                <h2>🎯 CPA Event Testing</h2>
+                <p style="margin-bottom: 10px; color: #666;">
+                    Tests conversion tracking (cpa-event.php)
+                </p>
+                <div id="cpaStatus" style="margin: 10px 0;">
+                    <span class="status-indicator status-pending"></span>
+                    <span>Ready to test</span>
+                </div>
+                <div class="log-box" id="cpaLog">
+                    <div class="info">Ready to test CPA events...</div>
+                </div>
+            </div>
+
+            <!-- Server Status -->
+            <div class="card full-width">
+                <h2>📡 Server Status & Logs</h2>
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchTab('queues')">Queue Files</button>
+                    <button class="tab-btn" onclick="switchTab('logs')">Error Logs</button>
+                    <button class="tab-btn" onclick="switchTab('database')">Database</button>
+                    <button class="tab-btn" onclick="switchTab('debug')">Debug Info</button>
+                </div>
+
+                <div id="queues" class="tab-content active">
+                    <div class="log-box" id="queueLog">
+                        <div class="info">Click "Check Queue Files" to see current status...</div>
+                    </div>
+                </div>
+
+                <div id="logs" class="tab-content">
+                    <div class="log-box" id="errorLog">
+                        <div class="info">Click "Check Error Logs" to see recent errors...</div>
+                    </div>
+                </div>
+
+                <div id="database" class="tab-content">
+                    <div class="log-box" id="dbLog">
+                        <div class="info">Click "Check Database" to see feed configuration...</div>
+                    </div>
+                </div>
+
+                <div id="debug" class="tab-content">
+                    <div class="log-box" id="debugLog">
+                        <div class="info">Debug information will appear here...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="card full-width">
+                <h2>📋 Testing Instructions</h2>
+                <ol style="line-height: 1.8; padding-left: 20px;">
+                    <li><strong>Configure:</strong> Set your environment and parameters above</li>
+                    <li><strong>Fire Events:</strong> Click "Fire CPC Event" and "Fire CPA Event"</li>
+                    <li><strong>Check Queues:</strong> Click "Check Queue Files" to see if events were written</li>
+                    <li><strong>Check Logs:</strong> Look for any errors in the logs</li>
+                    <li><strong>Process Events:</strong> SSH to server and run:
+                        <pre>cd /chroot/home/appljack/appljack.com/html/dev/
+node applpass_putevents2.js    # For CPC events
+node applpass_cpa_putevent.js  # For CPA events</pre>
+                    </li>
+                    <li><strong>Verify Database:</strong> Check that events were inserted with correct values</li>
+                </ol>
+
+                <h3 style="margin-top: 20px;">Expected Behavior:</h3>
+                <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+                    <tr style="background: #f5f5f5;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Campaign Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">CPC Event</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">CPA Event</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>CPC Campaign</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Charges $0.75</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Charges $0.00</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>CPA Campaign</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Charges $0.00</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Charges $5.00</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Utility functions
+        function getTimestamp() {
+            return new Date().toLocaleTimeString();
+        }
+
+        function log(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.innerHTML = `<span class="timestamp">[${getTimestamp()}]</span> ${message}`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLog(which) {
+            if (which === 'all') {
+                ['cpcLog', 'cpaLog', 'queueLog', 'errorLog', 'dbLog', 'debugLog'].forEach(id => {
+                    document.getElementById(id).innerHTML = '<div class="info">Log cleared</div>';
+                });
+            } else {
+                document.getElementById(which).innerHTML = '<div class="info">Log cleared</div>';
+            }
+        }
+
+        function updateStatus(elementId, status, message) {
+            const element = document.getElementById(elementId);
+            const indicator = element.querySelector('.status-indicator');
+            const text = element.querySelector('span:last-child');
+
+            indicator.className = 'status-indicator status-' + status;
+            text.textContent = message;
+        }
+
+        function getBaseUrl() {
+            return document.getElementById('environment').value;
+        }
+
+        // Test CPC Event
+        async function testCPCEvent() {
+            log('cpcLog', 'Starting CPC event test...', 'info');
+            updateStatus('cpcStatus', 'pending', 'Testing...');
+
+            const baseUrl = getBaseUrl();
+            const params = {
+                c: document.getElementById('custId').value,
+                f: document.getElementById('feedId').value,
+                j: document.getElementById('jobRef').value,
+                jpid: document.getElementById('jobPoolId').value,
+                pub: document.getElementById('pubId').value
+            };
+
+            const url = `${baseUrl}/applpass.php?` + new URLSearchParams(params);
+            log('cpcLog', `URL: ${url}`, 'info');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'no-cors',
+                    redirect: 'manual'
+                });
+
+                log('cpcLog', '✅ Request sent successfully', 'success');
+                log('cpcLog', 'Note: Response may be opaque due to redirect', 'warning');
+                updateStatus('cpcStatus', 'success', 'Event fired - check queue');
+
+                // Log to debug
+                log('debugLog', `CPC Event: ${JSON.stringify(params)}`, 'info');
+
+                // Auto-check queue after 2 seconds
+                setTimeout(() => checkQueues(), 2000);
+
+            } catch (error) {
+                log('cpcLog', `❌ Error: ${error.message}`, 'error');
+                updateStatus('cpcStatus', 'error', 'Failed');
+            }
+        }
+
+        // Test CPA Event
+        async function testCPAEvent() {
+            log('cpaLog', 'Starting CPA event test...', 'info');
+            updateStatus('cpaStatus', 'pending', 'Testing...');
+
+            const baseUrl = getBaseUrl();
+            const url = `${baseUrl}/cpa-event.php`;
+            log('cpaLog', `URL: ${url}`, 'info');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    const text = await response.text();
+                    log('cpaLog', '✅ Event fired successfully', 'success');
+                    if (text) {
+                        log('cpaLog', `Response: ${text.substring(0, 100)}`, 'info');
+                    }
+                    updateStatus('cpaStatus', 'success', 'Event fired - check queue');
+                } else {
+                    log('cpaLog', `⚠️ Response status: ${response.status}`, 'warning');
+                    updateStatus('cpaStatus', 'warning', 'Check response');
+                }
+
+                // Log to debug
+                log('debugLog', `CPA Event fired to: ${url}`, 'info');
+
+                // Auto-check queue after 2 seconds
+                setTimeout(() => checkQueues(), 2000);
+
+            } catch (error) {
+                log('cpaLog', `❌ Error: ${error.message}`, 'error');
+                updateStatus('cpaStatus', 'error', 'Failed');
+            }
+        }
+
+        // Check Queue Files
+        async function checkQueues() {
+            log('queueLog', 'Checking queue files...', 'info');
+
+            const baseUrl = getBaseUrl();
+            const checkUrl = `${baseUrl}/check_queues.php`;
+
+            try {
+                const response = await fetch(checkUrl);
+                if (response.ok) {
+                    const data = await response.json();
+
+                    log('queueLog', '=== CPC Queue (applpass_queue.json) ===', 'warning');
+                    if (data.cpc_queue.exists) {
+                        log('queueLog', `✅ File exists: ${data.cpc_queue.size} bytes`, 'success');
+                        log('queueLog', `Events: ${data.cpc_queue.count}`, 'info');
+                        if (data.cpc_queue.last_event) {
+                            log('queueLog', `Last: ${JSON.stringify(data.cpc_queue.last_event)}`, 'info');
+                        }
+                    } else {
+                        log('queueLog', '❌ File does not exist', 'error');
+                    }
+
+                    log('queueLog', '', 'info');
+                    log('queueLog', '=== CPA Queue (applpass_cpa_queue.json) ===', 'warning');
+                    if (data.cpa_queue.exists) {
+                        log('queueLog', `✅ File exists: ${data.cpa_queue.size} bytes`, 'success');
+                        log('queueLog', `Events: ${data.cpa_queue.count}`, 'info');
+                        if (data.cpa_queue.last_event) {
+                            log('queueLog', `Last: ${JSON.stringify(data.cpa_queue.last_event)}`, 'info');
+                        }
+                    } else {
+                        log('queueLog', '❌ File does not exist', 'error');
+                    }
+                }
+            } catch (error) {
+                log('queueLog', `❌ Could not check queues: ${error.message}`, 'error');
+                log('queueLog', 'You may need to check manually on the server', 'warning');
+            }
+        }
+
+        // Check Logs
+        async function checkLogs() {
+            log('errorLog', 'Checking error logs...', 'info');
+
+            const baseUrl = getBaseUrl();
+            const checkUrl = `${baseUrl}/check_logs.php`;
+
+            try {
+                const response = await fetch(checkUrl);
+                if (response.ok) {
+                    const data = await response.json();
+
+                    log('errorLog', '=== CPC Log (applpass7.log) ===', 'warning');
+                    if (data.cpc_log && data.cpc_log.length > 0) {
+                        data.cpc_log.forEach(line => {
+                            log('errorLog', line, 'info');
+                        });
+                    } else {
+                        log('errorLog', 'No recent entries', 'info');
+                    }
+
+                    log('errorLog', '', 'info');
+                    log('errorLog', '=== CPA Log (applpass_cpa.log) ===', 'warning');
+                    if (data.cpa_log && data.cpa_log.length > 0) {
+                        data.cpa_log.forEach(line => {
+                            log('errorLog', line, 'info');
+                        });
+                    } else {
+                        log('errorLog', 'No recent entries', 'info');
+                    }
+                }
+            } catch (error) {
+                log('errorLog', `❌ Could not check logs: ${error.message}`, 'error');
+            }
+        }
+
+        // Check Database
+        async function checkDatabase() {
+            log('dbLog', 'Checking database configuration...', 'info');
+
+            const baseUrl = getBaseUrl();
+            const feedId = document.getElementById('feedId').value;
+            const checkUrl = `${baseUrl}/check_database.php?feedid=${feedId}`;
+
+            try {
+                const response = await fetch(checkUrl);
+                if (response.ok) {
+                    const data = await response.json();
+
+                    log('dbLog', '=== Feed Configuration ===', 'warning');
+                    log('dbLog', `Feed ID: ${data.feedid}`, 'info');
+                    log('dbLog', `Feed Name: ${data.feedname}`, 'info');
+                    log('dbLog', `Budget Type: ${data.budget_type}`, 'success');
+                    log('dbLog', `CPC Value: $${data.cpc}`, 'info');
+                    log('dbLog', `CPA Value: $${data.cpa}`, 'info');
+                    log('dbLog', `Status: ${data.status}`, 'info');
+
+                    log('dbLog', '', 'info');
+                    log('dbLog', '=== Expected Behavior ===', 'warning');
+                    if (data.budget_type === 'CPC') {
+                        log('dbLog', '→ CPC events will charge: $' + data.cpc, 'success');
+                        log('dbLog', '→ CPA events will charge: $0.00', 'success');
+                    } else if (data.budget_type === 'CPA') {
+                        log('dbLog', '→ CPC events will charge: $0.00', 'success');
+                        log('dbLog', '→ CPA events will charge: $' + data.cpa, 'success');
+                    }
+                }
+            } catch (error) {
+                log('dbLog', `❌ Could not check database: ${error.message}`, 'error');
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Mark button as active
+            event.target.classList.add('active');
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            log('debugLog', '✅ Testing dashboard loaded', 'success');
+            log('debugLog', 'Ready to begin testing', 'info');
+        });
+    </script>
+</body>
+</html>
