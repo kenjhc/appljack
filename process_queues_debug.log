@@ -1,135 +1,43 @@
-[2025-11-25 15:25:07] ========== PROCESS QUEUES START ==========
-[2025-11-25 15:25:07] Environment: D:\laragon\www\appljack\
-[2025-11-25 15:25:07] Checking CPA queue: D:\laragon\www\appljack\applpass_cpa_queue.json
-[2025-11-25 15:25:07] CPA Queue has 5 events to process
-[2025-11-25 15:25:07] Processing CPA event #1
-[2025-11-25 15:25:07] Event data: {"eventid":"3ec1e11ac6","timestamp":"2025-11-25 15:25:04","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
-[2025-11-25 15:25:07] Looking for active feed...
-[2025-11-25 15:25:07] Found feed: 559c46798d, budget_type: CPA
-[2025-11-25 15:25:07] CPA campaign - CPA value set to 5.00
-[2025-11-25 15:25:07] Prepared fields: eventid=3ec1e11ac6, custid=0, jobid=cpa_event, ipaddress=127.0.0.1
-[2025-11-25 15:25:07] Executing query: INSERT INTO applevents (
+[2025-11-25 17:00:06] ========== PROCESS QUEUES START ==========
+[2025-11-25 17:00:06] Environment: D:\laragon\www\appljack\
+[2025-11-25 17:00:06] Checking CPA queue: D:\laragon\www\appljack\applpass_cpa_queue.json
+[2025-11-25 17:00:06] CPA Queue has 1 events to process
+[2025-11-25 17:00:06] Processing CPA event #1
+[2025-11-25 17:00:06] Event data: {"eventid":"9336592489","timestamp":"2025-11-25 17:00:04","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"https:\/\/appljack.test"}
+[2025-11-25 17:00:06] Looking for active feed...
+[2025-11-25 17:00:06] Found feed: 559c46798d, budget_type: CPA
+[2025-11-25 17:00:06] CPA campaign - CPA value set to 5.00
+[2025-11-25 17:00:06] Prepared fields: eventid=9336592489, custid=0, jobid=cpa_event, ipaddress=127.0.0.1
+[2025-11-25 17:00:06] Executing query: INSERT INTO applevents (
                 eventid, eventtype, custid, feedid, jobid, refurl, useragent,
                 cpc, cpa, ipaddress, timestamp
             ) VALUES (
-                '3ec1e11ac6',
+                '9336592489',
                 'cpa',
                 '0',
                 '559c46798d',
                 'cpa_event',
-                'http://appljack.test',
+                'https://appljack.test',
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
                 0.00,
                 5.00,
                 '127.0.0.1',
-                '2025-11-25 15:25:04'
+                '2025-11-25 17:00:04'
             )
-[2025-11-25 15:25:07] ✅ SUCCESS: Event inserted into database
-[2025-11-25 15:25:07] Processing CPA event #2
-[2025-11-25 15:25:07] Event data: {"eventid":"f73c59605f","timestamp":"2025-11-25 15:25:05","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
-[2025-11-25 15:25:07] Looking for active feed...
-[2025-11-25 15:25:07] Found feed: 559c46798d, budget_type: CPA
-[2025-11-25 15:25:07] CPA campaign - CPA value set to 5.00
-[2025-11-25 15:25:07] Prepared fields: eventid=f73c59605f, custid=0, jobid=cpa_event, ipaddress=127.0.0.1
-[2025-11-25 15:25:07] Executing query: INSERT INTO applevents (
-                eventid, eventtype, custid, feedid, jobid, refurl, useragent,
-                cpc, cpa, ipaddress, timestamp
-            ) VALUES (
-                'f73c59605f',
-                'cpa',
-                '0',
-                '559c46798d',
-                'cpa_event',
-                'http://appljack.test',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
-                0.00,
-                5.00,
-                '127.0.0.1',
-                '2025-11-25 15:25:05'
-            )
-[2025-11-25 15:25:07] ✅ SUCCESS: Event inserted into database
-[2025-11-25 15:25:07] Processing CPA event #3
-[2025-11-25 15:25:07] Event data: {"eventid":"338f66720f","timestamp":"2025-11-25 15:25:05","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
-[2025-11-25 15:25:07] Looking for active feed...
-[2025-11-25 15:25:07] Found feed: 559c46798d, budget_type: CPA
-[2025-11-25 15:25:07] CPA campaign - CPA value set to 5.00
-[2025-11-25 15:25:07] Prepared fields: eventid=338f66720f, custid=0, jobid=cpa_event, ipaddress=127.0.0.1
-[2025-11-25 15:25:07] Executing query: INSERT INTO applevents (
-                eventid, eventtype, custid, feedid, jobid, refurl, useragent,
-                cpc, cpa, ipaddress, timestamp
-            ) VALUES (
-                '338f66720f',
-                'cpa',
-                '0',
-                '559c46798d',
-                'cpa_event',
-                'http://appljack.test',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
-                0.00,
-                5.00,
-                '127.0.0.1',
-                '2025-11-25 15:25:05'
-            )
-[2025-11-25 15:25:07] ✅ SUCCESS: Event inserted into database
-[2025-11-25 15:25:07] Processing CPA event #4
-[2025-11-25 15:25:07] Event data: {"eventid":"210ecaf1d2","timestamp":"2025-11-25 15:25:05","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
-[2025-11-25 15:25:07] Looking for active feed...
-[2025-11-25 15:25:07] Found feed: 559c46798d, budget_type: CPA
-[2025-11-25 15:25:07] CPA campaign - CPA value set to 5.00
-[2025-11-25 15:25:07] Prepared fields: eventid=210ecaf1d2, custid=0, jobid=cpa_event, ipaddress=127.0.0.1
-[2025-11-25 15:25:07] Executing query: INSERT INTO applevents (
-                eventid, eventtype, custid, feedid, jobid, refurl, useragent,
-                cpc, cpa, ipaddress, timestamp
-            ) VALUES (
-                '210ecaf1d2',
-                'cpa',
-                '0',
-                '559c46798d',
-                'cpa_event',
-                'http://appljack.test',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
-                0.00,
-                5.00,
-                '127.0.0.1',
-                '2025-11-25 15:25:05'
-            )
-[2025-11-25 15:25:07] ✅ SUCCESS: Event inserted into database
-[2025-11-25 15:25:07] Processing CPA event #5
-[2025-11-25 15:25:07] Event data: {"eventid":"735e39f1eb","timestamp":"2025-11-25 15:25:06","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
-[2025-11-25 15:25:07] Looking for active feed...
-[2025-11-25 15:25:07] Found feed: 559c46798d, budget_type: CPA
-[2025-11-25 15:25:07] CPA campaign - CPA value set to 5.00
-[2025-11-25 15:25:07] Prepared fields: eventid=735e39f1eb, custid=0, jobid=cpa_event, ipaddress=127.0.0.1
-[2025-11-25 15:25:07] Executing query: INSERT INTO applevents (
-                eventid, eventtype, custid, feedid, jobid, refurl, useragent,
-                cpc, cpa, ipaddress, timestamp
-            ) VALUES (
-                '735e39f1eb',
-                'cpa',
-                '0',
-                '559c46798d',
-                'cpa_event',
-                'http://appljack.test',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
-                0.00,
-                5.00,
-                '127.0.0.1',
-                '2025-11-25 15:25:06'
-            )
-[2025-11-25 15:25:07] ✅ SUCCESS: Event inserted into database
-[2025-11-25 15:25:07] Moving processed events to backup
-[2025-11-25 15:25:07] Queue cleared
-[2025-11-25 15:25:07] ========== PROCESS COMPLETE ==========
-[2025-11-25 15:25:07] CPC processed: 3
-[2025-11-25 15:25:07] CPA processed: 5
-[2025-11-25 15:25:07] CPC errors: 0
-[2025-11-25 15:25:07] CPA errors: 0
-[2025-11-25 15:25:17] ========== PROCESS QUEUES START ==========
-[2025-11-25 15:25:17] Environment: D:\laragon\www\appljack\
-[2025-11-25 15:25:17] Checking CPA queue: D:\laragon\www\appljack\applpass_cpa_queue.json
-[2025-11-25 15:25:17] CPA queue is empty or doesn't exist
-[2025-11-25 15:25:17] ========== PROCESS COMPLETE ==========
-[2025-11-25 15:25:17] CPC processed: 6
-[2025-11-25 15:25:17] CPA processed: 0
-[2025-11-25 15:25:17] CPC errors: 0
-[2025-11-25 15:25:17] CPA errors: 0
+[2025-11-25 17:00:06] ✅ SUCCESS: Event inserted into database
+[2025-11-25 17:00:06] Moving processed events to backup
+[2025-11-25 17:00:06] Queue cleared
+[2025-11-25 17:00:06] ========== PROCESS COMPLETE ==========
+[2025-11-25 17:00:06] CPC processed: 0
+[2025-11-25 17:00:06] CPA processed: 1
+[2025-11-25 17:00:06] CPC errors: 0
+[2025-11-25 17:00:06] CPA errors: 0
+[2025-11-25 17:00:13] ========== PROCESS QUEUES START ==========
+[2025-11-25 17:00:13] Environment: D:\laragon\www\appljack\
+[2025-11-25 17:00:13] Checking CPA queue: D:\laragon\www\appljack\applpass_cpa_queue.json
+[2025-11-25 17:00:13] CPA queue is empty or doesn't exist
+[2025-11-25 17:00:13] ========== PROCESS COMPLETE ==========
+[2025-11-25 17:00:13] CPC processed: 1
+[2025-11-25 17:00:13] CPA processed: 0
+[2025-11-25 17:00:13] CPC errors: 0
+[2025-11-25 17:00:13] CPA errors: 0

@@ -128,3 +128,13 @@
 [25-Nov-2025 15:25:15 UTC] jobpoolid: 2244384563
 [25-Nov-2025 15:25:15 UTC] Event data to write: {"eventid":"6029da3018","timestamp":"2025-11-25 15:25:15","custid":"9706023615","publisherid":"test","job_reference":"10081","jobpoolid":"2244384563","refurl":"http:\/\/appljack.test\/test_dashboard.html","ipaddress":"127.0.0.1","feedid":"aaa7c0e9ef","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36"}
 [25-Nov-2025 15:25:15 UTC] Successfully wrote event data to file: D:\laragon\www\appljack\applpass_queue.json
+[25-Nov-2025 17:00:09 UTC] TEST Script started...
+[25-Nov-2025 17:00:09 UTC] Environment: LOCAL_DEV
+[25-Nov-2025 17:00:09 UTC] Domain: appljack.test
+[25-Nov-2025 17:00:09 UTC] Base path: D:\laragon\www\appljack\
+[25-Nov-2025 17:00:09 UTC] custid: 9706023615
+[25-Nov-2025 17:00:09 UTC] feedid: aaa7c0e9ef
+[25-Nov-2025 17:00:09 UTC] job_reference: 10081
+[25-Nov-2025 17:00:09 UTC] jobpoolid: 2244384563
+[25-Nov-2025 17:00:09 UTC] Event data to write: {"eventid":"99fcdc606b","timestamp":"2025-11-25 17:00:09","custid":"9706023615","publisherid":"test","job_reference":"10081","jobpoolid":"2244384563","refurl":"https:\/\/appljack.test\/test_dashboard.html","ipaddress":"127.0.0.1","feedid":"aaa7c0e9ef","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36"}
+[25-Nov-2025 17:00:09 UTC] Successfully wrote event data to file: D:\laragon\www\appljack\applpass_queue.json
