@@ -1,25 +1,9 @@
 <?php
-/**
- * CPA Event Tracker
- * Captures conversion events and writes them to the queue for processing
- *
- * IMPORTANT: CPA events are matched to prior CPC clicks by IP + UserAgent
- * The conversion must come from the same browser/device that clicked the job link
- */
 
-// CORS headers for cross-origin requests
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
 
-// Handle preflight requests
-if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-ini_set('display_errors', 0); // Don't display errors in JSON response
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Auto-detect environment and set base path
@@ -86,27 +70,9 @@ $write_result = file_put_contents($jsonFilePath, json_encode($eventData) . "\n",
 
 if ($write_result === false) {
     logMessage("ERROR: Failed to write event data to file: $jsonFilePath");
-    $success = false;
-    $error = "Failed to write to queue file";
 } else {
     logMessage("Event data written to JSON file: $jsonFilePath ($write_result bytes)");
-    $success = true;
-    $error = null;
 }
-
-// Return JSON response with diagnostic info
-echo json_encode([
-    'success' => $success,
-    'eventid' => $eventid,
-    'timestamp' => $timestamp,
-    'ipaddress' => $ipaddress,
-    'userAgent' => substr($userAgent, 0, 100) . (strlen($userAgent) > 100 ? '...' : ''),
-    'environment' => $environment,
-    'queue_file' => $jsonFilePath,
-    'written_bytes' => $write_result,
-    'error' => $error,
-    'note' => 'CPA events are matched to CPC clicks by IP + UserAgent. Ensure the conversion comes from the same browser that clicked the job link.'
-]);
 
 // Function to get the base domain from the current URL
 function getCurrentUrlBaseDomain()

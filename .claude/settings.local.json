@@ -18,7 +18,14 @@
       "Bash(applpass_cpa_queue.json)",
       "Bash(truncate:*)",
       "Bash(dir:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(del cpa-event-debug.php)",
+      "Bash(del:*)",
+      "Bash(del production_cpa_results.php)",
+      "Bash(if exist cpa-event-debug.php del cpa-event-debug.php)",
+      "Bash(if exist diagnose_cpa.php del diagnose_cpa.php)",
+      "Bash(if exist production_cpa_results.php del production_cpa_results.php)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []
