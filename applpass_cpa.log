@@ -40,3 +40,42 @@
 2025-11-21T09:35:46.110Z - Error processing eventID: prod_cpa_26120182 - Cannot read properties of undefined (reading 'publisherid')
 2025-11-21T09:35:46.113Z - No matching event found for eventID: prod_cpa_26120238. Adding to appleventsdel.
 2025-11-21T09:35:46.114Z - Error processing eventID: prod_cpa_26120238 - Cannot read properties of undefined (reading 'publisherid')
+[2025-11-25 15:19:03] Script started
+[2025-11-25 15:19:03] Environment: LOCAL_DEV
+[2025-11-25 15:19:03] Domain: appljack.test
+[2025-11-25 15:19:03] Base path: D:\laragon\www\appljack\
+[2025-11-25 15:19:03] Generated event data: {"eventid":"053d3a27eb","timestamp":"2025-11-25 15:19:03","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
+[2025-11-25 15:19:03] Event data written to JSON file: D:\laragon\www\appljack\applpass_cpa_queue.json (247 bytes)
+2025-11-25T15:21:23.200Z - No matching event found for eventID: cpa_5c9410f6b9. Adding to appleventsdel.
+2025-11-25T15:21:23.209Z - No matching event found for eventID: cpa_5c9410f7ed. Adding to appleventsdel.
+2025-11-25T15:21:23.213Z - No matching event found for eventID: cpa_5c9410f8b1. Adding to appleventsdel.
+[2025-11-25 15:25:04] Script started
+[2025-11-25 15:25:04] Environment: LOCAL_DEV
+[2025-11-25 15:25:04] Domain: appljack.test
+[2025-11-25 15:25:04] Base path: D:\laragon\www\appljack\
+[2025-11-25 15:25:04] Generated event data: {"eventid":"3ec1e11ac6","timestamp":"2025-11-25 15:25:04","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
+[2025-11-25 15:25:04] Event data written to JSON file: D:\laragon\www\appljack\applpass_cpa_queue.json (247 bytes)
+[2025-11-25 15:25:05] Script started
+[2025-11-25 15:25:05] Environment: LOCAL_DEV
+[2025-11-25 15:25:05] Domain: appljack.test
+[2025-11-25 15:25:05] Base path: D:\laragon\www\appljack\
+[2025-11-25 15:25:05] Generated event data: {"eventid":"f73c59605f","timestamp":"2025-11-25 15:25:05","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
+[2025-11-25 15:25:05] Event data written to JSON file: D:\laragon\www\appljack\applpass_cpa_queue.json (247 bytes)
+[2025-11-25 15:25:05] Script started
+[2025-11-25 15:25:05] Environment: LOCAL_DEV
+[2025-11-25 15:25:05] Domain: appljack.test
+[2025-11-25 15:25:05] Base path: D:\laragon\www\appljack\
+[2025-11-25 15:25:05] Generated event data: {"eventid":"338f66720f","timestamp":"2025-11-25 15:25:05","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
+[2025-11-25 15:25:05] Event data written to JSON file: D:\laragon\www\appljack\applpass_cpa_queue.json (247 bytes)
+[2025-11-25 15:25:05] Script started
+[2025-11-25 15:25:05] Environment: LOCAL_DEV
+[2025-11-25 15:25:05] Domain: appljack.test
+[2025-11-25 15:25:05] Base path: D:\laragon\www\appljack\
+[2025-11-25 15:25:05] Generated event data: {"eventid":"210ecaf1d2","timestamp":"2025-11-25 15:25:05","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
+[2025-11-25 15:25:05] Event data written to JSON file: D:\laragon\www\appljack\applpass_cpa_queue.json (247 bytes)
+[2025-11-25 15:25:06] Script started
+[2025-11-25 15:25:06] Environment: LOCAL_DEV
+[2025-11-25 15:25:06] Domain: appljack.test
+[2025-11-25 15:25:06] Base path: D:\laragon\www\appljack\
+[2025-11-25 15:25:06] Generated event data: {"eventid":"735e39f1eb","timestamp":"2025-11-25 15:25:06","userAgent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36","ipaddress":"127.0.0.1","domain":"http:\/\/appljack.test"}
+[2025-11-25 15:25:06] Event data written to JSON file: D:\laragon\www\appljack\applpass_cpa_queue.json (247 bytes)

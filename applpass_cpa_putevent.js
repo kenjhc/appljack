@@ -127,7 +127,7 @@ async function processCPAEvents() {
                 "0000000000", // Default value instead of null
                 eventData.userAgent,
                 "nomatch",
-                data.publisherid,
+                "0000000000", // Fixed: was data.publisherid which is undefined when no match
               ]
             );
             continue;
