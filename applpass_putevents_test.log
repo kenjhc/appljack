@@ -1,1 +1,29 @@
 2025-03-19T16:20:28.914Z - Error in processEvents: 
+2025-11-20T13:36:11.164Z - Total successful inserts: 0
+2025-11-20T13:36:11.166Z - All records processed successfully.
+2025-11-20T14:13:50.739Z - Database Insertion Error: Unknown column 'budget_type' in 'field list'
+2025-11-20T14:13:50.742Z - Total successful inserts: 0
+2025-11-20T14:13:50.743Z - Discrepancy found: 1 records were not processed.
+2025-11-20T14:22:09.012Z - Error: cpc not found for job_reference: 10103 and jobpoolid: 4561237890, defaulting to 0.0
+2025-11-20T14:22:09.031Z - Total successful inserts: 1
+2025-11-20T14:22:09.031Z - All records processed successfully.
+2025-11-20T14:23:22.741Z - Missing or null required fields [job_reference] for eventID: 54f3646e20 - Skipped
+2025-11-20T14:23:22.745Z - Total successful inserts: 0
+2025-11-20T14:23:22.745Z - Discrepancy found: 1 records were not processed.
+2025-11-20T14:24:11.835Z - Total successful inserts: 2
+2025-11-20T14:24:11.836Z - All records processed successfully.
+2025-11-21T09:25:04.232Z - Missing or null required fields [publisherid] for eventID: cpc_02fe1e2aa2 - Skipped
+2025-11-21T09:25:04.234Z - Missing or null required fields [publisherid] for eventID: cpc_02fe1e2c1e - Skipped
+2025-11-21T09:25:04.236Z - Missing or null required fields [publisherid] for eventID: cpc_02fe1e2cda - Skipped
+2025-11-21T09:25:04.238Z - Total successful inserts: 0
+2025-11-21T09:25:04.238Z - Discrepancy found: 3 records were not processed.
+2025-11-21T09:26:12.692Z - Total successful inserts: 3
+2025-11-21T09:26:12.693Z - All records processed successfully.
+2025-11-21T09:31:40.166Z - Total successful inserts: 3
+2025-11-21T09:31:40.167Z - All records processed successfully.
+2025-11-21T09:35:38.978Z - Total successful inserts: 3
+2025-11-21T09:35:38.979Z - All records processed successfully.
+2025-11-21T09:37:08.980Z - Total successful inserts: 3
+2025-11-21T09:37:08.981Z - All records processed successfully.
+2025-11-25T16:48:55.604Z - Total successful inserts: 3
+2025-11-25T16:48:55.605Z - All records processed successfully.

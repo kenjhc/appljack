@@ -82,7 +82,9 @@ async function fetchAllFeedsWithCriteria() {
 
 // Function to get cpc value from applcustfeeds and appljobs tables
 async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
-   console.log(`Fetching CPC for feedid: ${feedid}, job_reference: ${job_reference}, jobpoolid: ${jobpoolid}`); // Log input parameters
+  console.log(
+    `Fetching CPC for feedid: ${feedid}, job_reference: ${job_reference}, jobpoolid: ${jobpoolid}`
+  ); // Log input parameters
 
   try {
     // First Query: Check applcustfeeds for active feedid
@@ -91,45 +93,51 @@ async function getCPCValue(connection, feedid, job_reference, jobpoolid) {
       [feedid]
     );
 
-     console.log("Feed rows result:", feedRows); // Log query result for applcustfeeds
-      console.log('feedRows.length:', feedRows.length);
-      console.log('feedRows[0].cpc', feedRows[0].cpc);
+    console.log("Feed rows result:", feedRows); // Log query result for applcustfeeds
+    console.log("feedRows.length:", feedRows.length);
+    console.log("feedRows[0].cpc", feedRows[0].cpc);
     // If a result is found and cpc is not 0.0, return this cpc value
-    if (feedRows.length > 0 && Array.isArray(feedRows[0]) && feedRows[0].length > 0) {
+    if (
+      feedRows.length > 0 &&
+      Array.isArray(feedRows[0]) &&
+      feedRows[0].length > 0
+    ) {
       const cpcValue = parseFloat(feedRows[0][0]?.cpc); // Correctly accessing cpc
-    
+
       console.log("inside if block of feedRows", cpcValue);
-    
+
       if (!isNaN(cpcValue) && cpcValue > 0.0) {
         return cpcValue; // Return if valid
+      } else {
+        return 0.0;
       }
     }
-    
-    // Fallback Query: Check appljobs for job_reference and jobpoolid
-    console.log("Fallback Query triggered...");
-    
-    const [jobRows] = await connection.execute(
-      "SELECT cpc FROM appljobs WHERE job_reference = ? AND jobpoolid = ?",
-      [job_reference, jobpoolid]
-    );
-    
-    console.log("jobRows:", jobRows);
-    
-    // Check if jobRows contains a valid CPC value
-    if (jobRows.length > 0 && jobRows[0]?.cpc !== undefined) {
-      const fallbackCpcValue = parseFloat(jobRows[0].cpc);
-      if (!isNaN(fallbackCpcValue)) {
-        return fallbackCpcValue;
-      }
-    }
-     console.log("Job rows result:", jobRows); // Log query result for appljobs
 
-    // If a result is found, return this cpc value
-    if (jobRows.length > 0) {
-      return jobRows[0].cpc;
-    }
-    // If both queries fail, return 0.0
-    return 0.0;
+    // // Fallback Query: Check appljobs for job_reference and jobpoolid
+    // console.log("Fallback Query triggered...");
+
+    // const [jobRows] = await connection.execute(
+    //   "SELECT cpc FROM appljobs WHERE job_reference = ? AND jobpoolid = ?",
+    //   [job_reference, jobpoolid]
+    // );
+
+    // console.log("jobRows:", jobRows);
+
+    // // Check if jobRows contains a valid CPC value
+    // if (jobRows.length > 0 && jobRows[0]?.cpc !== undefined) {
+    //   const fallbackCpcValue = parseFloat(jobRows[0].cpc);
+    //   if (!isNaN(fallbackCpcValue)) {
+    //     return fallbackCpcValue;
+    //   }
+    // }
+    // console.log("Job rows result:", jobRows); // Log query result for appljobs
+
+    // // If a result is found, return this cpc value
+    // if (jobRows.length > 0) {
+    //   return jobRows[0].cpc;
+    // }
+    // // If both queries fail, return 0.0
+    // return 0.0;
   } catch (err) {
     logMessage(`Error fetching CPC value: ${err.message}`, logFilePath);
     logToDatabase(
@@ -184,11 +192,18 @@ async function processEvents() {
 
     // Create a write stream for the backup file
     const backupStream = fs.createWriteStream(backupFilePath, { flags: "a" });
-    // console.log("Length of file:", rl.length); // Log current line being processed
+
+    // const backupFilePath = path.join(__dirname, "applpass_queue_backup.json");
+    // const fileStream = fs.createReadStream(backupFilePath);
+    // const rl = readline.createInterface({
+    //   input: fileStream,
+    //   crlfDelay: Infinity,
+    // });
 
     for await (const line of rl) {
       if (line.trim()) {
         console.log("Processing line:", line); // Log current line being processed
+
         const eventData = JSON.parse(line);
 
         // Check for missing or null required fields
@@ -208,21 +223,53 @@ async function processEvents() {
         try {
           // Get the cpc value from applcustfeeds and appljobs tables
           console.log("Fetching CPC value...");
-          const cpcValue = await getCPCValue(
-            connection,
-            eventData.feedid,
-            eventData.job_reference,
-            eventData.jobpoolid
+          let cpcValue = 0;
+
+          const [feedRows] = await connection.execute(
+            `SELECT budget_type FROM applcustfeeds WHERE feedid = ? AND status = 'active'`,
+            [eventData.feedid]
           );
+
+          // Default to CPC if budget_type is not set or invalid
+          let budgetType = feedRows[0]?.budget_type || 'CPC';
+
+          if (budgetType === "CPA") {
+            // CPA campaigns don't charge for clicks - set CPC to $0.00
+            cpcValue = 0.0;
+          } else {
+            // CPC campaigns - get the CPC value from applcustfeeds table
+            cpcValue = await getCPCValue(
+              connection,
+              eventData.feedid,
+              eventData.job_reference,
+              eventData.jobpoolid
+            );
+          }
+
           console.log(`Fetched CPC value: ${cpcValue}`); // Log fetched CPC value
-          const getAdjustmentValues = "SELECT arbcampcpc FROM applcustfeeds WHERE feedid = ?";
-          const [adjustmentValues] = await connection.execute(getAdjustmentValues, [eventData.feedid]);
-          console.log('adustmentvalues:', adjustmentValues);
-          const arbcampcpc = adjustmentValues.length > 0 ? parseFloat(adjustmentValues[0]?.arbcampcpc) : NaN;
-          console.log('arbcampcpc:', arbcampcpc);
-          const adjustedValue = !isNaN(arbcampcpc) && arbcampcpc !== null ? applyArbitrageAdjustment(cpcValue, arbcampcpc) : cpcValue;
-          console.log('adjustedValue:', adjustedValue);
+
+          const getAdjustmentValues =
+            "SELECT arbcampcpc FROM applcustfeeds WHERE feedid = ?";
+          const [adjustmentValues] = await connection.execute(
+            getAdjustmentValues,
+            [eventData.feedid]
+          );
+          console.log("adustmentvalues:", adjustmentValues);
+          const arbcampcpc =
+            adjustmentValues.length > 0
+              ? parseFloat(adjustmentValues[0]?.arbcampcpc)
+              : NaN;
+          console.log("arbcampcpc:", arbcampcpc);
+          const adjustedValue =
+            !isNaN(arbcampcpc) && arbcampcpc !== null
+              ? applyArbitrageAdjustment(cpcValue, arbcampcpc)
+              : cpcValue;
+          console.log("adjustedValue:", adjustedValue);
           // Insert data into applevents table
+
+          console.log(`Fetched CPC2 value: ${cpcValue}`); // Log fetched CPC value
+
+          // process.exit(0);
           const query = `
                         INSERT INTO applevents (eventid, timestamp, eventtype, custid, jobid, refurl, useragent, ipaddress, cpc, cpa, feedid, publisherid)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -248,7 +295,9 @@ async function processEvents() {
           await connection.commit();
 
           // After successful insertion, write the line to the backup file
-          console.log("Inserting event to backup and incrementing successful inserts");
+          console.log(
+            "Inserting event to backup and incrementing successful inserts"
+          );
           // console.log("Inserting values into DB:", values);
 
           backupStream.write(line + "\n");
@@ -315,8 +364,42 @@ async function processEvents() {
 }
 function applyArbitrageAdjustment(value, adjustmentPercentage) {
   if (!adjustmentPercentage) return value;
-  const adjustment = 1 - (parseFloat(adjustmentPercentage) / 100);
+  const adjustment = 1 - parseFloat(adjustmentPercentage) / 100;
   return (parseFloat(value) * adjustment).toFixed(2);
+}
+
+async function getJobWiseCPCValue(
+  connection,
+  feedid,
+  job_reference,
+  jobpoolid
+) {
+  try {
+    // Fallback Query: Check appljobs for job_reference and jobpoolid
+    const [jobRows] = await connection.execute(
+      "SELECT cpc FROM appljobs WHERE job_reference = ? AND jobpoolid = ?",
+      [job_reference, jobpoolid]
+    );
+
+    // If a result is found, return this cpc value
+    if (jobRows && jobRows.length > 0 && jobRows[0].cpc != null) {
+      return jobRows[0].cpc;
+    }
+
+    // If both queries fail, return 0.0
+    logError(
+      `cpc not found for job_reference: ${job_reference} and jobpoolid: ${jobpoolid}, defaulting to 0.0`
+    );
+    return 0.0;
+  } catch (err) {
+    logError(`Error fetching cpc value: ${err.message}`);
+    return 0.0; // Return default cpc if an error occurs
+  }
+}
+
+function logError(error) {
+  const errorMessage = `${new Date().toISOString()} - Error: ${error}\n`;
+  fs.appendFileSync(logFilePath, errorMessage, "utf8");
 }
 // Call the function to process events
 processEvents();

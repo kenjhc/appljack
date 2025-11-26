@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPC/CPA Testing Dashboard - Complete Diagnostics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status.error {
+            background: #f44336;
+            color: white;
+        }
+
+        .status.warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status.info {
+            background: #2196f3;
+            color: white;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .log-container {
+            background: #f5f5f5;
+            border-radius: 5px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry {
+            padding: 5px;
+            margin: 2px 0;
+            border-left: 3px solid #667eea;
+            background: white;
+        }
+
+        .log-entry.error {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+
+        .log-entry.success {
+            border-left-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .log-entry.warning {
+            border-left-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        .metric-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .metric-value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .queue-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .queue-item {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .queue-item.active {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+
+        .queue-item.empty {
+            background: #ffebee;
+            border: 2px solid #f44336;
+        }
+
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .test-result.pass {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+        }
+
+        .test-result.fail {
+            background: #ffebee;
+            border: 1px solid #f44336;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .tab-container {
+            margin: 20px 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -2px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        #liveLog {
+            height: 400px;
+            overflow-y: auto;
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 CPC/CPA Testing Dashboard</h1>
+
+        <div class="grid">
+            <!-- Environment Status -->
+            <div class="card">
+                <h2>🌍 Environment Status</h2>
+                <div id="environmentStatus">
+                    <div class="metric">
+                        <span class="metric-label">Environment:</span>
+                        <span class="metric-value" id="currentEnv">Detecting...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Base Path:</span>
+                        <span class="metric-value" id="basePath">...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Database:</span>
+                        <span class="metric-value" id="dbStatus">
+                            <span class="status info">Checking...</span>
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Budget Column:</span>
+                        <span class="metric-value" id="budgetColumn">
+                            <span class="status info">Checking...</span>
+                        </span>
+                    </div>
+                </div>
+                <button onclick="checkEnvironment()">🔄 Refresh Status</button>
+            </div>
+
+            <!-- Feed Configuration -->
+            <div class="card">
+                <h2>⚙️ Feed Configuration</h2>
+                <div>
+                    <label>Feed ID:</label>
+                    <input type="text" id="feedId" value="aaa7c0e9ef" placeholder="Enter feed ID">
+
+                    <label>Budget Type:</label>
+                    <select id="budgetType">
+                        <option value="CPC">CPC - Cost Per Click</option>
+                        <option value="CPA">CPA - Cost Per Acquisition</option>
+                    </select>
+
+                    <div class="metric">
+                        <span class="metric-label">Current Type:</span>
+                        <span class="metric-value" id="currentBudgetType">...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">CPC Value:</span>
+                        <span class="metric-value" id="cpcValue">...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">CPA Value:</span>
+                        <span class="metric-value" id="cpaValue">...</span>
+                    </div>
+
+                    <button onclick="loadFeedConfig()">📊 Load Feed</button>
+                    <button onclick="updateBudgetType()">💾 Update Budget Type</button>
+                </div>
+            </div>
+
+            <!-- Event Testing -->
+            <div class="card">
+                <h2>🚀 Event Testing</h2>
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" onclick="switchTab('cpc')">CPC Event</button>
+                        <button class="tab-button" onclick="switchTab('cpa')">CPA Event</button>
+                    </div>
+
+                    <div id="cpcTab" class="tab-content active">
+                        <h3>Fire CPC Event (Click)</h3>
+                        <input type="text" id="cpcJobRef" placeholder="Job Reference (e.g., 10081)" value="10081">
+                        <input type="text" id="cpcJobPoolId" placeholder="Job Pool ID" value="2244384563">
+                        <button onclick="fireCPCEvent()">🎯 Fire CPC Event</button>
+                        <div id="cpcResult" class="test-result" style="display:none;"></div>
+                    </div>
+
+                    <div id="cpaTab" class="tab-content">
+                        <h3>Fire CPA Event (Conversion)</h3>
+                        <button onclick="fireCPAEvent()">💰 Fire CPA Event</button>
+                        <div id="cpaResult" class="test-result" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Queue Status -->
+            <div class="card">
+                <h2>📦 Queue Status</h2>
+                <div class="queue-status">
+                    <div class="queue-item" id="cpcQueue">
+                        <strong>CPC Queue</strong>
+                        <div id="cpcQueueStatus">Checking...</div>
+                        <div id="cpcQueueCount">0 events</div>
+                    </div>
+                    <div class="queue-item" id="cpaQueue">
+                        <strong>CPA Queue</strong>
+                        <div id="cpaQueueStatus">Checking...</div>
+                        <div id="cpaQueueCount">0 events</div>
+                    </div>
+                </div>
+                <button onclick="checkQueues()">🔍 Check Queues</button>
+                <button onclick="processQueues()">⚡ Process Queues</button>
+                <button onclick="clearQueues()">🗑️ Clear Queues</button>
+            </div>
+
+            <!-- Database Events -->
+            <div class="card">
+                <h2>💾 Database Events</h2>
+                <div id="dbEvents">
+                    <div class="log-container" id="eventsLog">
+                        <div class="log-entry">Waiting for database check...</div>
+                    </div>
+                </div>
+                <button onclick="checkDatabaseEvents()">📋 Load Recent Events</button>
+            </div>
+
+            <!-- Live Log -->
+            <div class="card" style="grid-column: span 2;">
+                <h2>📝 Live Activity Log</h2>
+                <div id="liveLog"></div>
+                <button onclick="clearLog()">🗑️ Clear Log</button>
+                <button onclick="exportLog()">💾 Export Log</button>
+            </div>
+
+            <!-- Test Results -->
+            <div class="card" style="grid-column: span 2;">
+                <h2>✅ Test Results</h2>
+                <div id="testResults">
+                    <button onclick="runAllTests()">🧪 Run All Tests</button>
+                    <div id="testOutput" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let environment = '';
+        let basePath = '';
+        let logEntries = [];
+
+        // Initialize dashboard
+        window.onload = function() {
+            log('Dashboard initialized', 'success');
+            checkEnvironment();
+            setInterval(checkQueues, 5000); // Auto-refresh queues every 5 seconds
+        };
+
+        // Logging function
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = `[${timestamp}] ${message}`;
+            logEntries.push({time: timestamp, message: message, type: type});
+
+            const logDiv = document.getElementById('liveLog');
+            const color = type === 'error' ? '#f44336' : type === 'success' ? '#4caf50' : type === 'warning' ? '#ff9800' : '#2196f3';
+            logDiv.innerHTML += `<div style="color: ${color}">${entry}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Check environment
+        async function checkEnvironment() {
+            log('Checking environment...');
+            try {
+                const response = await fetch('check_environment.php');
+                const data = await response.json();
+
+                environment = data.environment;
+                basePath = data.basePath;
+
+                document.getElementById('currentEnv').innerHTML = `<span class="status ${data.environment === 'LOCAL_DEV' ? 'warning' : 'success'}">${data.environment}</span>`;
+                document.getElementById('basePath').textContent = data.basePath;
+                document.getElementById('dbStatus').innerHTML = data.dbConnection ? '<span class="status success">Connected</span>' : '<span class="status error">Failed</span>';
+                document.getElementById('budgetColumn').innerHTML = data.budgetColumn ? '<span class="status success">Exists</span>' : '<span class="status error">Missing</span>';
+
+                if (data.budgetColumn) {
+                    log('Environment check complete: ' + data.environment, 'success');
+                } else {
+                    log('Budget column missing! Run ALTER TABLE', 'error');
+                }
+            } catch (error) {
+                log('Environment check failed: ' + error.message, 'error');
+            }
+        }
+
+        // Load feed configuration
+        async function loadFeedConfig() {
+            const feedId = document.getElementById('feedId').value;
+            log(`Loading feed configuration for ${feedId}...`);
+
+            try {
+                const response = await fetch(`check_feed.php?feedId=${feedId}`);
+                const data = await response.json();
+
+                if (data.found) {
+                    document.getElementById('currentBudgetType').innerHTML = `<span class="status info">${data.budget_type || 'NULL'}</span>`;
+                    document.getElementById('cpcValue').textContent = '$' + data.cpc;
+                    document.getElementById('cpaValue').textContent = '$' + data.cpa;
+                    document.getElementById('budgetType').value = data.budget_type || 'CPC';
+
+                    log(`Feed loaded: ${data.feedname} (${data.budget_type || 'NULL'})`, 'success');
+                } else {
+                    log('Feed not found!', 'error');
+                }
+            } catch (error) {
+                log('Failed to load feed: ' + error.message, 'error');
+            }
+        }
+
+        // Update budget type
+        async function updateBudgetType() {
+            const feedId = document.getElementById('feedId').value;
+            const budgetType = document.getElementById('budgetType').value;
+
+            log(`Updating feed ${feedId} to ${budgetType}...`);
+
+            try {
+                const response = await fetch('update_budget.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({feedId: feedId, budgetType: budgetType})
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    log(`Budget type updated to ${budgetType}`, 'success');
+                    loadFeedConfig();
+                } else {
+                    log('Failed to update budget type', 'error');
+                }
+            } catch (error) {
+                log('Update failed: ' + error.message, 'error');
+            }
+        }
+
+        // Fire CPC Event
+        async function fireCPCEvent() {
+            const feedId = document.getElementById('feedId').value;
+            const jobRef = document.getElementById('cpcJobRef').value;
+            const jobPoolId = document.getElementById('cpcJobPoolId').value;
+
+            log('Firing CPC event...');
+
+            // Use test version which bypasses job validation
+            const url = `applpass_test.php?c=9706023615&f=${feedId}&j=${jobRef}&jpid=${jobPoolId}`;
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                document.getElementById('cpcResult').style.display = 'block';
+
+                if (data.success) {
+                    document.getElementById('cpcResult').className = 'test-result pass';
+                    document.getElementById('cpcResult').innerHTML = `
+                        ✅ CPC Event Fired Successfully<br>
+                        <small>Event ID: ${data.eventid}</small><br>
+                        <small>Environment: ${data.environment}</small><br>
+                        <small>Bytes written: ${data.bytes_written}</small>
+                    `;
+                    log('CPC event fired successfully', 'success');
+                } else {
+                    document.getElementById('cpcResult').className = 'test-result fail';
+                    document.getElementById('cpcResult').innerHTML = `❌ Failed: ${data.error}`;
+                    log('CPC event failed: ' + data.error, 'error');
+                }
+
+                // Check queue after 1 second
+                setTimeout(checkQueues, 1000);
+            } catch (error) {
+                document.getElementById('cpcResult').style.display = 'block';
+                document.getElementById('cpcResult').className = 'test-result fail';
+                document.getElementById('cpcResult').innerHTML = `
+                    ❌ Failed: ${error.message}<br>
+                    <small>Check console for details</small>
+                `;
+
+                log('CPC event failed: ' + error.message, 'error');
+                console.error('CPC Event Error:', error);
+            }
+        }
+
+        // Fire CPA Event
+        async function fireCPAEvent() {
+            log('Firing CPA event...');
+
+            try {
+                const response = await fetch('cpa-event.php');
+                const text = await response.text();
+
+                document.getElementById('cpaResult').style.display = 'block';
+                document.getElementById('cpaResult').className = 'test-result pass';
+                document.getElementById('cpaResult').innerHTML = '✅ CPA Event Fired';
+
+                log('CPA event fired successfully', 'success');
+
+                // Check queue after 1 second
+                setTimeout(checkQueues, 1000);
+            } catch (error) {
+                document.getElementById('cpaResult').style.display = 'block';
+                document.getElementById('cpaResult').className = 'test-result fail';
+                document.getElementById('cpaResult').innerHTML = `❌ Failed: ${error.message}`;
+
+                log('CPA event failed: ' + error.message, 'error');
+            }
+        }
+
+        // Check queue status
+        async function checkQueues() {
+            try {
+                const response = await fetch('check_queues.php');
+                const data = await response.json();
+
+                // Update CPC queue
+                const cpcQueueDiv = document.getElementById('cpcQueue');
+                if (data.cpc.exists) {
+                    cpcQueueDiv.className = data.cpc.events > 0 ? 'queue-item active' : 'queue-item empty';
+                    document.getElementById('cpcQueueStatus').textContent = data.cpc.writable ? '✅ Writable' : '❌ Not writable';
+                    document.getElementById('cpcQueueCount').textContent = `${data.cpc.events} events`;
+                } else {
+                    cpcQueueDiv.className = 'queue-item empty';
+                    document.getElementById('cpcQueueStatus').textContent = '❌ Not found';
+                    document.getElementById('cpcQueueCount').textContent = '0 events';
+                }
+
+                // Update CPA queue
+                const cpaQueueDiv = document.getElementById('cpaQueue');
+                if (data.cpa.exists) {
+                    cpaQueueDiv.className = data.cpa.events > 0 ? 'queue-item active' : 'queue-item empty';
+                    document.getElementById('cpaQueueStatus').textContent = data.cpa.writable ? '✅ Writable' : '❌ Not writable';
+                    document.getElementById('cpaQueueCount').textContent = `${data.cpa.events} events`;
+                } else {
+                    cpaQueueDiv.className = 'queue-item empty';
+                    document.getElementById('cpaQueueStatus').textContent = '❌ Not found';
+                    document.getElementById('cpaQueueCount').textContent = '0 events';
+                }
+            } catch (error) {
+                log('Failed to check queues: ' + error.message, 'error');
+            }
+        }
+
+        // Process queues
+        async function processQueues() {
+            log('Processing queues...');
+
+            try {
+                const response = await fetch('process_queues.php');
+                const data = await response.json();
+
+                if (data.cpc.processed > 0) {
+                    log(`Processed ${data.cpc.processed} CPC events`, 'success');
+                }
+                if (data.cpa.processed > 0) {
+                    log(`Processed ${data.cpa.processed} CPA events`, 'success');
+                }
+
+                checkQueues();
+                checkDatabaseEvents();
+            } catch (error) {
+                log('Failed to process queues: ' + error.message, 'error');
+            }
+        }
+
+        // Clear queues
+        async function clearQueues() {
+            if (!confirm('Are you sure you want to clear all queue files?')) {
+                return;
+            }
+
+            log('Clearing queues...');
+
+            try {
+                const response = await fetch('clear_queues.php', {method: 'POST'});
+                const data = await response.json();
+
+                log('Queues cleared', 'success');
+                checkQueues();
+            } catch (error) {
+                log('Failed to clear queues: ' + error.message, 'error');
+            }
+        }
+
+        // Check database events
+        async function checkDatabaseEvents() {
+            log('Loading database events...');
+
+            try {
+                const response = await fetch('check_events.php');
+                const data = await response.json();
+
+                const eventsLog = document.getElementById('eventsLog');
+                eventsLog.innerHTML = '';
+
+                if (data.events && data.events.length > 0) {
+                    data.events.forEach(event => {
+                        const entryClass = event.cpc > 0 ? 'success' : event.cpa > 0 ? 'warning' : '';
+                        eventsLog.innerHTML += `
+                            <div class="log-entry ${entryClass}">
+                                <strong>${event.eventtype}</strong> |
+                                ID: ${event.eventid} |
+                                CPC: $${event.cpc} |
+                                CPA: $${event.cpa} |
+                                Feed: ${event.feedid}
+                                <div class="timestamp">${event.timestamp}</div>
+                            </div>
+                        `;
+                    });
+                    log(`Loaded ${data.events.length} recent events`, 'success');
+                } else {
+                    eventsLog.innerHTML = '<div class="log-entry">No events found</div>';
+                    log('No events in database', 'warning');
+                }
+            } catch (error) {
+                log('Failed to load events: ' + error.message, 'error');
+            }
+        }
+
+        // Run all tests
+        async function runAllTests() {
+            log('Starting comprehensive test suite...', 'info');
+            const output = document.getElementById('testOutput');
+            output.innerHTML = '<div class="spinner"></div> Running tests...';
+
+            const tests = [];
+
+            // Test 1: Environment
+            tests.push({
+                name: 'Environment Detection',
+                run: async () => {
+                    const response = await fetch('check_environment.php');
+                    const data = await response.json();
+                    return data.environment && data.basePath;
+                }
+            });
+
+            // Test 2: Database connection
+            tests.push({
+                name: 'Database Connection',
+                run: async () => {
+                    const response = await fetch('check_environment.php');
+                    const data = await response.json();
+                    return data.dbConnection === true;
+                }
+            });
+
+            // Test 3: Budget column
+            tests.push({
+                name: 'Budget Column Exists',
+                run: async () => {
+                    const response = await fetch('check_environment.php');
+                    const data = await response.json();
+                    return data.budgetColumn === true;
+                }
+            });
+
+            // Test 4: Queue files writable
+            tests.push({
+                name: 'Queue Files Writable',
+                run: async () => {
+                    const response = await fetch('check_queues.php');
+                    const data = await response.json();
+                    return data.cpc.writable && data.cpa.writable;
+                }
+            });
+
+            // Test 5: Feed exists
+            tests.push({
+                name: 'Test Feed Exists',
+                run: async () => {
+                    const response = await fetch('check_feed.php?feedId=aaa7c0e9ef');
+                    const data = await response.json();
+                    return data.found === true;
+                }
+            });
+
+            // Test 6: CPC event fires
+            tests.push({
+                name: 'CPC Event Fires',
+                run: async () => {
+                    const response = await fetch('applpass_test.php?c=9706023615&f=aaa7c0e9ef&j=10081&jpid=2244384563');
+                    if (!response.ok) return false;
+                    const data = await response.json();
+                    return data.success === true;
+                }
+            });
+
+            // Test 7: CPA event fires
+            tests.push({
+                name: 'CPA Event Fires',
+                run: async () => {
+                    const response = await fetch('cpa-event.php');
+                    return response.ok;
+                }
+            });
+
+            // Run tests
+            let results = '';
+            let passed = 0;
+            let failed = 0;
+
+            for (const test of tests) {
+                try {
+                    const result = await test.run();
+                    if (result) {
+                        results += `<div class="test-result pass">✅ ${test.name}</div>`;
+                        passed++;
+                        log(`Test passed: ${test.name}`, 'success');
+                    } else {
+                        results += `<div class="test-result fail">❌ ${test.name}</div>`;
+                        failed++;
+                        log(`Test failed: ${test.name}`, 'error');
+                    }
+                } catch (error) {
+                    results += `<div class="test-result fail">❌ ${test.name}: ${error.message}</div>`;
+                    failed++;
+                    log(`Test error: ${test.name} - ${error.message}`, 'error');
+                }
+            }
+
+            output.innerHTML = `
+                <h3>Test Results: ${passed} passed, ${failed} failed</h3>
+                ${results}
+                <div style="margin-top: 20px;">
+                    ${failed === 0 ?
+                        '<div class="status success">All tests passed! System is working correctly.</div>' :
+                        '<div class="status error">Some tests failed. Check the logs for details.</div>'
+                    }
+                </div>
+            `;
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tab === 'cpc') {
+                document.querySelector('.tab-button:first-child').classList.add('active');
+                document.getElementById('cpcTab').classList.add('active');
+            } else {
+                document.querySelector('.tab-button:last-child').classList.add('active');
+                document.getElementById('cpaTab').classList.add('active');
+            }
+        }
+
+        // Clear log
+        function clearLog() {
+            document.getElementById('liveLog').innerHTML = '';
+            logEntries = [];
+            log('Log cleared', 'info');
+        }
+
+        // Export log
+        function exportLog() {
+            const logText = logEntries.map(e => `[${e.time}] [${e.type.toUpperCase()}] ${e.message}`).join('\n');
+            const blob = new Blob([logText], {type: 'text/plain'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `appljack_log_${new Date().getTime()}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            log('Log exported', 'success');
+        }
+    </script>
+</body>
+</html>

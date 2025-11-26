@@ -1,10 +1,52 @@
 <?php
+// CORS headers must be at the very top
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 include 'database/db.php';
 
+// Auto-detect environment and set base path
+$currentPath = __DIR__;
+$httpHost = $_SERVER['HTTP_HOST'] ?? '';
+
+// Determine environment based on domain
+if (strpos($httpHost, 'dev.appljack.com') !== false) {
+    // Dev server: http://dev.appljack.com/
+    $environment = 'DEV_SERVER';
+    $basePath = "/chroot/home/appljack/appljack.com/html/dev/";
+} elseif (strpos($httpHost, 'appljack.com') !== false && strpos($httpHost, 'dev.') === false) {
+    // Production server: https://appljack.com/
+    $environment = 'PRODUCTION';
+    $basePath = "/chroot/home/appljack/appljack.com/html/admin/";
+} elseif (strpos($currentPath, '/chroot/') !== false) {
+    // On server but couldn't detect domain - check path
+    if (strpos($currentPath, "/dev/") !== false) {
+        $environment = 'DEV_SERVER';
+        $basePath = "/chroot/home/appljack/appljack.com/html/dev/";
+    } else {
+        $environment = 'PRODUCTION';
+        $basePath = "/chroot/home/appljack/appljack.com/html/admin/";
+    }
+} else {
+    // Local development (localhost, laragon, etc.)
+    $environment = 'LOCAL_DEV';
+    $basePath = __DIR__ . DIRECTORY_SEPARATOR;
+}
+
 // Set the default error log file location
-ini_set("error_log", "/chroot/home/appljack/appljack.com/html" . getEnvPathUpdated() . "applpass7.log");
+ini_set("error_log", $basePath . "applpass7.log");
 
 error_log("Script started...");
+error_log("Environment: " . $environment);
+error_log("Domain: " . $httpHost);
+error_log("Base path: " . $basePath);
 
 // Extract query parameters
 $custid = $_GET['c'] ?? 'default';
@@ -44,8 +86,16 @@ if (!$result) {
     exit;
 }
 $data = $result->fetch_assoc();
-$jobUrl = $data['url'] ?? '/fallback-url';
 
+// Check if job was found
+if (!$data || empty($data['url'])) {
+    error_log("ERROR: Job not found for job_reference: $job_reference, jobpoolid: $jobpoolid");
+    error_log("This URL is invalid. Please check if the job exists in the database.");
+    echo "Error: Job not found. The job may have expired or been removed.";
+    exit;
+}
+
+$jobUrl = $data['url'];
 error_log("Fetched URL: " . $jobUrl);
 
 // Close the database connection
@@ -69,8 +119,8 @@ $eventData = [
 // Log the event data before writing to the file
 error_log("Event data to write: " . json_encode($eventData));
 
-// Attempt to write event data to a JSON file
-$file_path = "/chroot/home/appljack/appljack.com/html" . getEnvPathUpdated() . "applpass_queue.json";
+// Attempt to write event data to a JSON file using detected base path
+$file_path = $basePath . "applpass_queue.json";
 $write_result = file_put_contents($file_path, json_encode($eventData) . PHP_EOL, FILE_APPEND | LOCK_EX);
 
 // Log the result of the file write operation
