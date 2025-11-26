@@ -239,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
 
-        $budgetType = filter_input(INPUT_POST, 'budget_type', FILTER_SANITIZE_STRING);
+        $budgetType = filter_input(INPUT_POST, 'budget_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $budgetType = ($budgetType === 'CPA') ? 'CPA' : 'CPC'; // Default to CPC if not CPA
 
         // Update the campaign

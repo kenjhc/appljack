@@ -7,7 +7,7 @@ if (!isset($_SESSION['acctnum'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $feedname = filter_input(INPUT_POST, 'feedname', FILTER_SANITIZE_STRING);
+    $feedname = filter_input(INPUT_POST, 'feedname', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     // Check if the feed name already exists for the current user
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM applcustfeeds WHERE custid = ? AND feedname = ?");
@@ -18,12 +18,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $feedbudget = filter_input(INPUT_POST, 'feedbudget', FILTER_SANITIZE_STRING);
-    $feedcpc = filter_input(INPUT_POST, 'feedcpc', FILTER_SANITIZE_STRING);
-    $arbcampcpc = filter_input(INPUT_POST, 'arbcampcpc', FILTER_SANITIZE_STRING);
-    $arbcampcpa = filter_input(INPUT_POST, 'arbcampcpa', FILTER_SANITIZE_STRING);
-    $startdate = filter_input(INPUT_POST, 'startdate', FILTER_SANITIZE_STRING);
-    $enddate = filter_input(INPUT_POST, 'enddate', FILTER_SANITIZE_STRING);
+    $feedbudget = filter_input(INPUT_POST, 'feedbudget', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $feedcpc = filter_input(INPUT_POST, 'feedcpc', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $arbcampcpc = filter_input(INPUT_POST, 'arbcampcpc', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $arbcampcpa = filter_input(INPUT_POST, 'arbcampcpa', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $startdate = filter_input(INPUT_POST, 'startdate', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $enddate = filter_input(INPUT_POST, 'enddate', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     // Handle the optional feedcpc field
     // Store the original dates
     $actualStartDate = !empty($startdate) ? (new DateTime($startdate))->format('Y-m-d H:i:s') : null;
@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Generate a random 10-character alphanumeric string for feedid
     $feedid = bin2hex(random_bytes(5));
 
-    $budgetType = filter_input(INPUT_POST, 'budget_type', FILTER_SANITIZE_STRING);
+    $budgetType = filter_input(INPUT_POST, 'budget_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
    
     $budgetType = ($budgetType === 'CPA') ? 'CPA' : 'CPC'; // Default to CPC if not CPA
 
